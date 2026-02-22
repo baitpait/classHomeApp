@@ -1,0 +1,1 @@
+enum FromPage {otp, login, forget, profile, registration, orderList, address, chat, coupon, menu, mainRoute, checkOut, wishListScreen}

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+  -->
+  <base href="/">
+  <meta name="google-signin-client_id" content="YOUR_GOOGLE_SIGN_IN_CLIENT_KEY">
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="A Ecommerce Website.">
+
+  <!-- DEMO ONLY -->
+<!--  <meta name="robots" content="nofollow, noindex, max-snippet:1, max-video-preview:1, max-image-preview:standard">-->
+<!--  <link rel="canonical" href="https://hexacom-web.6amtech.com"/>-->
+
+
+  <!-- Open Graph / Facebook / WhatsApp -->
+  <meta property="og:locale" content="en_US">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Online Shopping Marketplace | Fashion, Electronics, Accessories & More">
+  <meta property="og:description" content="Shop the latest fashion, footwear, electronics, mobile phones, accessories, and home appliances all in one place. Enjoy fast delivery, secure checkout, top deals, and exclusive discounts across every category.">
+  <meta property="og:url" content="https://yourdomain.com">
+  <meta property="og:site_name" content="6amTech">
+  <meta property="og:image" content="https://yourdomain.com/assets/meta_banner.png">
+  <meta property="og:image:secure_url" content="https://yourdomain.com/assets/meta_banner.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="grofresh">
+  <meta property="og:updated_time" content="2025-10-29T14:59:38+06:00">
+
+  <!-- Twitter -->
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Online Shopping Marketplace | Fashion, Electronics, Accessories & More">
+  <meta name="twitter:description" content="Shop the latest fashion, footwear, electronics, mobile phones, accessories, and home appliances all in one place. Enjoy fast delivery, secure checkout, top deals, and exclusive discounts across every category.">
+  <meta name="twitter:image" content="https://yourdomain.com/assets/meta_banner.png">
+  <meta name="twitter:site" content="@6amtech">
+  <meta name="twitter:creator" content="@6amtech">
+
+  <!-- Robots and SEO -->
+  <meta name="author" content="6amTech">
+
+
+
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="eMarket">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+
+  <title>Hexacom</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" type="text/css" href="style.css">
+
+  <link rel="shortcut icon" type="image/png" href="favicon.png"/>
+
+  <!-- Resource hints for faster external connections -->
+  <link rel="dns-prefetch" href="https://maps.googleapis.com">
+  <link rel="dns-prefetch" href="https://www.gstatic.com">
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+
+  <script type="application/javascript" src="/assets/packages/flutter_inappwebview_web/assets/web/web_support.js" defer></script>
+
+  <script>
+    // The value below is injected by flutter build, do not touch.
+    var serviceWorkerVersion = {{flutter_service_worker_version}};
+  </script>
+  <!-- This script adds the flutter initialization JS code -->
+  <script src="flutter.js?version=7.9" defer></script>
+
+  <!-- Lazy-load Google Maps only when needed -->
+  <script>
+    window._loadGoogleMaps = function() {
+      if (window._googleMapsLoaded) return;
+      window._googleMapsLoaded = true;
+      var s = document.createElement('script');
+      s.src = 'https://maps.googleapis.com/maps/api/js?key=YOUR_MAP_KEY_HERE&loading=async&callback=Function.prototype';
+      document.head.appendChild(s);
+    };
+  </script>
+
+</head>
+<body>
+
+
+<div class="preloader">
+  <div class="preloader-container">
+    <img width="55" class="svg preloader-img" src="assets/preloader.svg" alt="">
+    <div class="loader"></div>
+  </div>
+</div>
+<!-- Header -->
+<header class="header">
+  <div class="header-top-line"></div>
+  <div class="header-container d-flex align-items-center justify-content-between">
+    <div class="header-start d-flex gap-4 align-items-center">
+      <img class="logo" src="assets/logo.svg" alt="">
+      <div class="placeholder"></div>
+      <div class="placeholder"></div>
+      <div class="placeholder"></div>
+    </div>
+    <div class="header-end d-flex align-items-center gap-4">
+      <div class="placeholder placeholder-wide"></div>
+      <div class="placeholder"></div>
+      <div class="placeholder"></div>
+      <img src="assets/cart_icon.svg" alt="">
+      <img src="assets/menu_icon.svg" alt="">
+    </div>
+  </div>
+</header>
+
+<script>
+  // Check if localStorage is supported in the browser
+  if (typeof Storage !== "undefined") {
+    var itemValue = localStorage.getItem("flutter.theme");
+    document.body.classList.toggle("theme-dark", itemValue === "true");
+  }
+</script>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      // navigator.serviceWorker.register("/flutter_service_worker.js");
+      navigator.serviceWorker.register("/firebase-messaging-sw.js");
+    });
+  }
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js" defer></script>
+
+
+<script>
+  window.addEventListener('load', function(ev) {
+    {{flutter_js}}
+    {{flutter_build_config}}
+
+    _flutter.loader.load({
+      serviceWorker: {
+        serviceWorkerVersion: {{flutter_service_worker_version}},
+      },
+      onEntrypointLoaded: function(engineInitializer) {
+        let config = { renderer: 'html' };
+        engineInitializer.initializeEngine(config).then(function(appRunner) {
+          appRunner.runApp();
+        });
+      }
+    });
+  });
+</script>
+
+
+<script>
+  // Firebase init runs after SDK (defer) has loaded to avoid "firebase is not defined"
+  (function() {
+    var firebaseConfig = {
+      apiKey: "AIzaSyBCtDfdfPqxXDO6rDNlmQC1VJSHOtuyo3w",
+      authDomain: "gem-b5006.firebaseapp.com",
+      projectId: "gem-b5006",
+      storageBucket: "gem-b5006.firebasestorage.app",
+      messagingSenderId: "384321080318",
+      appId: "1:384321080318:web:9cf2ec90f41dfb8a2c0eaf",
+    };
+    function initFirebase() {
+      if (typeof firebase !== 'undefined' && firebase.initializeApp) {
+        firebase.initializeApp(firebaseConfig);
+      }
+    }
+    if (document.readyState === 'complete') {
+      initFirebase();
+    } else {
+      window.addEventListener('load', initFirebase);
+    }
+  })();
+</script>
+</body>
+</html>
