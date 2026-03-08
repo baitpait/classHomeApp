@@ -10,7 +10,6 @@ import 'package:hexacom_user/features/address/providers/address_provider.dart';
 import 'package:hexacom_user/features/splash/providers/splash_provider.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:hexacom_user/utill/styles.dart';
-import 'package:hexacom_user/common/widgets/custom_shadow_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
@@ -26,113 +25,195 @@ class DeliveryAddressWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final ConfigModel configModel = Provider.of<SplashProvider>(context, listen: false).configModel!;
 
-    return !selfPickup ? CustomShadowWidget(
-      margin:  const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeSmall),
+    return !selfPickup ? Container(
+      margin: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeExtraSmall),
+      padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [BoxShadow(color: Theme.of(context).shadowColor.withValues(alpha: 0.10), blurRadius: 18, spreadRadius: 0, offset: const Offset(0, 4))],
+      ),
       child: Consumer<AddressProvider>(
         builder: (context, locationProvider, _) => Consumer<CheckoutProvider>(
-            builder: (context, checkoutProvider, _) {
-              bool isAvailable = false;
+          builder: (context, checkoutProvider, _) {
+            bool isAvailable = false;
 
-              AddressModel? deliveryAddress = CheckOutHelper.getDeliveryAddress(
-                addressList: locationProvider.addressList,
-                selectedAddress: checkoutProvider.orderAddressIndex == -1 ? null : locationProvider.addressList?[checkoutProvider.orderAddressIndex],
-                lastOrderAddress: null,
+            AddressModel? deliveryAddress = CheckOutHelper.getDeliveryAddress(
+              addressList: locationProvider.addressList,
+              selectedAddress: checkoutProvider.orderAddressIndex == -1 ? null : locationProvider.addressList?[checkoutProvider.orderAddressIndex],
+              lastOrderAddress: null,
+            );
+
+            if(deliveryAddress != null &&
+                (configModel.googleMapStatus ?? false) &&
+                CheckOutHelper.getDeliveryChargeType(context) == DeliveryChargeType.distance.name
+                && ((deliveryAddress.latitude != null && deliveryAddress.latitude!.isNotEmpty) && (deliveryAddress.longitude != null && deliveryAddress.longitude!.isNotEmpty))
+            ) {
+              isAvailable = CheckOutHelper.isBranchAvailable(
+                branches: configModel.branches ?? [],
+                selectedBranch: configModel.branches![checkoutProvider.branchIndex],
+                selectedAddress: deliveryAddress,
               );
 
-              if(deliveryAddress != null &&
-                  (configModel.googleMapStatus ?? false) &&
-                  CheckOutHelper.getDeliveryChargeType(context) == DeliveryChargeType.distance.name
-                  && ((deliveryAddress.latitude != null && deliveryAddress.latitude!.isNotEmpty) && (deliveryAddress.longitude != null && deliveryAddress.longitude!.isNotEmpty))
-              ) {
-                isAvailable = CheckOutHelper.isBranchAvailable(
-                  branches: configModel.branches ?? [],
-                  selectedBranch: configModel.branches![checkoutProvider.branchIndex],
-                  selectedAddress: deliveryAddress,
-                );
-
-                if(!isAvailable) {
-                  deliveryAddress = null;
-                }
+              if(!isAvailable) {
+                deliveryAddress = null;
               }
+            }
 
-              return locationProvider.addressList == null ? const DeliverySectionShimmer() :  Padding(
-                padding:  const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeExtraSmall),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-                    Text('${getTranslated('delivery_to', context)} -', style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeLarge)),
-                    const Expanded(child: SizedBox()),
-                    TextButton(
-                      onPressed: ()=> showDialog(context: context, builder: (_)=> const AddAddressDialogWidget()),
-                      child: Text(getTranslated(deliveryAddress == null || checkoutProvider.orderAddressIndex == -1  ? 'add' : 'change', context), style: rubikMedium.copyWith(
-                        color: Theme.of(context).textTheme.titleLarge?.color,
-                      )),
+            final bool hasAddress = deliveryAddress != null && checkoutProvider.orderAddressIndex != -1;
+
+            return locationProvider.addressList == null ? const DeliverySectionShimmer() : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+
+              // --- Title ---
+              Row(children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF3A4756).withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.location_on_outlined, color: Color(0xFF3A4756), size: 20),
+                ),
+                const SizedBox(width: Dimensions.paddingSizeSmall),
+                Text(getTranslated('delivery_to', context), style: rubikSemiBold.copyWith(fontSize: Dimensions.fontSizeLarge)),
+              ]),
+
+              const SizedBox(height: Dimensions.paddingSizeDefault),
+
+              if(!hasAddress) ...[
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeDefault, horizontal: Dimensions.paddingSizeSmall),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.error.withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    Icon(Icons.info_outline_rounded, color: Theme.of(context).colorScheme.error, size: 18),
+                    const SizedBox(width: Dimensions.paddingSizeSmall),
+                    Text(getTranslated('no_contact_info_added', context), style: rubikRegular.copyWith(color: Theme.of(context).colorScheme.error, fontSize: Dimensions.fontSizeSmall)),
+                  ]),
+                ),
+                const SizedBox(height: Dimensions.paddingSizeDefault),
+              ],
+
+              if(hasAddress) ...[
+                // --- Address (most important, shown first) ---
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF3A4756).withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    const Icon(Icons.place_rounded, color: Color(0xFF3A4756), size: 20),
+                    const SizedBox(width: Dimensions.paddingSizeSmall),
+                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      if (deliveryAddress.city != null && deliveryAddress.city!.isNotEmpty)
+                        Text(deliveryAddress.city!, style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeDefault)),
+                      Text(
+                        deliveryAddress.address ?? '',
+                        maxLines: 2, overflow: TextOverflow.ellipsis,
+                        style: rubikRegular.copyWith(
+                          color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
+                          fontSize: Dimensions.fontSizeSmall,
+                          height: 1.4,
+                        ),
+                      ),
+                    ])),
+                  ]),
+                ),
+
+                const SizedBox(height: Dimensions.paddingSizeDefault),
+
+                // --- Contact details in a two-column grid ---
+                ResponsiveHelper.isDesktop(context)
+                    ? Row(children: [
+                        Expanded(
+                          child: _ContactRow(
+                            icon: Icons.person_outline_rounded,
+                            label: getTranslated('contact_person', context),
+                            value: deliveryAddress.contactPersonName ?? '',
+                          ),
+                        ),
+                        const SizedBox(width: Dimensions.paddingSizeDefault),
+                        Expanded(
+                          child: _ContactRow(
+                            icon: Icons.phone_outlined,
+                            label: getTranslated('phone', context),
+                            value: deliveryAddress.contactPersonNumber ?? '',
+                          ),
+                        ),
+                      ])
+                    : Column(children: [
+                        _ContactRow(
+                          icon: Icons.person_outline_rounded,
+                          label: getTranslated('contact_person', context),
+                          value: deliveryAddress.contactPersonName ?? '',
+                        ),
+                        const SizedBox(height: Dimensions.paddingSizeSmall),
+                        _ContactRow(
+                          icon: Icons.phone_outlined,
+                          label: getTranslated('phone', context),
+                          value: deliveryAddress.contactPersonNumber ?? '',
+                        ),
+                      ]),
+
+                const SizedBox(height: Dimensions.paddingSizeDefault),
+              ],
+
+              // --- Prominent change/add button ---
+              InkWell(
+                onTap: () => showDialog(context: context, builder: (_) => const AddAddressDialogWidget()),
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFF3A4756).withValues(alpha: 0.20), width: 1.5),
+                  ),
+                  child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    Icon(
+                      hasAddress ? Icons.swap_horiz_rounded : Icons.add_location_alt_outlined,
+                      color: const Color(0xFF3A4756), size: 20,
+                    ),
+                    const SizedBox(width: Dimensions.paddingSizeSmall),
+                    Text(
+                      getTranslated(hasAddress ? 'change' : 'add', context),
+                      style: rubikMedium.copyWith(color: const Color(0xFF3A4756)),
                     ),
                   ]),
-                  const SizedBox(height: Dimensions.paddingSizeDefault),
+                ),
+              ),
 
-                  deliveryAddress == null || checkoutProvider.orderAddressIndex == -1 ? Padding(
-                    padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeDefault),
-                    child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Icon(Icons.info_outline_rounded, color: Theme.of(context).colorScheme.error),
-                      const SizedBox(width: Dimensions.paddingSizeSmall),
-
-                      Text(getTranslated('no_contact_info_added', context), style: rubikRegular.copyWith(color: Theme.of(context).colorScheme.error)),
-                    ]),
-                  ) : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
-                    ResponsiveHelper.isDesktop(context) ? Row(children: [
-                      _ContactItemWidget(icon: Icons.person, title: deliveryAddress.contactPersonName ?? ''),
-                      const SizedBox(width: Dimensions.paddingSizeExtraLarge),
-
-                      _ContactItemWidget(icon: Icons.call, title: deliveryAddress.contactPersonNumber ?? ''),
-                      if (deliveryAddress.city != null && deliveryAddress.city!.isNotEmpty) ...[
-                        const SizedBox(width: Dimensions.paddingSizeExtraLarge),
-                        _ContactItemWidget(icon: Icons.location_city, title: deliveryAddress.city),
-                      ],
-                    ]) : Column(children: [
-                      _ContactItemWidget(icon: Icons.person, title: deliveryAddress.contactPersonName ?? ''),
-                      const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                      _ContactItemWidget(icon: Icons.call, title: deliveryAddress.contactPersonNumber ?? ''),
-                      if (deliveryAddress.city != null && deliveryAddress.city!.isNotEmpty) ...[
-                        const SizedBox(height: Dimensions.paddingSizeSmall),
-                        _ContactItemWidget(icon: Icons.location_city, title: deliveryAddress.city),
-                      ],
-                    ]),
-
-
-                    const Divider(height: Dimensions.paddingSizeDefault),
-
-                    if (deliveryAddress.city != null && deliveryAddress.city!.isNotEmpty)
-                      Text(deliveryAddress.city!, style: rubikMedium),
-                    Text(deliveryAddress.address ?? '', maxLines: 2, overflow: TextOverflow.ellipsis),
-
-
-                    const SizedBox(height: Dimensions.paddingSizeDefault),
-                  ]),
-
-                ]),
-              );
-            }),
+            ]);
+          },
+        ),
       ),
     ) : const SizedBox();
   }
 }
 
-class _ContactItemWidget extends StatelessWidget {
+class _ContactRow extends StatelessWidget {
   final IconData icon;
-  final String? title;
-  const _ContactItemWidget({
-    required this.icon, this.title,
-  });
+  final String label;
+  final String value;
+  const _ContactRow({required this.icon, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
     return Row(children: [
-      Icon(icon, color: Theme.of(context).primaryColor.withValues(alpha: 0.5)),
+      Icon(icon, color: const Color(0xFF3A4756).withValues(alpha: 0.5), size: 18),
       const SizedBox(width: Dimensions.paddingSizeSmall),
-
-      Text(title ?? ''),
+      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(label, style: rubikRegular.copyWith(
+          fontSize: Dimensions.fontSizeExtraSmall,
+          color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.5),
+        )),
+        Text(value, style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeDefault)),
+      ])),
     ]);
   }
 }
@@ -145,48 +226,30 @@ class DeliverySectionShimmer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Shimmer(child: Column(children: [
       Container(
-        margin:  const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall, horizontal: Dimensions.paddingSizeDefault),
+        margin: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall, horizontal: Dimensions.paddingSizeDefault),
         child: Column(children: [
           const SizedBox(height: Dimensions.paddingSizeSmall),
-
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             Container(height: 14, width: 200, decoration: BoxDecoration(color: Theme.of(context).shadowColor, borderRadius: BorderRadius.circular(2))),
             Container(height: 14, width: 50, decoration: BoxDecoration(color: Theme.of(context).shadowColor, borderRadius: BorderRadius.circular(2))),
           ]),
-
           const Divider(height: Dimensions.paddingSizeDefault),
-
-          Column(
-            children: [
-              Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Container(height: Dimensions.paddingSizeLarge, width: Dimensions.paddingSizeLarge, decoration: BoxDecoration(color: Theme.of(context).shadowColor, borderRadius: BorderRadius.circular(2))),
-                const SizedBox(width: Dimensions.paddingSizeLarge),
-
-                Container(height: 14, width: 200, decoration: BoxDecoration(
-                  color: Theme.of(context).shadowColor, borderRadius: BorderRadius.circular(2),
-                )),
-              ]),
-              const SizedBox(height: Dimensions.paddingSizeSmall),
-
-              Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Container(height: Dimensions.paddingSizeLarge, width: Dimensions.paddingSizeLarge, decoration: BoxDecoration(color: Theme.of(context).shadowColor, borderRadius: BorderRadius.circular(2))),
-                const SizedBox(width: Dimensions.paddingSizeLarge),
-
-                Container(height: 14, width: 250, decoration: BoxDecoration(
-                  color: Theme.of(context).shadowColor, borderRadius: BorderRadius.circular(2),
-                )),
-              ]),
-            ],
-          ),
-
+          Column(children: [
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Container(height: Dimensions.paddingSizeLarge, width: Dimensions.paddingSizeLarge, decoration: BoxDecoration(color: Theme.of(context).shadowColor, borderRadius: BorderRadius.circular(2))),
+              const SizedBox(width: Dimensions.paddingSizeLarge),
+              Container(height: 14, width: 200, decoration: BoxDecoration(color: Theme.of(context).shadowColor, borderRadius: BorderRadius.circular(2))),
+            ]),
+            const SizedBox(height: Dimensions.paddingSizeSmall),
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Container(height: Dimensions.paddingSizeLarge, width: Dimensions.paddingSizeLarge, decoration: BoxDecoration(color: Theme.of(context).shadowColor, borderRadius: BorderRadius.circular(2))),
+              const SizedBox(width: Dimensions.paddingSizeLarge),
+              Container(height: 14, width: 250, decoration: BoxDecoration(color: Theme.of(context).shadowColor, borderRadius: BorderRadius.circular(2))),
+            ]),
+          ]),
           const SizedBox(height: Dimensions.paddingSizeDefault),
-
-
-
         ]),
       ),
-
-
     ]));
   }
 }

@@ -141,7 +141,7 @@ class MenuWebWidget extends StatelessWidget {
                 builder: (context) {
                   return Container(height: 180, width: 180,
                     decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 4),
-                        boxShadow: [BoxShadow(color: Colors.white.withValues(alpha: 0.1), blurRadius: 22, offset: const Offset(0, 8.8) )]),
+                        boxShadow: [BoxShadow(color: Colors.white.withValues(alpha: 0.05), blurRadius: 28, spreadRadius: 0, offset: const Offset(0, 6))]),
                     child: ClipOval(
                       child: isLoggedIn! ? CustomImageWidget(
                           image: '${Provider.of<SplashProvider>(context, listen: false).baseUrls!.customerImageUrl}/'
@@ -181,12 +181,7 @@ class MenuWebWidget extends StatelessWidget {
                   ),
                 ) : const SizedBox(),),
 
-              Positioned.fill(child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeDefault),
-                child: Align(alignment: Alignment.bottomCenter, child: Text('${getTranslated('version', context)} ${AppConstants.appVersion}', style: rubikMedium.copyWith(
-                  color: Theme.of(context).textTheme.titleMedium?.color?.withValues(alpha: 0.4),
-                )),),
-              ))
+              
 
             ]));
           },

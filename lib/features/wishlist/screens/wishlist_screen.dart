@@ -27,7 +27,7 @@ class WishListScreen extends StatefulWidget {
 class _WishListScreenState extends State<WishListScreen> {
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
+    final height = MediaQuery.sizeOf(context).height;
     final bool isLoggedIn = Provider.of<AuthProvider>(context, listen: false).isLoggedIn();
     return Scaffold(
       appBar:(ResponsiveHelper.isDesktop(context)? const PreferredSize(preferredSize: Size.fromHeight(90), child: WebAppBarWidget()) : CustomAppBarWidget(title: getTranslated('favourite_list', context), isBackButtonExist: !ResponsiveHelper.isMobile(context))) as PreferredSizeWidget?,
@@ -77,6 +77,10 @@ class _WishListScreenState extends State<WishListScreen> {
                     ),
 
                     const FooterWebWidget(footerType: FooterType.nonSliver),
+                    if (!ResponsiveHelper.isDesktop(context))
+                      SizedBox(
+                        height: Dimensions.bottomNavBarHeight + MediaQuery.of(context).padding.bottom,
+                      ),
                   ],
                 ),
               )

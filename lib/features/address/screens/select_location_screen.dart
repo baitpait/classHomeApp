@@ -56,7 +56,7 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
 
     return Scaffold(
       appBar: ResponsiveHelper.isDesktop(context)? const PreferredSize(preferredSize: Size.fromHeight(90), child: WebAppBarWidget()) :  AppBar(
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: const Color(0xFF3A4756),
         elevation: 0,
         leading: const SizedBox.shrink(),
         centerTitle: true,
@@ -100,10 +100,19 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
                     ? InkWell(
                   onTap: () => showDialog(context: context, builder: (context) => LocationSearchDialogWidget(mapController: _controller)),
                   child: Container(
-                    width: MediaQuery.of(context).size.width,
+                    width: MediaQuery.sizeOf(context).width,
                     padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge, vertical: 18.0),
                     margin: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge, vertical: 23.0),
-                    decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall)),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.08),
+                          blurRadius: 12, offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
                     child: Builder(
                         builder: (context) {
                           _locationController.text = locationProvider.pickAddress!;
@@ -135,12 +144,18 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
                           height: 50,
                           margin: const EdgeInsets.only(right: Dimensions.paddingSizeLarge),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),
+                            borderRadius: BorderRadius.circular(12),
                             color: Theme.of(context).cardColor,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.10),
+                                blurRadius: 8, offset: const Offset(0, 2),
+                              ),
+                            ],
                           ),
-                          child: Icon(
+                          child: const Icon(
                             Icons.my_location,
-                            color: Theme.of(context).primaryColor,
+                            color: Color(0xFF3A4756),
                             size: 35,
                           ),
                         ),
@@ -151,6 +166,7 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
                           padding: const EdgeInsets.all(Dimensions.paddingSizeLarge),
                           child: CustomButtonWidget(
                             btnTxt: getTranslated('select_location', context),
+                            backgroundColor: const Color(0xFF3A4756),
                             onTap: locationProvider.isLoading ? null : () {
 
                               if(locationProvider.pickAddress != null){
@@ -177,10 +193,10 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
                     ],
                   ),
                 ),
-                Center(
+                const Center(
                     child: Icon(
                       Icons.location_on,
-                      color: Theme.of(context).primaryColor,
+                      color: Color(0xFF3A4756),
                       size: 50,
                     )),
                 locationProvider.isLoading

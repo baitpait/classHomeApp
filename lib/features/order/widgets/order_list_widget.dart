@@ -18,7 +18,7 @@ class OrderListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
+    final height = MediaQuery.sizeOf(context).height;
     return Scaffold(
       body: Consumer<OrderProvider>(
         builder: (context, order, index) {

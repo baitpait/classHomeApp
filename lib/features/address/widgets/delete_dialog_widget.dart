@@ -10,20 +10,23 @@ import 'package:provider/provider.dart';
 class DeleteDialogWidget extends StatelessWidget {
   final AddressModel addressModel;
   final int index;
+
+  static const _slate = Color(0xFF3A4756);
+
   const DeleteDialogWidget({super.key, required this.addressModel, required this.index});
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: SizedBox(
         width: 300,
         child: Column(mainAxisSize: MainAxisSize.min, children: [
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           CircleAvatar(
             radius: 30,
-            backgroundColor: Theme.of(context).primaryColor,
-            child: const Icon(Icons.contact_support, size: 50),
+            backgroundColor: _slate.withValues(alpha: 0.10),
+            child: const Icon(Icons.contact_support, size: 40, color: _slate),
           ),
 
           Padding(
@@ -33,15 +36,15 @@ class DeleteDialogWidget extends StatelessWidget {
             ),
           ),
 
-          Divider(height: 0, color: Theme.of(context).hintColor),
+          Divider(height: 0, color: Theme.of(context).dividerColor),
 
            Row(children: [
 
             Expanded(child: InkWell(
               onTap: () {
-                showDialog(context: context, barrierDismissible: false, builder: (context) => Center(
+                showDialog(context: context, barrierDismissible: false, builder: (context) => const Center(
                   child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+                    valueColor: AlwaysStoppedAnimation<Color>(_slate),
                   ),
                 ));
                 Provider.of<AddressProvider>(context, listen: false).deleteUserAddressByID(addressModel.id, index, (bool isSuccessful, String message) {
@@ -53,8 +56,8 @@ class DeleteDialogWidget extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
                 alignment: Alignment.center,
-                decoration: const BoxDecoration(borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10))),
-                child: Text(getTranslated('yes', context), style: rubikBold.copyWith(color: Theme.of(context).primaryColor)),
+                decoration: const BoxDecoration(borderRadius: BorderRadius.only(bottomLeft: Radius.circular(16))),
+                child: Text(getTranslated('yes', context), style: rubikBold.copyWith(color: _slate)),
               ),
             )),
 
@@ -63,19 +66,15 @@ class DeleteDialogWidget extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
                 alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
-                  borderRadius: const BorderRadius.only(bottomRight: Radius.circular(10)),
+                decoration: const BoxDecoration(
+                  color: _slate,
+                  borderRadius: BorderRadius.only(bottomRight: Radius.circular(16)),
                 ),
                 child: Text(getTranslated('no', context), style: rubikBold.copyWith(color: Colors.white)),
               ),
             )),
 
           ])
-          //      : Padding(
-          //   padding: EdgeInsets.all(Dimensions.PADDING_SIZE_SMALL),
-          //   child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor)),
-          // ),
         ]),
       ),
     );

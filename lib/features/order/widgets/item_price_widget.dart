@@ -21,13 +21,13 @@ class ItemPriceWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width,
+      width: MediaQuery.sizeOf(context).width,
       padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeDefault, horizontal: Dimensions.paddingSizeSmall),
       margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
       decoration: ResponsiveHelper.isDesktop(context) ? null : BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.1), spreadRadius: 1, blurRadius: 5)],
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [BoxShadow(color: Theme.of(context).shadowColor.withValues(alpha: 0.10), blurRadius: 18, spreadRadius: 0, offset: const Offset(0, 4))],
       ),
       child: Column(children: [
 

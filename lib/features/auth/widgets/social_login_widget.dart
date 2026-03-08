@@ -16,8 +16,9 @@ import 'package:hexacom_user/localization/language_constrants.dart';
 import 'package:hexacom_user/utill/app_constants.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:hexacom_user/utill/images.dart';
-import 'package:hexacom_user/utill/routes.dart';
 import 'package:hexacom_user/utill/styles.dart';
+import 'package:hexacom_user/utill/color_resources.dart';
+import 'package:hexacom_user/utill/routes.dart';
 import 'package:provider/provider.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
@@ -44,7 +45,7 @@ class _SocialLoginWidgetState extends State<SocialLoginWidget> {
         ResponsiveHelper.showDialogOrBottomSheet(
           context,
           CustomAlertDialogWidget(
-            // width: ResponsiveHelper.isDesktop(context) ? MediaQuery.of(context).size.width * 0.3 : null,
+            // width: ResponsiveHelper.isDesktop(context) ? MediaQuery.sizeOf(context).width * 0.3 : null,
             child: ExistingAccountBottomSheet(userInfoModel: userInfoModel, socialLoginMedium: socialLoginMedium!, socialUserName: name ?? '',),
           ),
         );
@@ -363,27 +364,19 @@ class SocialButtonView extends StatelessWidget {
       padding: padding ??  const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        // border: Border.all(
-        //   color: Theme.of(context).cardColor,
-        //   width: 1,
-        // ),
-        borderRadius: const BorderRadius.all(Radius.circular(50)),
+        borderRadius: BorderRadius.circular(Dimensions.radiusButton),
+        border: Border.all(
+          color: ColorResources.lightGray,
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            offset: const Offset(0,2),
-            blurRadius: 3,
+            offset: const Offset(0, 6),
+            blurRadius: 16,
             spreadRadius: 0,
-            color: Theme.of(context).textTheme.bodyMedium!.color!.withValues(alpha: 0.16)
+            color: ColorResources.primary.withValues(alpha: 0.06),
           ),
-
-          BoxShadow(
-              offset: const Offset(0,2),
-              blurRadius: 3,
-              spreadRadius: 0,
-              color: Theme.of(context).textTheme.bodyMedium!.color!.withValues(alpha: 0.08)
-          ),
-
-        ]
+        ],
       ),
       child:   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
 

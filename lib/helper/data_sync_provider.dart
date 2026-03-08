@@ -13,15 +13,15 @@ class DataSyncProvider {
     required Function(dynamic, DataSourceEnum source) onResponse,
   }) async {
 
-    // Step 1: Try to load from the local source
-    final localResponse = await fetchFromLocal();
+    final localFuture = fetchFromLocal();
+    final clientFuture = fetchFromClient();
 
+    final localResponse = await localFuture;
     if (localResponse.isSuccess) {
       onResponse(jsonDecode(localResponse.response!.response), DataSourceEnum.local);
     }
 
-    // Step 2: Try to load from the client (remote) source and update if successful
-    final clientResponse = await fetchFromClient();
+    final clientResponse = await clientFuture;
     if (clientResponse.isSuccess) {
       onResponse(clientResponse.response?.data, DataSourceEnum.client);
     } else {

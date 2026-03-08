@@ -79,10 +79,10 @@ class ButtonWidget extends StatelessWidget {
           margin: const EdgeInsets.all(Dimensions.paddingSizeSmall),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            border: Border.all(width: 2, color: Theme.of(context).primaryColor),
-            borderRadius: BorderRadius.circular(10),
+            border: Border.all(width: 2, color: const Color(0xFF3A4756)),
+            borderRadius: BorderRadius.circular(14),
           ),
-          child: Text(getTranslated('order_cancelled', context), style: rubikBold.copyWith(color: Theme.of(context).primaryColor)),
+          child: Text(getTranslated('order_cancelled', context), style: rubikBold.copyWith(color: const Color(0xFF3A4756))),
         ),
 
         (order.trackModel!.orderStatus == 'confirmed' || order.trackModel!.orderStatus == 'processing'

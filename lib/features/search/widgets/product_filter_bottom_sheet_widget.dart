@@ -65,8 +65,8 @@ class _ProductFilterBottomSheetWidgetState extends State<ProductFilterBottomShee
           maxPriceController.text = maxPrice.toStringAsFixed(2);
 
           return Container(
-            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.95),
-            height: ResponsiveHelper.isWeb() ? MediaQuery.of(context).size.height * 0.55 : null,
+            constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.95),
+            height: ResponsiveHelper.isWeb() ? MediaQuery.sizeOf(context).height * 0.55 : null,
             decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),

@@ -54,7 +54,7 @@ class CouponScreen extends StatelessWidget {
                         child: StaggeredGrid.count(
                           crossAxisCount: ResponsiveHelper.isDesktop(context) ? 3 : 1,
                           children: couponProvider.couponList!.map((couponModel) => CustomPaint(
-                            size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height),
+                            size: Size(MediaQuery.sizeOf(context).width, MediaQuery.sizeOf(context).height),
                             painter: CouponCustomPainterWidget(),
                             child: InkWell(
                               onTap: () {

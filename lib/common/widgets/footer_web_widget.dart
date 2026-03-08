@@ -181,80 +181,35 @@ class FooterWebWidget extends StatelessWidget {
                     color: Colors.white.withValues(alpha: 0.15),
                   ),
                   const SizedBox(height: Dimensions.paddingSizeLarge),
-                  // Bottom row: social + copyright
+                  // Bottom row: copyright / credit
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // Social links
-                      if (configModel.socialMediaLink != null &&
-                          configModel.socialMediaLink!.isNotEmpty)
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              getTranslated('follow_us_on', context),
-                              style: rubikMedium.copyWith(
-                                fontSize: Dimensions.fontSizeSmall,
-                                color: _footerTextMuted,
+                      // Developer credit
+                      Expanded(
+                        child: Center(
+                          child: InkWell(
+                            onTap: () => _launchURL(
+                                'http://baitpait.com/'),
+                            borderRadius: BorderRadius.circular(
+                                Dimensions.radiusSizeSmall),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 6, horizontal: 8),
+                              child: Text(
+                                'تطوير وبرمجة بيت البرمجيات وتكنولوجيا المعلومات',
+                                style: rubikMedium.copyWith(
+                                  fontSize: Dimensions.fontSizeDefault + 2,
+                                  color: _footerTextMuted,
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: _footerTextMuted,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
                               ),
                             ),
-                            const SizedBox(
-                                width: Dimensions.paddingSizeDefault),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: configModel.socialMediaLink!
-                                  .map(
-                                    (link) => Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 6.0),
-                                      child: Material(
-                                        color: Colors.transparent,
-                                        child: InkWell(
-                                          onTap: () {
-                                            _launchURL(link.link!);
-                                          },
-                                          borderRadius: BorderRadius.circular(
-                                              Dimensions.radiusSizeDefault),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(6.0),
-                                            child: Image.asset(
-                                              Images.getSocialImage(link.name!),
-                                              height: 22,
-                                              width: 22,
-                                              fit: BoxFit.contain,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                  .toList(),
-                            ),
-                          ],
-                        )
-                      else
-                        const SizedBox.shrink(),
-                      // Copyright
-                      Expanded(
-                        child: Align(
-                          alignment: configModel.socialMediaLink != null &&
-                                  configModel.socialMediaLink!.isNotEmpty
-                              ? Alignment.centerRight
-                              : Alignment.centerLeft,
-                          child: Text(
-                            configModel.footerCopyright ??
-                                '${getTranslated('copyright', context)} ${configModel.ecommerceName}',
-                            style: rubikRegular.copyWith(
-                              fontSize: Dimensions.fontSizeSmall,
-                              color: _footerTextMuted,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: configModel.socialMediaLink != null &&
-                                    configModel.socialMediaLink!.isNotEmpty
-                                ? TextAlign.right
-                                : TextAlign.left,
                           ),
                         ),
                       ),

@@ -4,6 +4,7 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:hexacom_user/common/enums/footer_type_enum.dart';
 import 'package:hexacom_user/common/models/config_model.dart';
 import 'package:hexacom_user/common/models/userinfo_model.dart';
+import 'package:hexacom_user/common/widgets/auth_background_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_alert_dialog_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_app_bar_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_pop_scope_widget.dart';
@@ -24,6 +25,7 @@ import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:hexacom_user/utill/images.dart';
 import 'package:hexacom_user/utill/routes.dart';
 import 'package:hexacom_user/utill/styles.dart';
+import 'package:hexacom_user/utill/color_resources.dart';
 import 'package:provider/provider.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
@@ -65,12 +67,13 @@ class _OnlySocialLoginWidgetState extends State<OnlySocialLoginWidget> {
   @override
   Widget build(BuildContext context) {
 
-    final Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.sizeOf(context);
     final ConfigModel? configModel = Provider.of<SplashProvider>(context, listen: false).configModel;
 
 
     return CustomPopScopeWidget(
       child: Scaffold(
+        backgroundColor: ColorResources.navBarNavy,
         appBar: ResponsiveHelper.isDesktop(context)? const PreferredSize(preferredSize: Size.fromHeight(120), child: WebAppBarWidget()) : PreferredSize(
           preferredSize: const Size.fromHeight(40),
           child: CustomAppBarWidget(
@@ -83,7 +86,8 @@ class _OnlySocialLoginWidgetState extends State<OnlySocialLoginWidget> {
             },
           ),
         ),
-        body: SafeArea(child: Center(child: CustomScrollView(slivers: [
+        body: AuthBackgroundWidget(
+          child: SafeArea(child: Center(child: CustomScrollView(slivers: [
 
           if(ResponsiveHelper.isDesktop(context))...[
             SliverToBoxAdapter(child: SizedBox(height: size.height * 0.05)),
@@ -93,43 +97,69 @@ class _OnlySocialLoginWidgetState extends State<OnlySocialLoginWidget> {
 
 
             Center(child: Container(
-              width: size.width > 700 ? 400 : size.width,
-              margin: const EdgeInsets.only(top: Dimensions.paddingSizeLarge),
-              padding: size.width > 700 ? const EdgeInsets.all(Dimensions.paddingSizeDefault) : null,
-              decoration: size.width > 700 ? BoxDecoration(
+              width: size.width > 700 ? 400 : (size.width - (Dimensions.paddingSizeDefault * 2)),
+              margin: EdgeInsets.only(
+                top: Dimensions.paddingSizeLarge,
+                left: size.width > 700 ? 0 : Dimensions.paddingSizeDefault,
+                right: size.width > 700 ? 0 : Dimensions.paddingSizeDefault,
+                bottom: size.width > 700 ? 0 : Dimensions.paddingSizeLarge,
+              ),
+              padding: size.width > 700
+                  ? const EdgeInsets.all(Dimensions.paddingSizeDefault)
+                  : const EdgeInsets.symmetric(
+                      horizontal: Dimensions.paddingSizeLarge,
+                      vertical: Dimensions.paddingSizeDefault,
+                    ),
+              decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                  color: Theme.of(context).textTheme.bodyMedium!.color!.withValues(alpha: 0.07),
-                  blurRadius: 30,
-                  spreadRadius: 0,
-                  offset: const Offset(0,10),
-                )],
-              ) : null,
+                    color: Theme.of(context).shadowColor.withValues(alpha: size.width > 700 ? 0.07 : 0.08),
+                    blurRadius: size.width > 700 ? 30 : 16,
+                    spreadRadius: 0,
+                    offset: Offset(0, size.width > 700 ? 10 : 4),
+                  ),
+                ],
+              ),
               child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
 
                 SizedBox(
-                  height: ResponsiveHelper.isDesktop(context) ? size.height * 0.03 :
-                  size.height * 0.1,
+                  height: ResponsiveHelper.isDesktop(context) ? size.height * 0.04 : 20,
                 ),
 
-                !ResponsiveHelper.isDesktop(context) ? Center(
-                  child: Image.asset(
-                    Images.logo,
-                    height: ResponsiveHelper.isDesktop(context) ? 100.0 : 80,
-                    fit: BoxFit.scaleDown,
-                    matchTextDirection: true,
-                  ),
-                ): const SizedBox.shrink(),
+                if (!ResponsiveHelper.isDesktop(context))
+                  Center(
+                    child: Image.asset(
+                      Images.logo,
+                      height: ResponsiveHelper.isDesktop(context) ? 100.0 : 64,
+                      fit: BoxFit.scaleDown,
+                      matchTextDirection: true,
+                    ),
+                  )
+                else
+                  const SizedBox.shrink(),
                 const SizedBox(height: Dimensions.paddingSizeLarge),
 
-
-                Text("${getTranslated('welcome_to', context)} ${AppConstants.appName}",
-                  style: rubikRegular.copyWith(
-                    fontSize: Dimensions.fontSizeLarge,
-                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                  ),
+                Column(
+                  children: [
+                    Text(
+                      getTranslated('login', context),
+                      style: rubikBold.copyWith(
+                        fontSize: Dimensions.fontSizeExtraLarge,
+                        color: ColorResources.getTextColor(context),
+                      ),
+                    ),
+                    const SizedBox(height: Dimensions.paddingSizeSmall),
+                    Text(
+                      getTranslated('please_login_or_signup', context),
+                      textAlign: TextAlign.center,
+                      style: rubikRegular.copyWith(
+                        fontSize: Dimensions.fontSizeDefault,
+                        color: ColorResources.getTextColor(context).withValues(alpha: 0.75),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: Dimensions.paddingSizeExtraLarge),
 
@@ -319,6 +349,7 @@ class _OnlySocialLoginWidgetState extends State<OnlySocialLoginWidget> {
           ),
 
         ]))),
+      ),
       ),
     );
   }

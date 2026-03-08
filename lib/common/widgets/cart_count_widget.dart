@@ -6,14 +6,16 @@ import 'package:flutter/material.dart';
 class CartCountWidget extends StatelessWidget {
   final int count;
   final IconData icon;
+  final Color? iconColor;
   const CartCountWidget({
-    super.key, required this.count, required this.icon,
+    super.key, required this.count, required this.icon, this.iconColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final color = iconColor ?? (Theme.of(context).focusColor);
     return TextHoverWidget(builder: (isHover)=> Stack(clipBehavior: Clip.none, children: [
-      Icon(icon, color: isHover ? Theme.of(context).primaryColor : Theme.of(context).focusColor,
+      Icon(icon, color: isHover ? Theme.of(context).primaryColor : color,
         size: Dimensions.paddingSizeExtraLarge,
       ),
 

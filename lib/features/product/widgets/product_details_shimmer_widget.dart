@@ -9,7 +9,7 @@ class ProductDetailsShimmerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Size size  = MediaQuery.of(context).size;
+    final Size size  = MediaQuery.sizeOf(context);
     return Shimmer(
       duration: const Duration(seconds: 2),
       enabled: isEnabled,
@@ -161,8 +161,8 @@ class ProductDetailsShimmerWidget extends StatelessWidget {
                 children: [
 
                   Container(
-                  height: MediaQuery.of(context).size.width * 0.7,
-                    width: MediaQuery.of(context).size.width * 0.95,
+                  height: MediaQuery.sizeOf(context).width * 0.7,
+                    width: MediaQuery.sizeOf(context).width * 0.95,
                     decoration: BoxDecoration(
                       color: Theme.of(context).shadowColor,
                       borderRadius: BorderRadius.circular(10),
@@ -178,7 +178,7 @@ class ProductDetailsShimmerWidget extends StatelessWidget {
                       children: [
                         Container(
                           height: 40,
-                          width: MediaQuery.of(context).size.width * 0.65,
+                          width: MediaQuery.sizeOf(context).width * 0.65,
                           decoration: BoxDecoration(
                             color: Theme.of(context).shadowColor,
                             borderRadius: BorderRadius.circular(10),
@@ -187,7 +187,7 @@ class ProductDetailsShimmerWidget extends StatelessWidget {
                         const SizedBox(height: 10),
                         Container(
                           height: 20,
-                          width: MediaQuery.of(context).size.width * 0.4,
+                          width: MediaQuery.sizeOf(context).width * 0.4,
                           decoration: BoxDecoration(
                             color: Theme.of(context).shadowColor,
                             borderRadius: BorderRadius.circular(10),
@@ -196,7 +196,7 @@ class ProductDetailsShimmerWidget extends StatelessWidget {
                         const SizedBox(height: 10),
                         Container(
                           height: 20,
-                          width: MediaQuery.of(context).size.width * 0.4,
+                          width: MediaQuery.sizeOf(context).width * 0.4,
                           decoration: BoxDecoration(
                             color: Theme.of(context).shadowColor,
                             borderRadius: BorderRadius.circular(10),
@@ -272,7 +272,7 @@ class ProductDetailsShimmerWidget extends StatelessWidget {
                   const SizedBox(height: Dimensions.paddingSizeExtraLarge),
                   Container(
                     height: 50,
-                    width: MediaQuery.of(context).size.width * 0.98,
+                    width: MediaQuery.sizeOf(context).width * 0.98,
                     decoration: BoxDecoration(
                       color: Theme.of(context).shadowColor,
                       borderRadius: BorderRadius.circular(10),

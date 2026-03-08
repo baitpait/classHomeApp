@@ -19,13 +19,18 @@ class CustomShadowWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return isActive ? Container(
-      padding: padding ,
-      margin:  margin,
+      padding: padding,
+      margin: margin,
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(borderRadius!),
-        boxShadow:  [
-          boxShadow ?? BoxShadow(offset: const Offset(2, 10), blurRadius: 30, color: shadowColor ??  Theme.of(context).textTheme.bodyMedium!.color!.withValues(alpha: 0.2)),
+        boxShadow: [
+          boxShadow ?? BoxShadow(
+            offset: const Offset(0, 6),
+            blurRadius: 20,
+            spreadRadius: 0,
+            color: shadowColor ?? Theme.of(context).textTheme.bodyMedium!.color!.withValues(alpha: 0.14),
+          ),
         ],
       ),
       child: child,

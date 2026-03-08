@@ -40,33 +40,21 @@ class _AddressMapWidgetState extends State<AddressMapWebWidget> {
   GoogleMapController? _controller;
   bool _updateAddress = true;
 
-
+  static const _slate = Color(0xFF3A4756);
 
   @override
   void initState() {
     super.initState();
-
-    // if(widget.address != null) {
-    //   _initialPosition = LatLng(double.parse(widget.address!.latitude!), double.parse(widget.address!.longitude!));
-    // }else{
-    //   _initialPosition = LatLng(
-    //     double.parse(Provider.of<SplashProvider>(context, listen: false).configModel!.branches![0].latitude ?? '0'),
-    //     double.parse(Provider.of<SplashProvider>(context, listen: false).configModel!.branches![0].longitude ?? '0'),
-    //   );
-    // }
-
     if (widget.isUpdateEnable && widget.address != null) {
       _updateAddress = false;
     }
-
-
   }
 
 
   @override
   Widget build(BuildContext context) {
 
-    final Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.sizeOf(context);
     final branch = Provider.of<SplashProvider>(context, listen: false).configModel!.branches![0];
 
     return Padding(
@@ -78,8 +66,20 @@ class _AddressMapWidgetState extends State<AddressMapWebWidget> {
           const SizedBox(height: Dimensions.paddingSizeLarge),
 
           Consumer<LocationProvider>(builder: (context, locationProvider, child) {
-            return SizedBox(height: size.height * 0.5, width: MediaQuery.of(context).size.width,
-              child: ClipRRect(borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),
+            return Container(
+              height: size.height * 0.5,
+              width: MediaQuery.sizeOf(context).width,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(context).shadowColor.withValues(alpha: 0.10),
+                    blurRadius: 18, spreadRadius: 0,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ClipRRect(borderRadius: BorderRadius.circular(14),
                 child: Stack(clipBehavior: Clip.none, children: [
 
                   GoogleMap(
@@ -128,9 +128,6 @@ class _AddressMapWidgetState extends State<AddressMapWebWidget> {
                             )));
                           });
                         }
-                        // _checkPermission(() {
-                        //   locationProvider.getCurrentLocation(context, true, mapController: _controller);
-                        // });
                       }else{
                         Future.delayed(const Duration(milliseconds: 800)).then((value) {
                           _controller = controller;
@@ -144,13 +141,13 @@ class _AddressMapWidgetState extends State<AddressMapWebWidget> {
                     },
                   ),
 
-                  if(locationProvider.isLoading) Center(child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+                  if(locationProvider.isLoading) const Center(child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(_slate),
                   )),
 
-                  Container(width: MediaQuery.of(context).size.width,
+                  Container(width: MediaQuery.sizeOf(context).width,
                     alignment: Alignment.center,
-                    height: MediaQuery.of(context).size.height,
+                    height: MediaQuery.sizeOf(context).height,
                     child: const CustomAssetImageWidget(Images.marker, width: 25, height: 35),
                   ),
 
@@ -160,14 +157,20 @@ class _AddressMapWidgetState extends State<AddressMapWebWidget> {
                         locationProvider.getCurrentLocation(context, true, mapController: _controller);
                       }),
                       child: Container(
-                        width: ResponsiveHelper.isDesktop(context) ? 40 : 30,
-                        height: ResponsiveHelper.isDesktop(context) ? 40 : 30,
+                        width: ResponsiveHelper.isDesktop(context) ? 40 : 34,
+                        height: ResponsiveHelper.isDesktop(context) ? 40 : 34,
                         margin: const EdgeInsets.only(right: Dimensions.paddingSizeLarge),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),
+                          borderRadius: BorderRadius.circular(10),
                           color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.10),
+                              blurRadius: 8, offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
-                        child: Icon(Icons.my_location, color: Theme.of(context).primaryColor, size: 20),
+                        child: const Icon(Icons.my_location, color: _slate, size: 18),
                       ),
                     ),
                   ),
@@ -179,14 +182,20 @@ class _AddressMapWidgetState extends State<AddressMapWebWidget> {
                       ));
                     },
                     child: Container(
-                      width: ResponsiveHelper.isDesktop(context) ? 40 : 30,
-                      height: ResponsiveHelper.isDesktop(context) ? 40 : 30,
+                      width: ResponsiveHelper.isDesktop(context) ? 40 : 34,
+                      height: ResponsiveHelper.isDesktop(context) ? 40 : 34,
                       margin: const EdgeInsets.only(right: Dimensions.paddingSizeLarge),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),
+                        borderRadius: BorderRadius.circular(10),
                         color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.10),
+                            blurRadius: 8, offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
-                      child: Icon(Icons.fullscreen, color: Theme.of(context).primaryColor, size: 20),
+                      child: const Icon(Icons.fullscreen, color: _slate, size: 20),
                     ),
                   )),
 

@@ -29,7 +29,6 @@ class Images {
   static const String destinationMarker = 'assets/image/destination_marker.png';
   static const String restaurantMarker = 'assets/image/restaurant_marker.png';
   static const String unselectedRestaurantMarker = 'assets/image/unselected_restaurant_marker.png';
-  static const String wallet = 'assets/image/wallet.png';
   static const String guestLogin = 'assets/image/guest_login.png';
   static const String placeholderLight = 'assets/image/placeholder.jpg';
   static const String placeholderDark = 'assets/image/dark_placeholder.png';
@@ -177,8 +176,6 @@ class Images {
   static const String offlinePaymentImage = 'assets/svg/offline_payment_image.svg';
 
 
-  static const String walletIcon = 'assets/svg/wallet_icon.svg';
-  static const String walletBonusImage = 'assets/svg/wallet_bonus_image.svg';
   static const String filterIconSvg = 'assets/svg/filter_icon.svg';
   static const String debitIcon = 'assets/svg/debit_icon.svg';
   static const String creditIcon = 'assets/svg/credit_icon.svg';

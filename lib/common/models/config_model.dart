@@ -28,7 +28,6 @@ class ConfigModel {
   AppStoreConfig? _appStoreConfig;
   List<SocialMediaLink>? _socialMediaLink;
   String? _softwareVersion;
-  String? _footerCopyright;
   int? _otpResendTime;
   CookiesManagement? _cookiesManagement;
   SocialStatus? _socialLoginStatus;
@@ -45,7 +44,6 @@ class ConfigModel {
   ForgetPassword? _forgetPassword;
   AppleLogin? _appleLogin;
   bool? _fetchedFromOnline;
-  CustomerSetupWalletEarning? _customerSetupWalletEarning;
   int? _maxImageUploadSize;
   List<String>? _cities;
   List<AreaModel>? _areas;
@@ -94,7 +92,6 @@ class ConfigModel {
         ForgetPassword? forgetPassword,
         AppleLogin? appleLogin,
         bool? isOnline,
-        CustomerSetupWalletEarning? customerSetupWalletEarning,
         int? maxImageUploadSize,
         List<String>? cities
       }) {
@@ -149,7 +146,6 @@ class ConfigModel {
     }
 
     _fetchedFromOnline = isOnline;
-    _customerSetupWalletEarning = customerSetupWalletEarning;
     _cities = cities;
   }
 
@@ -179,7 +175,6 @@ class ConfigModel {
   AppStoreConfig? get appStoreConfig => _appStoreConfig;
   List<SocialMediaLink>? get socialMediaLink => _socialMediaLink;
   String? get softwareVersion => _softwareVersion;
-  String? get footerCopyright => _footerCopyright;
   int? get otpResendTime => _otpResendTime;
   CookiesManagement? get cookiesManagement => _cookiesManagement;
   SocialStatus? get socialLoginStatus => _socialLoginStatus;
@@ -196,7 +191,6 @@ class ConfigModel {
   ForgetPassword? get forgetPassword => _forgetPassword;
   AppleLogin? get appleLogin => _appleLogin;
   bool? get fetchedFromOnline => _fetchedFromOnline;
-  CustomerSetupWalletEarning? get customerSetupWalletEarning => _customerSetupWalletEarning;
   List<String>? get cities => _cities;
   List<AreaModel>? get areas => _areas;
   List<CityModel>? get citiesStructured => _citiesStructured;
@@ -264,9 +258,6 @@ class ConfigModel {
     if(json['software_version'] != null && json['software_version'] != ''){
       _softwareVersion = json['software_version'];
     }
-    if(json['footer_text']!=null){
-      _footerCopyright = json['footer_text'];
-    }
     _otpResendTime =  int.tryParse('${json['otp_resend_time']}');
     _cookiesManagement = json['cookies_management'] != null
         ? CookiesManagement.fromJson(json['cookies_management'])
@@ -297,8 +288,6 @@ class ConfigModel {
     _forgetPassword = json['forgot_password'] != null
         ? ForgetPassword.fromJson(json['forgot_password'])
         : null;
-    _customerSetupWalletEarning = json['customer_setup_wallet_earning'] != null ?
-    CustomerSetupWalletEarning.fromJson(json['customer_setup_wallet_earning']) : null;
     _maxImageUploadSize = int.tryParse('${json['upload_max_image_size']}');
     if (json['areas'] != null && json['areas'] is List) {
       _areas = (json['areas'] as List).map((e) => AreaModel.fromJson(Map<String, dynamic>.from(e as Map))).toList();
@@ -350,7 +339,6 @@ class ConfigModel {
       data['delivery_management'] = _deliveryManagement!.toJson();
     }
     data['software_version'] = _softwareVersion;
-    data['footer_text'] = _footerCopyright;
     data['otp_resend_time'] = _otpResendTime;
     if (_cookiesManagement != null) {
       data['cookies_management'] = _cookiesManagement!.toJson();
@@ -369,8 +357,6 @@ class ConfigModel {
     if (forgetPassword != null) {
       data['forgot_password'] = forgetPassword!.toJson();
     }
-
-    data['customer_setup_wallet_earning'] = _customerSetupWalletEarning!.toJson();
 
     return data;
   }
@@ -1154,25 +1140,6 @@ class ForgetPassword {
     data['firebase'] = _firebase;
     data['phone'] = _phone;
     data['email'] = _email;
-    return data;
-  }
-}
-
-class CustomerSetupWalletEarning {
-  int? status;
-  String? orderWiseEarningPercentage;
-
-  CustomerSetupWalletEarning({this.status, this.orderWiseEarningPercentage});
-
-  CustomerSetupWalletEarning.fromJson(Map<String, dynamic> json) {
-    status = json['status'];
-    orderWiseEarningPercentage = json['order_wise_earning_percentage'].toString();
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['status'] = status;
-    data['order_wise_earning_percentage'] = orderWiseEarningPercentage;
     return data;
   }
 }

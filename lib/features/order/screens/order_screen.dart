@@ -49,7 +49,7 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
                   tabAlignment: TabAlignment.center,
                   controller: _tabController,
                   labelColor: Theme.of(context).textTheme.bodyLarge!.color,
-                  indicatorColor: Theme.of(context).primaryColor,
+                  indicatorColor: const Color(0xFF3A4756),
                   indicatorWeight: 3,
                   unselectedLabelStyle: rubikRegular.copyWith(color: Theme.of(context).hintColor, fontSize: Dimensions.fontSizeSmall),
                   labelStyle: rubikMedium.copyWith(fontSize: Dimensions.fontSizeSmall),

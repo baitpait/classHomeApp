@@ -20,7 +20,7 @@ Widget build(BuildContext context) {
             duration: const Duration(seconds: 2),
             enabled: Provider.of<ChatProvider>(context).messageList == null,
             child: Container(
-              height: 30, width: MediaQuery.of(context).size.width,
+              height: 30, width: MediaQuery.sizeOf(context).width,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(10),

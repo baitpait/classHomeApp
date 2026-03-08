@@ -59,7 +59,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   }
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
+    final height = MediaQuery.sizeOf(context).height;
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _){
@@ -145,7 +145,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                             decoration: BoxDecoration(
                                               color: Theme.of(context).cardColor,
                                               borderRadius: BorderRadius.circular(10),
-                                              boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.1), spreadRadius: 1, blurRadius: 5)],
+                                              boxShadow: [BoxShadow(color: Theme.of(context).shadowColor.withValues(alpha: 0.10), blurRadius: 18, spreadRadius: 0, offset: const Offset(0, 4))],
                                             ),
                                             child: Column(
                                               children: [

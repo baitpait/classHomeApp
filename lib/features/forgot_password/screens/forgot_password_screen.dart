@@ -49,8 +49,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
-    double width = MediaQuery.of(context).size.width;
+    final Size size = MediaQuery.sizeOf(context);
+    double width = MediaQuery.sizeOf(context).width;
     final ConfigModel configModel = context.read<SplashProvider>().configModel!;
     final VerificationProvider verificationProvider = context.read<VerificationProvider>();
 

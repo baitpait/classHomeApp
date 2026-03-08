@@ -12,12 +12,21 @@ class CartItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final TextStyle defaultLabelStyle = rubikRegular.copyWith(
+      fontSize: Dimensions.fontSizeDefault,
+      color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.85),
+    );
+    final TextStyle defaultValueStyle = rubikSemiBold.copyWith(
+      fontSize: Dimensions.fontSizeLarge,
+      color: Theme.of(context).textTheme.bodyLarge?.color,
+    );
+
     return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-      Text(title, style: style ?? rubikRegular.copyWith(fontSize: Dimensions.fontSizeLarge)),
+      Text(title, style: style ?? defaultLabelStyle),
 
       CustomDirectionalityWidget(child: Text(
         subTitle,
-        style: style ?? rubikSemiBold.copyWith(fontSize: Dimensions.fontSizeLarge),
+        style: style ?? defaultValueStyle,
       )),
     ]);
   }

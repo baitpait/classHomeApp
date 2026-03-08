@@ -26,16 +26,16 @@ class UpdateScreen extends StatelessWidget {
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
 
             Image.asset(Images.update,
-              width: MediaQuery.of(context).size.height*0.4,
-              height: MediaQuery.of(context).size.height*0.4,
+              width: MediaQuery.sizeOf(context).height*0.4,
+              height: MediaQuery.sizeOf(context).height*0.4,
             ),
-            SizedBox(height: MediaQuery.of(context).size.height*0.01),
+            SizedBox(height: MediaQuery.sizeOf(context).height*0.01),
 
             Text(getTranslated('your_app_is_deprecated', context),
-              style: rubikRegular.copyWith(fontSize: MediaQuery.of(context).size.height*0.0175, color: Theme.of(context).disabledColor),
+              style: rubikRegular.copyWith(fontSize: MediaQuery.sizeOf(context).height*0.0175, color: Theme.of(context).disabledColor),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: MediaQuery.of(context).size.height*0.04),
+            SizedBox(height: MediaQuery.sizeOf(context).height*0.04),
 
              CustomButtonWidget(btnTxt: getTranslated('update_now', context), onTap: () async {
               String? appUrl = 'https://google.com';

@@ -1,6 +1,5 @@
 import 'package:hexacom_user/common/models/category_model.dart';
 import 'package:hexacom_user/common/models/feature_category_model.dart';
-import 'package:hexacom_user/helper/responsive_helper.dart';
 import 'package:hexacom_user/features/product/providers/product_provider.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:hexacom_user/utill/routes.dart';
@@ -46,26 +45,33 @@ class _FeatureCategoryWidgetState extends State<FeatureCategoryWidget> {
 
         Consumer<ProductProvider>(
           builder: (context, f, child) {
-
             return CustomSliderListWidget(
               controller: scrollController,
               verticalPosition: 125,
               isShowForwardButton: (widget.featuredCategory?.products?.length ?? 0) > 5,
-              child: SizedBox(height: 320, child: ListView.builder(
-                controller: scrollController,
-                physics: const ClampingScrollPhysics(),
-                itemCount: widget.featuredCategory?.products?.length,
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeDefault),
-                itemBuilder: (ctx, index) => widget.featuredCategory!.products![index].status! ? Container(
-                  margin: const EdgeInsets.only(right: Dimensions.paddingSizeSmall),
-                  width: ResponsiveHelper.isDesktop(context) ? 210 : MediaQuery.of(context).size.width * 0.55,
-                  height: 320,
-                  child: ProductCardWidget(
-                    product: widget.featuredCategory!.products![index],
-                  ),
-                ) : const SizedBox(),
-              )),
+              child: SizedBox(
+                height: Dimensions.horizontalProductCardHeight,
+                child: ListView.builder(
+                  controller: scrollController,
+                  physics: const ClampingScrollPhysics(),
+                  itemCount: widget.featuredCategory?.products?.length,
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeDefault),
+                  itemBuilder: (ctx, index) => widget.featuredCategory!.products![index].status!
+                      ? Padding(
+                          padding: const EdgeInsets.only(right: Dimensions.paddingSizeSmall),
+                          child: SizedBox(
+                            width: Dimensions.horizontalProductCardWidth,
+                            height: Dimensions.horizontalProductCardHeight,
+                            child: ProductCardWidget(
+                              product: widget.featuredCategory!.products![index],
+                              direction: Axis.horizontal,
+                            ),
+                          ),
+                        )
+                      : const SizedBox(),
+                ),
+              ),
             );
           }
         ),

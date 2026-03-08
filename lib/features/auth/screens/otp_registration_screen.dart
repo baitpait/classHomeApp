@@ -21,6 +21,7 @@ import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:hexacom_user/utill/images.dart';
 import 'package:hexacom_user/utill/routes.dart';
 import 'package:hexacom_user/utill/styles.dart';
+import 'package:hexacom_user/utill/color_resources.dart';
 import 'package:provider/provider.dart';
 
 class OtpRegistrationScreen extends StatefulWidget {
@@ -61,13 +62,14 @@ class _OtpRegistrationScreenState extends State<OtpRegistrationScreen> {
   @override
   Widget build(BuildContext context) {
 
-    final double width = MediaQuery.of(context).size.width;
-    final Size size = MediaQuery.of(context).size;
+    final double width = MediaQuery.sizeOf(context).width;
+    final Size size = MediaQuery.sizeOf(context);
 
     bool isNumber = PhoneNumberCheckerHelper.isValidPhone(widget.userInput.trim().replaceAll('+', ''));
 
 
     return Scaffold(
+      backgroundColor: ColorResources.navBarNavy,
       appBar: ResponsiveHelper.isDesktop(context) ? const PreferredSize(preferredSize: Size.fromHeight(100), child: WebAppBarWidget()) : PreferredSize(
         preferredSize: const Size.fromHeight(40),
         child: CustomAppBarWidget(
@@ -89,10 +91,18 @@ class _OtpRegistrationScreenState extends State<OtpRegistrationScreen> {
             width: width > 700 ? 400 : width,
             margin: const EdgeInsets.only(top: Dimensions.paddingSizeLarge),
             padding: width > 700 ? const EdgeInsets.all(Dimensions.paddingSizeDefault) : null,
-            decoration: width > 700 ? BoxDecoration(
-              color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
-              boxShadow: [BoxShadow(color: Theme.of(context).shadowColor, blurRadius: 5, spreadRadius: 1)],
-            ) : null,
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
+              boxShadow: [
+                BoxShadow(
+                  color: ColorResources.primary.withValues(alpha: 0.08),
+                  blurRadius: 20,
+                  spreadRadius: 0,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
             child: Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
 
               SizedBox(height: size.height * 0.05),
@@ -100,8 +110,8 @@ class _OtpRegistrationScreenState extends State<OtpRegistrationScreen> {
               if(!ResponsiveHelper.isDesktop(context))...[
                 Directionality(textDirection: TextDirection.ltr,
                   child: Image.asset(Images.logo, height: ResponsiveHelper.isDesktop(context)
-                      ? MediaQuery.of(context).size.height * 0.15
-                      : MediaQuery.of(context).size.height / 4.5,
+                      ? MediaQuery.sizeOf(context).height * 0.15
+                      : MediaQuery.sizeOf(context).height / 4.5,
                     fit: BoxFit.scaleDown,
                   ),
                 ),
@@ -111,11 +121,20 @@ class _OtpRegistrationScreenState extends State<OtpRegistrationScreen> {
               Padding(padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeExtraLarge),
                 child: Center(child: Column(children: [
 
-                  Text(getTranslated('just_one_step_away_will_help_make_your_profile', context),
+                  Text(
+                    getTranslated('login', context),
+                    style: rubikBold.copyWith(
+                      fontSize: Dimensions.fontSizeExtraLarge,
+                      color: ColorResources.getTextColor(context),
+                    ),
+                  ),
+                  const SizedBox(height: Dimensions.paddingSizeSmall),
+                  Text(
+                    getTranslated('just_one_step_away_will_help_make_your_profile', context),
                     textAlign: TextAlign.center,
                     style: rubikRegular.copyWith(
                       fontSize: Dimensions.fontSizeDefault,
-                      color: Theme.of(context).hintColor,
+                      color: ColorResources.getTextColor(context).withValues(alpha: 0.75),
                     ),
                   ),
                   const SizedBox(height: 30),

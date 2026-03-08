@@ -1,14 +1,13 @@
 import 'package:hexacom_user/helper/responsive_helper.dart';
 import 'package:hexacom_user/localization/language_constrants.dart';
-import 'package:hexacom_user/provider/localization_provider.dart';
 import 'package:hexacom_user/features/product/providers/product_provider.dart';
 import 'package:hexacom_user/common/enums/search_short_by_enum.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:hexacom_user/utill/routes.dart';
+import 'package:hexacom_user/utill/styles.dart';
 import 'package:hexacom_user/common/widgets/custom_slider_list_widget.dart';
 import 'package:hexacom_user/common/widgets/product_card_widget.dart';
-import 'package:hexacom_user/common/widgets/product_shimmer_widget.dart';
-import 'package:hexacom_user/common/widgets/title_widget.dart';
+import 'package:hexacom_user/utill/color_resources.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -26,77 +25,220 @@ class _NewArrivalWidgetState extends State<NewArrivalWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isLtr = Provider.of<LocalizationProvider>(context, listen: false).isLtr;
-    return Consumer<ProductProvider>(builder: (context, productProvider, child) {
+    return Consumer<ProductProvider>(
+      builder: (context, productProvider, child) {
+        final hasProducts = productProvider.newArrivalProductsModel?.products != null &&
+            (productProvider.newArrivalProductsModel!.products?.isNotEmpty ?? false);
+        if (!hasProducts) {
+          return const SizedBox();
+        }
 
-      return productProvider.newArrivalProductsModel?.products != null && productProvider.newArrivalProductsModel!.products!.isNotEmpty ? CustomSliderListWidget(
-        controller: scrollController,
-        verticalPosition: 125,
-        horizontalPosition: 0,
-        isShowForwardButton: productProvider.newArrivalProductsModel != null && productProvider.newArrivalProductsModel!.products!.length > 3,
-        child: Container(
-          margin: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(Dimensions.paddingSizeDefault),
-            color: Theme.of(context).focusColor.withValues(alpha: 0.15),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 0,  // Dimensions.paddingSizeDefault,
-              vertical: Dimensions.paddingSizeSmall,
-            ),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        final products = productProvider.newArrivalProductsModel!.products!;
 
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Dimensions.paddingSizeDefault,
-                ),
-                child: TitleWidget(title: getTranslated('new_arrival', context), onTap: (){
-                  RouteHelper.getSearchResultRoute(context, shortBy: SearchShortBy.newArrivals, action: RouteAction.push);
-                }),
-              ),
-              const SizedBox(height: Dimensions.paddingSizeDefault),
+        final isDesktop = ResponsiveHelper.isDesktop(context);
+        final backgroundColor = ColorResources.getOfferSectionBackground(context);
 
-              SizedBox(
-                height: 170,
-                child: ListView.builder(
-                  physics: const ClampingScrollPhysics(),
-                  controller: scrollController,
-                  itemCount: productProvider.newArrivalProductsModel != null
-                      ? productProvider.newArrivalProductsModel!.products!.length : 5,
-                  scrollDirection: Axis.horizontal,
-                  reverse: !isLtr,
-                  itemBuilder: (ctx, index) => productProvider.newArrivalProductsModel == null ? SizedBox(
-                    width: ResponsiveHelper.isDesktop(context) ? 380 : MediaQuery.of(context).size.width * 0.85,
-                    height: 170,
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
-                      child: ProductShimmerWidget(isEnabled: true),
-                    ),
-                  ) : Container(
-                    padding: EdgeInsets.only(
-                      left: isLtr && index == 0 ? Dimensions.paddingSizeSmall : 0,
-                      right: isLtr && index == 0 ? 0 : Dimensions.paddingSizeSmall,
-                    ),
-                    margin: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeExtraSmall).copyWith(
-                      left: isLtr ? Dimensions.paddingSizeExtraSmall : 0,
-                      right: isLtr ? 0 : Dimensions.paddingSizeExtraSmall,
-                    ),
-                    width: ResponsiveHelper.isDesktop(context) ? 360 : MediaQuery.of(context).size.width * 0.85,
-                    height: 170,
-                    child: ProductCardWidget(
-                      product: productProvider.newArrivalProductsModel!.products![index],
-                      direction: Axis.horizontal,
-                    ),
+        return isDesktop
+            ? CustomSliderListWidget(
+                controller: scrollController,
+                verticalPosition: 125,
+                horizontalPosition: 0,
+                isShowForwardButton: products.length > 3,
+                child: Container(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: Dimensions.paddingSizeLarge,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: backgroundColor,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          Dimensions.paddingSizeLarge,
+                          18,
+                          Dimensions.paddingSizeLarge,
+                          14,
+                        ),
+                        child: _NewArrivalHeader(
+                          onTap: () => RouteHelper.getSearchResultRoute(
+                            context,
+                            shortBy: SearchShortBy.newArrivals,
+                            action: RouteAction.push,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                        child: SizedBox(
+                          height: Dimensions.horizontalProductCardHeight,
+                          child: ListView.builder(
+                            physics: const ClampingScrollPhysics(),
+                            controller: scrollController,
+                            scrollDirection: Axis.horizontal,
+                            itemCount: products.length,
+                            itemBuilder: (ctx, index) => Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: SizedBox(
+                                width: Dimensions.horizontalProductCardWidth,
+                                height: Dimensions.horizontalProductCardHeight,
+                                child: ProductCardWidget(
+                                  product: products[index],
+                                  direction: Axis.horizontal,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
+              )
+            : Container(
+                color: backgroundColor,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        Dimensions.paddingSizeLarge,
+                        14,
+                        Dimensions.paddingSizeLarge,
+                        6,
+                      ),
+                      child: Row(
+                        children: [
+                          const Expanded(child: _NewArrivalMobileTitle()),
+                          _SectionViewAllLink(
+                            onTap: () => RouteHelper.getSearchResultRoute(
+                              context,
+                              shortBy: SearchShortBy.newArrivals,
+                              action: RouteAction.push,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        Dimensions.mobileContentPaddingHorizontal,
+                        16,
+                        Dimensions.mobileContentPaddingHorizontal,
+                        8,
+                      ),
+                      child: SizedBox(
+                        height: Dimensions.horizontalProductCardHeight,
+                        child: ListView.builder(
+                          physics: const BouncingScrollPhysics(),
+                          scrollDirection: Axis.horizontal,
+                          itemCount: products.length > 5 ? 5 : products.length,
+                          itemBuilder: (ctx, index) => Padding(
+                            padding: const EdgeInsets.only(right: 14),
+                            child: SizedBox(
+                              width: Dimensions.horizontalProductCardWidth,
+                              height: Dimensions.horizontalProductCardHeight,
+                              child: ProductCardWidget(
+                                product: products[index],
+                                direction: Axis.horizontal,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+      },
+    );
+  }
+}
 
-              const SizedBox(height: Dimensions.paddingSizeSmall),
-            ]),
+class _NewArrivalHeader extends StatelessWidget {
+  const _NewArrivalHeader({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final isDesktop = ResponsiveHelper.isDesktop(context);
+
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            getTranslated('new_arrival', context),
+            style: rubikBold.copyWith(
+              color: onSurface,
+              fontSize: isDesktop ? 20 : 18,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
-      ) : const SizedBox();
-    });
+        _SectionViewAllLink(onTap: onTap),
+      ],
+    );
+  }
+}
+
+class _NewArrivalMobileTitle extends StatelessWidget {
+  const _NewArrivalMobileTitle();
+
+  @override
+  Widget build(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            getTranslated('new_arrival', context),
+            style: rubikBold.copyWith(color: onSurface, fontSize: 18),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SectionViewAllLink extends StatelessWidget {
+  const _SectionViewAllLink({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(Dimensions.radiusSizeSmall),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: Dimensions.paddingSizeExtraSmall,
+          horizontal: Dimensions.paddingSizeSmall,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              getTranslated('view_all', context),
+              style: rubikMedium.copyWith(
+                fontSize: Dimensions.fontSizeSmall,
+                color: const Color(0xFF3A4756),
+              ),
+            ),
+            const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+            const Icon(Icons.arrow_forward_ios, size: 12, color: Color(0xFF3A4756)),
+          ],
+        ),
+      ),
+    );
   }
 }

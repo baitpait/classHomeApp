@@ -56,7 +56,7 @@ class _FlashSaleDetailsScreenState extends State<FlashSaleDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final size = MediaQuery.sizeOf(context);
     return Scaffold(
       key: drawerGlobalKey,
       endDrawerEnableOpenDragGesture: false,
@@ -74,24 +74,39 @@ class _FlashSaleDetailsScreenState extends State<FlashSaleDetailsScreen> {
               return Column(children: [
 
                 Container(
-                  height: ResponsiveHelper.isDesktop(context) ? 200 : 100,
+                  height: ResponsiveHelper.isDesktop(context) ? 180 : 100,
                   width: double.maxFinite,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(15),
+                    color: const Color(0xFF3A4756),
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Theme.of(context).shadowColor.withValues(alpha: 0.1),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                  child: Row(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.center, children: [
-
-                    Image.asset(Images.flashSale, width: ResponsiveHelper.isDesktop(context) ? 250 : 110, height: ResponsiveHelper.isDesktop(context) ? 200 : 100, fit: BoxFit.cover),
-
-                    const Padding(
-                      padding: EdgeInsets.only(right: Dimensions.paddingSizeLarge),
-                      child: FlashSaleTimerWidget(),
-                    ),
-
-                  ]),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        Images.flashSale,
+                        width: ResponsiveHelper.isDesktop(context) ? 200 : 90,
+                        height: ResponsiveHelper.isDesktop(context) ? 180 : 100,
+                        fit: BoxFit.contain,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                          right: ResponsiveHelper.isDesktop(context) ? 20 : 14,
+                        ),
+                        child: const FlashSaleTimerWidget(),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 24),
 
                 Consumer<SearchProvider>(builder: (context, searchProvider, child){
                   return TitleWidget(

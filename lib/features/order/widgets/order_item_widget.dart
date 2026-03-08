@@ -41,8 +41,8 @@ class OrderItemWidget extends StatelessWidget {
             padding: EdgeInsets.all(ResponsiveHelper.isDesktop(context) ? Dimensions.paddingSizeExtraLarge : Dimensions.paddingSizeSmall),
             decoration: BoxDecoration(
               color: Theme.of(context).cardColor,
-              boxShadow: [BoxShadow(color: Colors.grey[Provider.of<ThemeProvider>(context).darkTheme ? 800 : 300]!, spreadRadius: 1, blurRadius: 5)],
-              borderRadius: BorderRadius.circular(15),
+              boxShadow: [BoxShadow(color: Theme.of(context).shadowColor.withValues(alpha: 0.10), blurRadius: 18, spreadRadius: 0, offset: const Offset(0, 4))],
+              borderRadius: BorderRadius.circular(14),
             ),
             child: IntrinsicHeight(
               child: ResponsiveHelper.isDesktop(context) ? Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [

@@ -14,8 +14,6 @@ class UserInfoModel {
   String? phone;
   String? cmFirebaseToken;
   String? loginMedium;
-  double? walletBalance;
-
 
   UserInfoModel(
       {this.id,
@@ -30,8 +28,7 @@ class UserInfoModel {
         this.emailVerificationToken,
         this.phone,
         this.cmFirebaseToken,
-        this.loginMedium,
-        this.walletBalance
+        this.loginMedium
       });
 
   UserInfoModel.fromJson(Map<String, dynamic> json) {
@@ -48,7 +45,6 @@ class UserInfoModel {
     phone = json['phone'];
     cmFirebaseToken = json['cm_firebase_token'];
     loginMedium = '${json['login_medium']}';
-    walletBalance = double.tryParse((json['wallet_balance'] ?? 0).toString()) ?? 0;
 
   }
 
@@ -67,7 +63,6 @@ class UserInfoModel {
     data['phone'] = phone;
     data['cm_firebase_token'] = cmFirebaseToken;
     data['login_medium'] = loginMedium;
-    data['wallet_balance'] = walletBalance;
 
     return data;
   }

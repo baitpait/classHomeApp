@@ -21,7 +21,7 @@ class ReviewWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final size = MediaQuery.sizeOf(context);
     return Container(
       margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
       padding: EdgeInsets.all(ResponsiveHelper.isDesktop(context) ? Dimensions.paddingSizeLarge : Dimensions.paddingSizeSmall),
@@ -145,10 +145,10 @@ class ReviewShimmer extends StatelessWidget {
           ]),
           const SizedBox(height: 5),
 
-          Container(height: 15, width: MediaQuery.of(context).size.width, color: Theme.of(context).shadowColor),
+          Container(height: 15, width: MediaQuery.sizeOf(context).width, color: Theme.of(context).shadowColor),
           const SizedBox(height: 3),
 
-          Container(height: 15, width: MediaQuery.of(context).size.width, color: Theme.of(context).shadowColor),
+          Container(height: 15, width: MediaQuery.sizeOf(context).width, color: Theme.of(context).shadowColor),
         ]),
       ),
     );

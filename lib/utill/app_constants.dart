@@ -6,7 +6,7 @@ import 'package:hexacom_user/utill/images.dart';
 class AppConstants {
   static const String appName = 'Mahfooz';
   static const double appVersion = 7.9;  ///Flutter version 3.38.5
-  static const AppMode appMode = AppMode.release;
+  static const AppMode appMode = AppMode.demo;
   static const String fontFamily = 'Exo';
   static const String fontFamilyArabic = 'Cairo';
   static const String baseUrl = 'http://127.0.0.1:8000';
@@ -77,8 +77,12 @@ class AppConstants {
   static const String popularCategory = '/api/v1/categories/popular';
   static const String placeDigitalOrder = '/api/v1/customer/payment-mobile';
 
-
-
+  /// Social media links used in the mobile menu.
+  /// Leave empty to hide a specific icon.
+  static const String facebookUrl = '';
+  static const String instagramUrl = '';
+  static const String twitterUrl = '';
+  static const String whatsappUrl = '';
   //MESSAGING
   static const String getDeliverymanMessageUri = '/api/v1/customer/message/get-order-message';
   static const String getAdminMessageUrl = '/api/v1/customer/message/get-admin-message';

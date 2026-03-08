@@ -22,7 +22,7 @@ class NoDataScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.sizeOf(context);
 
     return SingleChildScrollView(
       physics: scrollable ? const BouncingScrollPhysics() : const NeverScrollableScrollPhysics(),
@@ -38,11 +38,10 @@ class NoDataScreen extends StatelessWidget {
 
                 Image.asset(
                   image ?? Images.noDataImage,
-                  width: size.height * 0.18,
-                  height:size.height * 0.18,
-                  color: Theme.of(context).disabledColor.withValues(alpha: 0.1),
+                  width: size.height * 0.32,
+                  height: size.height * 0.32,
                 ),
-                const SizedBox(height: Dimensions.paddingSizeDefault),
+                const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
                 Text(
                   getTranslated(title ?? 'nothing_found', context),

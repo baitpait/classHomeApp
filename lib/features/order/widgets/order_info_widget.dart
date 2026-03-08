@@ -140,17 +140,17 @@ class OrderInfoWidget extends StatelessWidget {
           Container(
             decoration: ResponsiveHelper.isDesktop(context) ? BoxDecoration(
               color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.1), spreadRadius: 1, blurRadius: 5)],
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [BoxShadow(color: Theme.of(context).shadowColor.withValues(alpha: 0.10), blurRadius: 18, spreadRadius: 0, offset: const Offset(0, 4))],
             ) : null,
             child: Column(children: [
               Container(
-                width: MediaQuery.of(context).size.width,
+                width: MediaQuery.sizeOf(context).width,
                 padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: ResponsiveHelper.isDesktop(context) ? null : [BoxShadow(color: Colors.grey.withValues(alpha: 0.1), spreadRadius: 1, blurRadius: 5)],
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: ResponsiveHelper.isDesktop(context) ? null : [BoxShadow(color: Theme.of(context).shadowColor.withValues(alpha: 0.10), blurRadius: 18, spreadRadius: 0, offset: const Offset(0, 4))],
                 ),
                 child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
 
@@ -211,7 +211,7 @@ class OrderInfoWidget extends StatelessWidget {
                         Icon(Icons.info, color: ColorResources.colorBlue),
 
                         SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.75,
+                          width: MediaQuery.sizeOf(context).width * 0.75,
                         child: RichText(text: TextSpan(text: getTranslated('you_have_asked_for_bring', context), children: [
                           TextSpan(text: ' ${PriceConverterHelper.convertPrice(orderProvider.trackModel?.bringChangeAmount)} ',style: rubikBold),
 
@@ -247,7 +247,7 @@ class OrderInfoWidget extends StatelessWidget {
                   itemCount: order.orderDetails!.length,
                   itemBuilder: (context, index) {
                     return Container(
-                      width: MediaQuery.of(context).size.width,
+                      width: MediaQuery.sizeOf(context).width,
                       padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
                       margin: EdgeInsets.only(
                         bottom: Dimensions.paddingSizeSmall,
@@ -256,9 +256,8 @@ class OrderInfoWidget extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: Theme.of(context).cardColor,
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: ResponsiveHelper.isDesktop(context) ? 0.05 : 0.1), spreadRadius: 1, blurRadius: 5)],
-                        border: ResponsiveHelper.isDesktop(context) ? Border.all(width: 1, color: Theme.of(context).disabledColor.withValues(alpha: 0.08)) : null,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [BoxShadow(color: Theme.of(context).shadowColor.withValues(alpha: 0.10), blurRadius: 18, spreadRadius: 0, offset: const Offset(0, 4))],
                       ),
                       child: Row(children: [
                         ClipRRect(

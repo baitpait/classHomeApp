@@ -42,52 +42,88 @@ class AddressButtonWidget extends StatelessWidget {
     this.selectedAreaId,
   });
 
+  static const _slate = Color(0xFF3A4756);
+
   @override
   Widget build(BuildContext context) {
 
+    final bool isDesktop = ResponsiveHelper.isDesktop(context);
+
     return Consumer<AddressProvider>(
       builder: (context, addressProvider, _) {
-        return Column(children: [
+        return Container(
+          padding: isDesktop ? EdgeInsets.zero : const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          decoration: isDesktop
+              ? null
+              : BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Theme.of(context).shadowColor.withValues(alpha: 0.10),
+                      blurRadius: 18,
+                      spreadRadius: 0,
+                      offset: const Offset(0, -4),
+                    ),
+                  ],
+                ),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
 
-          addressProvider.addressStatusMessage != null ?
-          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            if (addressProvider.addressStatusMessage != null && addressProvider.addressStatusMessage!.isNotEmpty)
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.green.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(children: [
+                  Icon(Icons.check_circle_rounded, color: Colors.green.shade600, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(
+                    addressProvider.lastAddressSuccessType == 'update'
+                        ? getTranslated('updated_successfully', context)
+                        : getTranslated('address_added_successfuly', context),
+                    style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: Colors.green.shade700),
+                  )),
+                ]),
+              ),
 
-            addressProvider.addressStatusMessage!.isNotEmpty ? const CircleAvatar(backgroundColor: Colors.green, radius: 5) : const SizedBox.shrink(),
-            const SizedBox(width: 8),
+            if (addressProvider.addressStatusMessage == null && (addressProvider.errorMessage?.isNotEmpty ?? false))
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(children: [
+                  Icon(Icons.error_outline_rounded, color: Colors.red.shade600, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(
+                    addressProvider.errorMessage ?? "",
+                    style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: Colors.red.shade700),
+                  )),
+                ]),
+              ),
 
-            Expanded(child: Text(addressProvider.addressStatusMessage ?? "",
-              style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: Colors.green, height: 1),
-            ))
-          ]): Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
-            addressProvider.errorMessage!.isNotEmpty
-                ? const CircleAvatar(backgroundColor: Colors.red, radius: 5)
-                : const SizedBox.shrink(),
-            const SizedBox(width: 8),
-
-            Expanded(child: Text(
-              addressProvider.errorMessage ?? "",
-              style: Theme.of(context).textTheme.displayMedium!.copyWith(fontSize: Dimensions.fontSizeSmall, color: Colors.red, height: 1),
-            ))
-
-          ]),
-          const SizedBox(height: Dimensions.paddingSizeSmall),
-
-          Container(
-            height: 50.0,
-            width: Dimensions.webScreenWidth,
-            margin: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-            child: Consumer<LocationProvider>(
-              builder: (context, locationProvider, _) {
-                return CustomButtonWidget(
-                  isLoading: addressProvider.isLoading,
-                  btnTxt: isUpdateEnable ? getTranslated('update_address', context) : getTranslated('save_location', context),
-                  onTap: locationProvider.isLoading ? null : () async => _onPressAction(locationProvider, context),
-                );
-              },
+            SizedBox(
+              height: 50.0,
+              width: double.infinity,
+              child: Consumer<LocationProvider>(
+                builder: (context, locationProvider, _) {
+                  return CustomButtonWidget(
+                    isLoading: addressProvider.isLoading,
+                    btnTxt: isUpdateEnable ? getTranslated('update_address', context) : getTranslated('save_location', context),
+                    backgroundColor: _slate,
+                    onTap: locationProvider.isLoading ? null : () async => _onPressAction(locationProvider, context),
+                  );
+                },
+              ),
             ),
-          ),
-        ]);
+          ]),
+        );
       }
     );
   }
@@ -113,7 +149,7 @@ class AddressButtonWidget extends StatelessWidget {
     }
     final String addressText = addressTextController.text.trim();
     if (addressText.isEmpty) {
-      showCustomSnackBar(getTranslated('address', context), context);
+      showCustomSnackBar(getTranslated('please_enter_address', context), context);
       return;
     }
 
@@ -175,6 +211,7 @@ class AddressButtonWidget extends StatelessWidget {
 
           await addressProvider.addAddress(addressModel, context).then((value) async{
             if (value.isSuccess) {
+              final successMessage = getTranslated('address_added_successfuly', context);
 
               if (fromCheckout) {
                 await addressProvider.initAddressList();
@@ -190,7 +227,7 @@ class AddressButtonWidget extends StatelessWidget {
               }else{
                 RouteHelper.getAddressRoute(context, action: RouteAction.pushNamedAndRemoveUntil);
               }
-              showCustomSnackBar(value.message, context, isError: false);
+              showCustomSnackBar(successMessage, context, isError: false);
 
             } else {
               showCustomSnackBar(value.message, context);

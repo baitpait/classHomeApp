@@ -46,14 +46,15 @@ class SplashProvider extends ChangeNotifier {
       ApiResponseModel<CacheResponseData> responseModel =  await splashRepo!.getConfig(source: DataSourceEnum.local);
 
       if(responseModel.isSuccess) {
-
         _configModel = ConfigModel.fromJson(jsonDecode(responseModel.response!.response));
         _baseUrls = _configModel?.baseUrls;
         _onConfigAction(fromNotification);
-
       }
 
-      initConfig(fromNotification: fromNotification, source:  DataSourceEnum.client);
+      final clientFuture = initConfig(fromNotification: fromNotification, source: DataSourceEnum.client);
+      if(!responseModel.isSuccess) {
+        await clientFuture;
+      }
 
 
     }else {
@@ -114,20 +115,14 @@ class SplashProvider extends ChangeNotifier {
 
       notifyListeners();
 
-      Future.delayed(const Duration(milliseconds: 500), () {
-        final ctx = Get.context;
-        if(ctx != null) {
-          final AuthProvider authProvider = Provider.of<AuthProvider>(ctx, listen: false);
-          if(authProvider.getGuestId() == null && !authProvider.isLoggedIn()){
-            authProvider.addOrUpdateGuest();
-          }
-          authProvider.updateToken();
-
-          if (kDebugMode) {
-            print("Guest Id ==>${authProvider.getGuestId()}");
-          }
+      final ctx = Get.context;
+      if(ctx != null) {
+        final AuthProvider authProvider = Provider.of<AuthProvider>(ctx, listen: false);
+        if(authProvider.getGuestId() == null && !authProvider.isLoggedIn()){
+          authProvider.addOrUpdateGuest();
         }
-      });
+        authProvider.updateToken();
+      }
 
 
     }

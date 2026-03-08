@@ -19,10 +19,12 @@ import 'package:hexacom_user/utill/images.dart';
 import 'package:hexacom_user/helper/login_route_helper.dart';
 import 'package:hexacom_user/utill/routes.dart';
 import 'package:hexacom_user/utill/styles.dart';
+import 'package:hexacom_user/utill/color_resources.dart';
 import 'package:hexacom_user/common/widgets/custom_button_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_shadow_widget.dart';
 import 'package:hexacom_user/helper/custom_snackbar_helper.dart';
 import 'package:hexacom_user/common/widgets/custom_text_field_widget.dart';
+import 'package:hexacom_user/common/widgets/auth_background_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_pop_scope_widget.dart';
 import 'package:hexacom_user/common/widgets/footer_web_widget.dart';
 import 'package:hexacom_user/common/widgets/web_app_bar_widget.dart';
@@ -104,7 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.sizeOf(context);
 
     return Selector<SplashProvider, ConfigModel?>(
       selector: (ctx, splashProvider)=> splashProvider.configModel,
@@ -122,31 +124,46 @@ class _LoginScreenState extends State<LoginScreen> {
         }else{
           return CustomPopScopeWidget(
             child: Scaffold(
-              backgroundColor: ResponsiveHelper.isDesktop(context) ? null :  Theme.of(context).cardColor,
+              backgroundColor: ColorResources.navBarNavy,
               appBar: ResponsiveHelper.isDesktop(context) ? const PreferredSize(preferredSize: Size.fromHeight(90), child: WebAppBarWidget()) : null,
-              body: SafeArea(child: CustomScrollView(
-                physics: ResponsiveHelper.isWeb() ? null : const NeverScrollableScrollPhysics(),
+              body: AuthBackgroundWidget(
+                child: SafeArea(child: CustomScrollView(
+                physics: ResponsiveHelper.isDesktop(context) ? null : const BouncingScrollPhysics(),
                 slivers: [
                 SliverToBoxAdapter(child: Center(
                   child: Consumer<SplashProvider>(builder: (context, splashProvider, _){
-                    return  SizedBox(
-                      width: ResponsiveHelper.isDesktop(context) ? 450 : null,
-                      height: ResponsiveHelper.isDesktop(context) ? null : MediaQuery.sizeOf(context).height,
-                      child: Column(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center, children: [
+                    final bool isDesktop = ResponsiveHelper.isDesktop(context);
+                    return SizedBox(
+                      width: isDesktop ? 450 : (size.width - (Dimensions.paddingSizeDefault * 2)),
+                      height: isDesktop ? null : size.height,
+                      child: Column(
+                        mainAxisSize: isDesktop ? MainAxisSize.min : MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
 
-                        if(ResponsiveHelper.isDesktop(context))...[
+                        if(isDesktop)...[
                           SizedBox(height: size.height * 0.04)
                         ],
 
                         Center(child: CustomShadowWidget(
-                          boxShadow: ResponsiveHelper.isDesktop(context) ? BoxShadow(
-                              offset: const Offset(0,10),
-                              blurRadius: 30,
-                              spreadRadius: 0,
-                              color: Theme.of(context).textTheme.bodyMedium!.color!.withValues(alpha: 0.07)
-                          ): null,
-                          shadowColor: !ResponsiveHelper.isDesktop(context) ? Theme.of(context).cardColor : null,
-                          padding: EdgeInsets.symmetric(horizontal: ResponsiveHelper.isDesktop(context) ? 50 : Dimensions.paddingSizeExtraLarge, vertical: Dimensions.paddingSizeLarge),
+                          boxShadow: isDesktop
+                              ? BoxShadow(
+                                  offset: const Offset(0,10),
+                                  blurRadius: 30,
+                                  spreadRadius: 0,
+                                  color: Theme.of(context).textTheme.bodyMedium!.color!.withValues(alpha: 0.07),
+                                )
+                              : BoxShadow(
+                                  offset: const Offset(0, 4),
+                                  blurRadius: 16,
+                                  spreadRadius: 0,
+                                  color: Theme.of(context).shadowColor.withValues(alpha: 0.08),
+                                ),
+                          shadowColor: null,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isDesktop ? 50 : Dimensions.paddingSizeLarge,
+                            vertical: isDesktop ? Dimensions.paddingSizeLarge : Dimensions.paddingSizeDefault,
+                          ),
                           child: Consumer<AuthProvider>(
                             builder: (context, authProvider, child) {
                               final fontFamily = Theme.of(context).textTheme.bodyLarge?.fontFamily;
@@ -156,20 +173,42 @@ class _LoginScreenState extends State<LoginScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   // SizedBox(height: 30),
-                                  !ResponsiveHelper.isDesktop(context) ? Center(
-                                    child: Image.asset(
-                                      Images.logo,
-                                      height: ResponsiveHelper.isDesktop(context) ? 100.0 : 80,
-                                      fit: BoxFit.scaleDown,
-                                      matchTextDirection: true,
+                                  !ResponsiveHelper.isDesktop(context)
+                                      ? Center(
+                                          child: Image.asset(
+                                            Images.logo,
+                                            height: ResponsiveHelper.isDesktop(context) ? 100.0 : 64,
+                                            fit: BoxFit.scaleDown,
+                                            matchTextDirection: false,
+                                          ),
+                                        )
+                                      : const SizedBox.shrink(),
+                                  SizedBox(height: ResponsiveHelper.isDesktop(context) ? size.height * 0.03 : Dimensions.paddingSizeSmall),
+                                  Center(
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          getTranslated('login', context),
+                                          style: rubikMedium.copyWith(
+                                            fontSize: Dimensions.fontSizeOverLarge,
+                                            fontFamily: fontFamily,
+                                            color: ColorResources.getTextColor(context),
+                                          ),
+                                        ),
+                                        const SizedBox(height: Dimensions.paddingSizeSmall),
+                                        Text(
+                                          getTranslated('please_login_or_signup', context),
+                                          textAlign: TextAlign.center,
+                                          style: rubikRegular.copyWith(
+                                            fontSize: Dimensions.fontSizeDefault,
+                                            color: ColorResources.getTextColor(context).withValues(alpha: 0.75),
+                                            fontFamily: fontFamily,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ): const SizedBox.shrink(),
-                                  SizedBox(height: ResponsiveHelper.isDesktop(context) ? size.height * 0.03 :  Dimensions.paddingSizeSmall),
-                                  Center(child: Text(getTranslated('login', context), style: rubikMedium.copyWith(
-                                    fontSize: Dimensions.fontSizeOverLarge,
-                                    fontFamily: fontFamily,
-                                  ))),
-                                  SizedBox(height: ResponsiveHelper.isDesktop(context) ? size.height * 0.04 :  Dimensions.paddingSizeLarge),
+                                  ),
+                                  SizedBox(height: ResponsiveHelper.isDesktop(context) ? size.height * 0.03 : Dimensions.paddingSizeDefault),
 
                                   Selector<AuthProvider, bool>(
                                     selector: (context, authProvider) => authProvider.isNumberLogin,
@@ -230,10 +269,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                               width: 18,
                                               height: 18,
                                               decoration: BoxDecoration(
-                                                  color: authProvider.isActiveRememberMe ? Theme.of(context).primaryColor : Theme.of(context).cardColor,
-                                                  border:
-                                                  Border.all(color: authProvider.isActiveRememberMe ? Colors.transparent : Theme.of(context).primaryColor),
-                                                  borderRadius: BorderRadius.circular(3)),
+                                                color: authProvider.isActiveRememberMe
+                                                    ? ColorResources.primary
+                                                    : Theme.of(context).cardColor,
+                                                border: Border.all(
+                                                  color: authProvider.isActiveRememberMe
+                                                      ? Colors.transparent
+                                                      : ColorResources.primary,
+                                                ),
+                                                borderRadius: BorderRadius.circular(3),
+                                              ),
                                               child: authProvider.isActiveRememberMe
                                                   ? const Icon(Icons.done, color: Colors.white, size: 17)
                                                   : const SizedBox.shrink(),
@@ -277,7 +322,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                           authProvider.loginErrorMessage ?? "",
                                           style: rubikMedium.copyWith(
                                             fontSize: Dimensions.fontSizeSmall,
-                                            color: Colors.red,
+                                            color: Theme.of(context).colorScheme.error,
                                             fontFamily: fontFamily,
                                           ),
                                         ),
@@ -438,8 +483,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         if(ResponsiveHelper.isDesktop(context))...[
                           SizedBox(height: size.height * 0.02),
                         ],
+                        if(!ResponsiveHelper.isDesktop(context))
+                          SizedBox(height: MediaQuery.paddingOf(context).bottom + 24),
 
-                      ]),
+                        ],
+                      ),
                     );
                   }),
                 )),
@@ -456,6 +504,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               ],
               )),
+              ),
             ),
           );
         }

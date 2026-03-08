@@ -42,7 +42,7 @@ class _AddressScreenState extends State<AddressScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
+    final height = MediaQuery.sizeOf(context).height;
     return CustomPopScopeWidget(
       onPopInvoked: ()=> RouteHelper.getMainRoute(context, action: RouteAction.pushNamedAndRemoveUntil),
       child: Scaffold(
@@ -50,7 +50,7 @@ class _AddressScreenState extends State<AddressScreen> {
         floatingActionButton: _isLoggedIn ? Padding(
           padding:  EdgeInsets.only(top: ResponsiveHelper.isDesktop(context) ?  Dimensions.paddingSizeLarge : 0),
           child: !ResponsiveHelper.isDesktop(context) ? FloatingActionButton(
-            backgroundColor: Theme.of(context).primaryColor,
+            backgroundColor: const Color(0xFF3A4756),
             onPressed: () =>  RouteHelper.getAddAddressRoute(context, 'address', 'add', AddressModel(), routeAction: RouteAction.push),
             child: const Icon(
                 Icons.add, color: Colors.white),

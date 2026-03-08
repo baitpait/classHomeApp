@@ -2,15 +2,15 @@ import 'package:hexacom_user/utill/app_constants.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:flutter/material.dart';
 
-// Light theme palette: #EC2227 (primary), #747113 (secondary), #D2D3D4 (gray), #FFFFFF, #000000
+// Light theme palette: #EC2227 (primary), #8B1A1A (secondary), #D2D3D4 (gray), #FFFFFF, #000000
 ThemeData light = ThemeData(
   fontFamily: AppConstants.fontFamily,
   primaryColor: const Color(0xFFEC2227),
-  secondaryHeaderColor: const Color(0xFF747113),
+  secondaryHeaderColor: const Color(0xFF8B1A1A),
   brightness: Brightness.light,
   cardColor: const Color(0xFFFFFFFF),
   focusColor: const Color(0xFFD2D3D4),
-  hintColor: const Color(0xFF747113),
+  hintColor: const Color(0xFF8B1A1A),
   canvasColor: const Color(0xFFFFFFFF),
   shadowColor: const Color(0xFFD2D3D4),
   textTheme: TextTheme(
@@ -63,7 +63,7 @@ ThemeData light = ThemeData(
     brightness: Brightness.light,
     primary: const Color(0xFFEC2227),
     onPrimary: Colors.white,
-    secondary: const Color(0xFF747113),
+    secondary: const Color(0xFF8B1A1A),
     onSecondary: Colors.white,
     error: const Color(0xFFEC2227),
     onError: Colors.white,

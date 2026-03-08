@@ -21,6 +21,7 @@ class ProductProvider extends ChangeNotifier {
   // Latest products
   Product? _product;
   ProductModel? _latestProductModel;
+  List<Product>? _allLatestProducts;
   List<Product>? _offerProductList;
   bool _isLoading = false;
   List<int>? _variationIndex;
@@ -33,6 +34,7 @@ class ProductProvider extends ChangeNotifier {
 
   Product? get product => _product;
   ProductModel? get latestProductModel => _latestProductModel;
+  List<Product>? get allLatestProducts => _allLatestProducts;
   List<Product>? get offerProductList => _offerProductList;
   bool get isLoading => _isLoading;
   List<int>? get variationIndex => _variationIndex;
@@ -61,7 +63,9 @@ class ProductProvider extends ChangeNotifier {
         fetchFromClient: ()=> productRepo!.getLatestProductList(offset, limit ?? 15, filterType, source: DataSourceEnum.client),
         onResponse: (data, _){
           _latestProductModel = ProductModel.fromJson(data);
-          
+          _allLatestProducts = _latestProductModel?.products != null
+              ? List<Product>.from(_latestProductModel!.products!)
+              : null;
           notifyListeners();
         },
       );
@@ -72,10 +76,17 @@ class ProductProvider extends ChangeNotifier {
 
         if(offset == 1){
           _latestProductModel = ProductModel.fromJson(apiResponse.response?.data);
+          _allLatestProducts = _latestProductModel?.products != null
+              ? List<Product>.from(_latestProductModel!.products!)
+              : null;
         } else {
-          _latestProductModel!.totalSize = ProductModel.fromJson(apiResponse.response?.data).totalSize;
-          _latestProductModel!.offset = ProductModel.fromJson(apiResponse.response?.data).offset;
-          _latestProductModel!.products!.addAll(ProductModel.fromJson(apiResponse.response?.data).products!);
+          final more = ProductModel.fromJson(apiResponse.response?.data);
+          _latestProductModel!.totalSize = more.totalSize;
+          _latestProductModel!.offset = more.offset;
+          _latestProductModel!.products!.addAll(more.products ?? []);
+          _allLatestProducts = _latestProductModel!.products != null
+              ? List<Product>.from(_latestProductModel!.products!)
+              : null;
         }
 
         _isLoading = false;
@@ -86,6 +97,46 @@ class ProductProvider extends ChangeNotifier {
     }
     
    
+  }
+
+  /// Apply client-side filters for the home product list without navigating.
+  /// - [categoryId]: if provided, show only products that belong to this category.
+  /// - [newestOnly]: when true (and [priceSort] is null), sort by createdAt descending.
+  /// - [priceSort]: when provided, sort by price (low→high or high→low).
+  void applyHomeFilters({int? categoryId, bool newestOnly = false, ProductFilterType? priceSort}) {
+    if (_latestProductModel == null || _allLatestProducts == null) return;
+
+    Iterable<Product> list = _allLatestProducts!;
+
+    if (categoryId != null) {
+      list = list.where((product) {
+        final ids = product.categoryIds;
+        if (ids == null || ids.isEmpty) return false;
+        final target = categoryId.toString();
+        return ids.any((c) => c.id == target);
+      });
+    }
+
+    final result = list.toList();
+
+    if (priceSort != null) {
+      result.sort((a, b) {
+        final aPrice = a.price ?? 0;
+        final bPrice = b.price ?? 0;
+        return priceSort == ProductFilterType.lowToHigh
+            ? aPrice.compareTo(bPrice)
+            : bPrice.compareTo(aPrice);
+      });
+    } else if (newestOnly) {
+      result.sort((a, b) {
+        final aDate = a.createdAt ?? '';
+        final bDate = b.createdAt ?? '';
+        return bDate.compareTo(aDate); // newest first
+      });
+    }
+
+    _latestProductModel!.products = result;
+    notifyListeners();
   }
 
   Future<void> getProductDetails(Product product, CartModel? cart) async {

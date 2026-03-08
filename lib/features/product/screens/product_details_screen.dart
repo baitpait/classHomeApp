@@ -278,14 +278,16 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
 
             if(!ResponsiveHelper.isDesktop(context)) SafeArea(
-              child: Container(
-                width: Dimensions.webScreenWidth,
-                padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                child: CustomButtonWidget(
-                  btnTxt: _getCartButtonText(cartProvider, cartModel, context, isExistInCart),
-                  radius: Dimensions.radiusSizeFifty,
-                  backgroundColor: Theme.of(context).primaryColor,
-                  onTap: _onSubmitCartButton(cartProvider, cartModel, isExistInCart, context),
+              child: Center(
+                child: Container(
+                  width: MediaQuery.sizeOf(context).width - (Dimensions.paddingSizeLarge * 2),
+                  padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                  child: CustomButtonWidget(
+                    btnTxt: _getCartButtonText(cartProvider, cartModel, context, isExistInCart),
+                    radius: Dimensions.radiusSizeFifty,
+                    backgroundColor: Theme.of(context).primaryColor,
+                    onTap: _onSubmitCartButton(cartProvider, cartModel, isExistInCart, context),
+                  ),
                 ),
               ),
             ),

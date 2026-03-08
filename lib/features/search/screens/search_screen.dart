@@ -35,6 +35,12 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isMobile = ResponsiveHelper.isMobile(context);
+    final double horizontalPadding = isMobile ? Dimensions.paddingSizeSmall : Dimensions.paddingSizeLarge;
+    final EdgeInsets searchFieldPadding = isMobile
+        ? const EdgeInsets.symmetric(vertical: 12, horizontal: 16)
+        : const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeLarge, horizontal: 22);
+
     return Scaffold(
       appBar: ResponsiveHelper.isDesktop(context) ? const CustomAppBarWidget() : null,
       body: SafeArea(child: Center(child: SizedBox(
@@ -45,75 +51,100 @@ class _SearchScreenState extends State<SearchScreen> {
             children: [
               Container(
                 decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-                    boxShadow: [BoxShadow(
+                  color: Theme.of(context).cardColor,
+                  boxShadow: [
+                    BoxShadow(
                       color: Theme.of(context).textTheme.bodyMedium!.color!.withValues(alpha: 0.05),
                       offset: const Offset(0, 2),
                       blurRadius: 30,
-                    )]
+                    ),
+                  ],
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
-                  child: Column(children: [
-                    const SizedBox(height: Dimensions.paddingSizeDefault),
-                    Row(children: [
-                      Expanded(child: Container(
-                        height: 42,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Theme.of(context).hintColor.withValues(alpha: 0.2), width: 1),
-                          borderRadius: BorderRadius.circular(40),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(40),
-                          child: CustomTextFieldWidget(
-                            fillColor: Theme.of(context).primaryColor.withValues(alpha: 0.04),
-                            hintText: getTranslated('search_for_products', context),
-                            isShowPrefixIcon: true,
-                            isSearch: true,
-                            prefixAssetImageColor: Theme.of(context).primaryColor,
-                            prefixAssetUrl: Images.search,
-                            onSuffixTap: () {
-                              if (_searchController.text.isNotEmpty) {
-                                searchProvider.saveSearchAddress(_searchController.text);
-
-                                RouteHelper.getSearchResultRoute(context, text: _searchController.text, action: RouteAction.pushReplacement);
-
-                              }
-                            },
-                            controller: _searchController,
-                            inputAction: TextInputAction.search,
-                            isIcon: true,
-                            onChanged: (text){
-                              debounceWidget.run((){
-                                searchProvider.getSuggestionList(text);
-                              });
-                            },
-                            onSubmit: (text) {
-                              if (_searchController.text.isNotEmpty) {
-                                searchProvider.saveSearchAddress(_searchController.text);
-                                RouteHelper.getSearchResultRoute(context, text: _searchController.text, action: RouteAction.pushReplacement);
-                              }
-                            },
+                  padding: EdgeInsets.symmetric(
+                    horizontal: horizontalPadding,
+                    vertical: isMobile ? Dimensions.paddingSizeSmall : Dimensions.paddingSizeDefault,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor.withValues(alpha: 0.04),
+                            border: Border.all(
+                              color: Theme.of(context).hintColor.withValues(alpha: 0.2),
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(isMobile ? 12 : 40),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(isMobile ? 12 : 40),
+                            child: CustomTextFieldWidget(
+                              contentPadding: searchFieldPadding,
+                              fillColor: Colors.transparent,
+                              hintText: getTranslated('search_for_products', context),
+                              isShowPrefixIcon: true,
+                              isSearch: true,
+                              prefixAssetImageColor: Theme.of(context).primaryColor,
+                              prefixAssetUrl: Images.search,
+                              onSuffixTap: () {
+                                if (_searchController.text.isNotEmpty) {
+                                  searchProvider.saveSearchAddress(_searchController.text);
+                                  RouteHelper.getSearchResultRoute(
+                                    context,
+                                    text: _searchController.text,
+                                    action: RouteAction.pushReplacement,
+                                  );
+                                }
+                              },
+                              controller: _searchController,
+                              inputAction: TextInputAction.search,
+                              isIcon: true,
+                              onChanged: (text) {
+                                debounceWidget.run(() {
+                                  searchProvider.getSuggestionList(text);
+                                });
+                              },
+                              onSubmit: (text) {
+                                if (_searchController.text.isNotEmpty) {
+                                  searchProvider.saveSearchAddress(_searchController.text);
+                                  RouteHelper.getSearchResultRoute(
+                                    context,
+                                    text: _searchController.text,
+                                    action: RouteAction.pushReplacement,
+                                  );
+                                }
+                              },
+                            ),
                           ),
                         ),
-                      )),
-
-                      IconButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        icon: Icon(Icons.close, color: Theme.of(context).disabledColor, size: 25, ),
                       ),
-                    ]),
-                    const SizedBox(height: 10),
-                  ]),
+                      SizedBox(width: isMobile ? Dimensions.paddingSizeExtraSmall : 0),
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () => Navigator.of(context).pop(),
+                          borderRadius: BorderRadius.circular(24),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Icon(
+                              Icons.close,
+                              color: Theme.of(context).disabledColor,
+                              size: isMobile ? 22 : 25,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: Dimensions.paddingSizeDefault),
+              SizedBox(height: isMobile ? Dimensions.paddingSizeSmall : Dimensions.paddingSizeDefault),
 
               if(_searchController.text.isEmpty)...[
                 if(searchProvider.historyList.isNotEmpty) Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
+                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -136,7 +167,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
                 if(searchProvider.historyList.isNotEmpty)
                   Expanded(flex: 1, child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
+                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
                   child: ListView.builder(
                     itemCount: searchProvider.historyList.length,
                     physics: const BouncingScrollPhysics(),
@@ -172,7 +203,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 const SizedBox(height: Dimensions.paddingSizeDefault),
 
                 Expanded(flex: 2, child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
+                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, spacing: Dimensions.paddingSizeSmall, children: [
                     Text(getTranslated('popular_categories', context), style: rubikMedium),
 
@@ -200,7 +231,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
               if(_searchController.text.isNotEmpty)...[
                 Expanded(flex: 1, child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
+                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
                   child: ListView.builder(
                     itemCount: searchProvider.productSuggestionModel?.products?.length,
                     physics: const BouncingScrollPhysics(),

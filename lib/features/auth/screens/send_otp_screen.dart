@@ -2,6 +2,7 @@ import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:hexacom_user/common/enums/footer_type_enum.dart';
 import 'package:hexacom_user/common/models/config_model.dart';
+import 'package:hexacom_user/common/widgets/auth_background_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_app_bar_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_button_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_pop_scope_widget.dart';
@@ -24,6 +25,7 @@ import 'package:hexacom_user/localization/language_constrants.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:hexacom_user/utill/images.dart';
 import 'package:hexacom_user/utill/styles.dart';
+import 'package:hexacom_user/utill/color_resources.dart';
 import 'package:provider/provider.dart';
 
 class SendOtpScreen extends StatefulWidget {
@@ -63,11 +65,12 @@ class _SendOtpScreenState extends State<SendOtpScreen> {
   @override
   Widget build(BuildContext context) {
 
-    final Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.sizeOf(context);
     final ConfigModel configModel = Provider.of<SplashProvider>(context, listen: false).configModel!;
 
     return CustomPopScopeWidget(
       child: Scaffold(
+        backgroundColor: ColorResources.navBarNavy,
         appBar: ResponsiveHelper.isDesktop(context)? const PreferredSize(preferredSize: Size.fromHeight(120), child: WebAppBarWidget()) : PreferredSize(
           preferredSize: const Size.fromHeight(40),
           child: CustomAppBarWidget(
@@ -80,9 +83,10 @@ class _SendOtpScreenState extends State<SendOtpScreen> {
             },
           ),
         ),
-        body: SafeArea(
-          child: Center(
-            child: CustomScrollView(slivers: [
+        body: AuthBackgroundWidget(
+          child: SafeArea(
+            child: Center(
+              child: CustomScrollView(slivers: [
 
               SliverToBoxAdapter(child: Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
 
@@ -90,44 +94,70 @@ class _SendOtpScreenState extends State<SendOtpScreen> {
                   SizedBox(height: size.width * 0.02),
 
                 Center(child: Container(
-                  width: size.width > 700 ? 450 : size.width,
-                  margin: const EdgeInsets.only(top: Dimensions.paddingSizeLarge),
-                  padding: size.width > 700 ? const EdgeInsets.all(Dimensions.paddingSizeDefault) : null,
-                  decoration: size.width > 700 ? BoxDecoration(
-                    color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(10),
+                  width: size.width > 700 ? 450 : (size.width - (Dimensions.paddingSizeDefault * 2)),
+                  margin: EdgeInsets.only(
+                    top: size.width > 700 ? Dimensions.paddingSizeLarge : 24,
+                    left: size.width > 700 ? 0 : Dimensions.paddingSizeDefault,
+                    right: size.width > 700 ? 0 : Dimensions.paddingSizeDefault,
+                    bottom: size.width > 700 ? 0 : Dimensions.paddingSizeLarge,
+                  ),
+                  padding: size.width > 700
+                      ? const EdgeInsets.all(Dimensions.paddingSizeDefault)
+                      : const EdgeInsets.symmetric(
+                          horizontal: Dimensions.paddingSizeLarge,
+                          vertical: Dimensions.paddingSizeDefault,
+                        ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor,
+                    borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Theme.of(context).textTheme.bodyMedium!.color!.withValues(alpha: 0.07),
-                        blurRadius: 30,
+                        color: Theme.of(context).shadowColor.withValues(alpha: size.width > 700 ? 0.07 : 0.08),
+                        blurRadius: size.width > 700 ? 30 : 16,
                         spreadRadius: 0,
-                        offset: const Offset(0,10),
-                      )
+                        offset: Offset(0, size.width > 700 ? 10 : 4),
+                      ),
                     ],
-                  ) : null,
+                  ),
                   child: Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
 
-                    SizedBox(height: ResponsiveHelper.isDesktop(context) ? size.height * 0.02 : size.height * 0.14),
+                    SizedBox(height: ResponsiveHelper.isDesktop(context) ? size.height * 0.02 : 20),
 
                     if(!ResponsiveHelper.isDesktop(context))...[
                       Directionality(
                         textDirection: TextDirection.ltr,
                         child: Image.asset(
-                          Images.logo, height: ResponsiveHelper.isDesktop(context)
-                            ? MediaQuery.of(context).size.height * 0.15
-                            : MediaQuery.of(context).size.height / 4.5,
+                          Images.logo,
+                          height: ResponsiveHelper.isDesktop(context)
+                              ? MediaQuery.sizeOf(context).height * 0.15
+                              : 64,
                           fit: BoxFit.scaleDown,
                         ),
                       ),
                     ],
                     const SizedBox(height: Dimensions.paddingSizeDefault),
 
-                    Text(getTranslated('login', context),
-                      style: rubikBold.copyWith(
-                          fontSize: Dimensions.fontSizeExtraLarge,
-                          color: Theme.of(context).textTheme.bodyMedium?.color
-                      ),
+                    Column(
+                      children: [
+                        Text(
+                          getTranslated('login', context),
+                          style: rubikBold.copyWith(
+                            fontSize: Dimensions.fontSizeExtraLarge,
+                            color: ColorResources.getTextColor(context),
+                          ),
+                        ),
+                        const SizedBox(height: Dimensions.paddingSizeSmall),
+                        Text(
+                          getTranslated('enter_phone_number', context),
+                          textAlign: TextAlign.center,
+                          style: rubikRegular.copyWith(
+                            fontSize: Dimensions.fontSizeDefault,
+                            color: ColorResources.getTextColor(context).withValues(alpha: 0.75),
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(height: size.height * 0.05),
+                    SizedBox(height: size.height * 0.04),
 
 
 
@@ -155,10 +185,14 @@ class _SendOtpScreenState extends State<SendOtpScreen> {
                             onTap: ()=> authProvider.toggleRememberMe(),
                             child: Row(children: [
 
-                              Container(width: 18, height: 18,
+                              Container(
+                                width: 18,
+                                height: 18,
                                 decoration: BoxDecoration(
-                                  color: authProvider.isActiveRememberMe ? Theme.of(context).primaryColor : Theme.of(context).cardColor,
-                                  border: Border.all(color: authProvider.isActiveRememberMe ? Colors.transparent : Theme.of(context).primaryColor),
+                                  color: authProvider.isActiveRememberMe ? ColorResources.primary : Theme.of(context).cardColor,
+                                  border: Border.all(
+                                    color: authProvider.isActiveRememberMe ? Colors.transparent : ColorResources.primary,
+                                  ),
                                   borderRadius: BorderRadius.circular(3),
                                 ),
                                 child: authProvider.isActiveRememberMe
@@ -275,6 +309,7 @@ class _SendOtpScreenState extends State<SendOtpScreen> {
             ]),
           ),
         ),
+      ),
       ),
     );
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hexacom_user/common/enums/footer_type_enum.dart';
 import 'package:hexacom_user/common/models/order_model.dart';
-import 'package:hexacom_user/common/widgets/custom_app_bar_widget.dart';
+import 'package:hexacom_user/common/widgets/custom_web_title_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_directionality_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_loader_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_pop_scope_widget.dart';
@@ -59,6 +59,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
   @override
   Widget build(BuildContext context) {
     final double width = MediaQuery.sizeOf(context).width;
+    final bool isDesktop = ResponsiveHelper.isDesktop(context);
 
     return CustomPopScopeWidget(
       onPopInvoked: (){
@@ -69,9 +70,12 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
         }
       },
       child: Scaffold(
-        appBar: (ResponsiveHelper.isDesktop(context)? const PreferredSize(preferredSize: Size.fromHeight(120), child: WebAppBarWidget()): CustomAppBarWidget(
-          title: getTranslated('track_order', context),
-        )) as PreferredSizeWidget?,
+        appBar: isDesktop
+            ? const PreferredSize(
+                preferredSize: Size.fromHeight(120),
+                child: WebAppBarWidget(),
+              )
+            : null,
         body: Column(children: [
           Expanded(child: CustomScrollView(slivers: [
             SliverToBoxAdapter(child: Center(child: Consumer<OrderProvider>(
@@ -86,24 +90,94 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
                 return orderProvider.isLoading ? const TrackOrderShimmerWidget() : orderProvider.trackModel != null ? orderProvider.trackModel?.id == null ? NoDataScreen(
                   title: getTranslated('order_not_found', context),
                 )  :  Container(
-                  margin: EdgeInsets.symmetric(horizontal: ResponsiveHelper.isDesktop(context) ? (width - Dimensions.webScreenWidth) / 2 : Dimensions.paddingSizeDefault),
-                  decoration: ResponsiveHelper.isDesktop(context) ? BoxDecoration(
-                    color: Theme.of(context).canvasColor, borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
-                    boxShadow: [BoxShadow(color: Theme.of(context).shadowColor, blurRadius: 5, spreadRadius: 1)],
-                  ) : null,
-                  child: ResponsiveHelper.isDesktop(context) ? const Padding(
-                    padding: EdgeInsets.all(Dimensions.paddingSizeDefault),
-                    child: TrackOrderWebWidget(phoneNumber: null),
-                  ) : Column(children: [
+                  margin: EdgeInsets.symmetric(
+                    horizontal: isDesktop
+                        ? (width - Dimensions.getWebContentWidth(width)) / 2
+                        : 0,
+                  ),
+                  decoration: isDesktop
+                      ? BoxDecoration(
+                          color: Theme.of(context).canvasColor,
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Theme.of(context).shadowColor.withValues(alpha: 0.10),
+                              blurRadius: 18,
+                              spreadRadius: 0,
+                              offset: const Offset(0, 4),
+                            )
+                          ],
+                        )
+                      : null,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (!isDesktop)
+                        SizedBox(
+                          height: MediaQuery.paddingOf(context).top + Dimensions.paddingSizeSmall,
+                        ),
+                      CustomWebTitleWidget(title: getTranslated(" ", context)),
+                      Container(
+                        margin: const EdgeInsets.only(
+                          left: Dimensions.paddingSizeSmall,
+                          right: Dimensions.paddingSizeSmall,
+                          bottom: Dimensions.paddingSizeLarge,
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge, vertical: Dimensions.paddingSizeDefault),
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), color: const Color(0xFF3A4756)),
+                        child: Row(
+                          children: [
+                            if (!isDesktop) ...[
+                              IconButton(
+                                onPressed: () {
+                                  RouteHelper.getMainRoute(context, action: RouteAction.push);
+                                },
+                                icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Colors.white),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                              ),
+                              const SizedBox(width: 4),
+                            ],
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), shape: BoxShape.circle),
+                              child: const Icon(Icons.receipt_long_rounded, color: Colors.white, size: 22),
+                            ),
+                            const SizedBox(width: Dimensions.paddingSizeDefault),
+                            Expanded(
+                              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                Text('${getTranslated('order_id', context)} #${orderProvider.trackModel!.id}', style: rubikSemiBold.copyWith(fontSize: Dimensions.fontSizeLarge, color: Colors.white)),
+                                const SizedBox(height: 2),
+                                Text(getTranslated('track_order', context), style: rubikRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Colors.white.withValues(alpha: 0.7))),
+                              ]),
+                            ),
+                            CustomDirectionalityWidget(
+                              child: Text(
+                                PriceConverterHelper.convertPrice(orderProvider.trackModel!.orderAmount),
+                                style: rubikBold.copyWith(color: Colors.white, fontSize: Dimensions.fontSizeExtraLarge),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (isDesktop)
+                        const Padding(
+                          padding: EdgeInsets.all(Dimensions.paddingSizeDefault),
+                          child: TrackOrderWebWidget(phoneNumber: null),
+                        )
+                      else
+                        Column(children: [
                     Container(
-                      margin: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: Dimensions.paddingSizeSmall,
+                        vertical: Dimensions.paddingSizeSmall,
+                      ),
                       padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 10),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(Dimensions.paddingSizeExtraSmall),
+                        borderRadius: BorderRadius.circular(14),
                         color: Theme.of(context).cardColor,
-                        boxShadow: [
-                          BoxShadow(color: Theme.of(context).shadowColor, spreadRadius: 0.5, blurRadius: 0.5)
-                        ],
+                        boxShadow: [BoxShadow(color: Theme.of(context).shadowColor.withValues(alpha: 0.10), blurRadius: 18, spreadRadius: 0, offset: const Offset(0, 4))],
                       ),
                       child: Column(children: [
                         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -114,7 +188,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
 
                           CustomDirectionalityWidget(child: Text(
                             PriceConverterHelper.convertPrice(orderProvider.trackModel!.orderAmount),
-                            style: rubikBold.copyWith(color: Theme.of(context).primaryColor, fontSize: Dimensions.fontSizeLarge),
+                            style: rubikBold.copyWith(color: const Color(0xFF3A4756), fontSize: Dimensions.fontSizeLarge),
                           )),
                         ]),
 
@@ -166,7 +240,11 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
                       ]),
                     ),
 
-                    Column(children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: Dimensions.paddingSizeSmall,
+                      ),
+                      child: Column(children: [
                       CustomStepperWidget(
                         title: getTranslated('order_placed', context),
                         isComplete: true,
@@ -232,9 +310,12 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
                         statusImage: Images.orderDelivered,
                         child: const SizedBox(),
                       ),
-                    ]),
+                      ]),
+                    ),
 
                   ]),
+                    ],
+                  )
                 ) : Center(child: CustomLoaderWidget(color: Theme.of(context).primaryColor));
               },
             ))),

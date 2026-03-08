@@ -11,27 +11,29 @@ import 'package:hexacom_user/utill/styles.dart';
 import 'package:provider/provider.dart';
 
 class WithoutMapWidget extends StatelessWidget {
+  static const _slate = Color(0xFF3A4756);
+
   const WithoutMapWidget({super.key});
 
 
   @override
   Widget build(BuildContext context) {
 
-    final Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.sizeOf(context);
     final LocationProvider locationProvider = context.read<LocationProvider>();
 
 
     return Padding(
       padding: const EdgeInsets.only(top: Dimensions.paddingSizeDefault),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),
+        borderRadius: BorderRadius.circular(14),
         child:  Stack(clipBehavior: Clip.none, children: [
 
           CustomAssetImageWidget(
             Images.noMapBackground,
             fit: BoxFit.cover,
             height: ResponsiveHelper.isDesktop(context) ? size.height * 0.5 : size.height * 0.2,
-            width: MediaQuery.of(context).size.width,
+            width: MediaQuery.sizeOf(context).width,
             color: Colors.black.withValues(alpha: 0.5),
             colorBlendMode: BlendMode.darken,
           ),
@@ -65,9 +67,9 @@ class WithoutMapWidget extends StatelessWidget {
                     ));
 
                   },
-                  backgroundColor: Theme.of(context).cardColor,
+                  backgroundColor: _slate,
                   style: rubikBold.copyWith(
-                    color: Theme.of(context).primaryColor,
+                    color: Colors.white,
                   ),
                 ),
                 ),

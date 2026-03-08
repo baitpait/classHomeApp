@@ -39,7 +39,7 @@ class TrackOrderWebWidget extends StatelessWidget {
 
               CustomDirectionalityWidget(child: Text(
                 PriceConverterHelper.convertPrice(orderProvider.trackModel!.orderAmount),
-                style: rubikBold.copyWith(color: Theme.of(context).primaryColor, fontSize: Dimensions.fontSizeLarge),
+                style: rubikBold.copyWith(color: const Color(0xFF3A4756), fontSize: Dimensions.fontSizeLarge),
               )),
             ]),
             const Divider(height: Dimensions.paddingSizeExtraLarge),
@@ -48,12 +48,12 @@ class TrackOrderWebWidget extends StatelessWidget {
               Row(children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                    color: const Color(0xFF3A4756).withValues(alpha: 0.06),
                     borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
                   ),
                   padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
                   child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Image.asset(Images.wareHouse, color: Theme.of(context).primaryColor, width: Dimensions.paddingSizeLarge),
+                    Image.asset(Images.wareHouse, color: const Color(0xFF3A4756), width: Dimensions.paddingSizeLarge),
                     const SizedBox(width: 20),
 
                     if(orderProvider.trackModel?.branchId != null) Text(
@@ -73,12 +73,12 @@ class TrackOrderWebWidget extends StatelessWidget {
 
                 if(OrderHelper.isShowDeliveryAddress(orderProvider.trackModel)) Container(
                   decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                    color: const Color(0xFF3A4756).withValues(alpha: 0.06),
                     borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
                   ),
                   padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
                   child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Icon(Icons.location_on, color: Theme.of(context).primaryColor),
+                    Icon(Icons.location_on, color: const Color(0xFF3A4756)),
                     const SizedBox(width: 20),
 
                     ConstrainedBox(constraints: const BoxConstraints(maxWidth: 400), child: Text(
@@ -107,9 +107,9 @@ class TrackOrderWebWidget extends StatelessWidget {
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
-                    border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha: 0.5), width: 2),
+                    border: Border.all(color: const Color(0xFF3A4756).withValues(alpha: 0.5), width: 2),
                   ),
-                  child: Text(getTranslated('view_details', context), style: rubikBold.copyWith(color: Theme.of(context).primaryColor)),
+                  child: Text(getTranslated('view_details', context), style: rubikBold.copyWith(color: const Color(0xFF3A4756))),
                 ),
               ),
 

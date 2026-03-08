@@ -42,14 +42,21 @@ class CartDetailsWidget extends StatelessWidget {
        return Column( children: [
 
          configModel?.selfPickup == 1 ? Container(
-           padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+           padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
            decoration: BoxDecoration(
              color: Theme.of(context).cardColor,
-             borderRadius: BorderRadius.circular(10),
-             boxShadow: [BoxShadow(color:Theme.of(context).shadowColor, blurRadius: 10)],
+             borderRadius: BorderRadius.circular(14),
+             boxShadow: [BoxShadow(color: Theme.of(context).shadowColor.withValues(alpha: 0.10), blurRadius: 18, spreadRadius: 0, offset: const Offset(0, 4))],
            ),
            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-             Text(getTranslated('delivery_option', context), style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeLarge)),
+             Text(
+               getTranslated('delivery_option', context),
+               style: rubikSemiBold.copyWith(
+                 fontSize: Dimensions.fontSizeLarge,
+                 color: Theme.of(context).textTheme.bodyLarge?.color,
+               ),
+             ),
+             const SizedBox(height: Dimensions.paddingSizeExtraSmall),
              SelectDeliveryTypeWidget(value: 'delivery', title: getTranslated('delivery', context)),
              SelectDeliveryTypeWidget(value: 'self_pickup', title: getTranslated('self_pickup', context)),
            ]),
@@ -58,14 +65,20 @@ class CartDetailsWidget extends StatelessWidget {
          SizedBox(height:  configModel?.selfPickup == 1 ? Dimensions.paddingSizeDefault : 0),
 
          Container(
-           padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+           padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
            decoration: BoxDecoration(
              color: Theme.of(context).cardColor,
-             borderRadius: BorderRadius.circular(10),
-             boxShadow: [BoxShadow(color:Theme.of(context).shadowColor, blurRadius: 10)],
+             borderRadius: BorderRadius.circular(14),
+             boxShadow: [BoxShadow(color: Theme.of(context).shadowColor.withValues(alpha: 0.10), blurRadius: 18, spreadRadius: 0, offset: const Offset(0, 4))],
            ),
            child: Column(
+             crossAxisAlignment: CrossAxisAlignment.start,
              children: [
+               Text(
+                 getTranslated('total_amount', context),
+                 style: rubikSemiBold.copyWith(fontSize: Dimensions.fontSizeLarge),
+               ),
+               const SizedBox(height: Dimensions.paddingSizeSmall),
                if(isLoggedIn) CartCouponWidget(couponTextController: couponController, totalAmount: subTotal),
 
                const SizedBox(height: Dimensions.paddingSizeDefault),
@@ -97,14 +110,25 @@ class CartDetailsWidget extends StatelessWidget {
                  const SizedBox(height: 10),
                ],
 
-               const Divider(height: 20),
+              const Divider(height: 20),
 
-               CartItemWidget(
-                 title: getTranslated('subtotal' , context),
-                 subTitle: PriceConverterHelper.convertPrice(total),
-                 style: rubikMedium.copyWith(
-                   fontSize: Dimensions.fontSizeExtraLarge,
-                 ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Dimensions.paddingSizeSmall,
+                  vertical: Dimensions.paddingSizeSmall,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF3A4756).withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: CartItemWidget(
+                  title: getTranslated('total_amount', context),
+                  subTitle: PriceConverterHelper.convertPrice(total),
+                  style: rubikSemiBold.copyWith(
+                    fontSize: Dimensions.fontSizeExtraLarge,
+                    color: const Color(0xFF3A4756),
+                  ),
+                ),
                ),
 
                SizedBox(height: ResponsiveHelper.isDesktop(context) ? 10 : 0),

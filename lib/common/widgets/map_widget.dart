@@ -38,7 +38,7 @@ class _MapWidgetState extends State<MapWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
+    final height = MediaQuery.sizeOf(context).height;
     return Scaffold(
       appBar: (ResponsiveHelper.isDesktop(context)? const PreferredSize(preferredSize: Size.fromHeight(90), child: WebAppBarWidget()):  CustomAppBarWidget(title: getTranslated('delivery_address', context))) as PreferredSizeWidget?,
       body: SingleChildScrollView(

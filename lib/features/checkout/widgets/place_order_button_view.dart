@@ -20,6 +20,7 @@ import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:hexacom_user/utill/routes.dart';
 import 'package:hexacom_user/common/widgets/custom_button_widget.dart';
 import 'package:hexacom_user/helper/custom_snackbar_helper.dart';
+import 'package:hexacom_user/helper/price_converter_helper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -71,7 +72,7 @@ class PlaceOrderButtonView extends StatelessWidget {
     final AuthProvider authProvider = Provider.of<AuthProvider>(Get.context!, listen: false);
     bool selfPickup = orderType == 'self_pickup';
     final List<Branches> branches = Provider.of<SplashProvider>(context, listen: false).configModel!.branches ?? [];
-    final Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.sizeOf(context);
 
 
     return Consumer<CheckoutProvider>(
@@ -84,8 +85,13 @@ class PlaceOrderButtonView extends StatelessWidget {
                 builder: (context, orderProvider, _) {
                   return CustomButtonWidget(isLoading: orderProvider.isLoading, btnTxt: getTranslated('confirm_order', context), onTap: () async {
                     if(amount! < Provider.of<SplashProvider>(context, listen: false).configModel!.minimumOrderValue!) {
-                      showCustomSnackBar('${getTranslated('minimum_order_amount_is', context)} ${Provider.of<SplashProvider>(context, listen: false).configModel!.minimumOrderValue}', context);
-                    }else if(checkoutProvider.selectedPaymentMethod == null){
+                      final splash = Provider.of<SplashProvider>(context, listen: false);
+                      final minOrder = splash.configModel!.minimumOrderValue;
+                      showCustomSnackBar(
+                        '${getTranslated('minimum_order_amount_is', context)} ${PriceConverterHelper.convertPrice(minOrder)}, ${getTranslated('in_your_cart_please_add_more', context)} ${PriceConverterHelper.convertPrice(amount)}',
+                        context,
+                      );
+                    }else if(!selfPickup && checkoutProvider.selectedPaymentMethod == null){
                       if(!ResponsiveHelper.isMobile(context)){
                         showDialog(
                           context: context,
@@ -128,12 +134,16 @@ class PlaceOrderButtonView extends StatelessWidget {
                         ));
                       }
 
+                      final paymentMethod = selfPickup
+                          ? 'cash_on_delivery'
+                          : checkoutProvider.selectedPaymentMethod!.getWay!;
+
                       PlaceOrderModel placeOrderBody = PlaceOrderModel(
                         cart: carts, couponDiscountAmount: Provider.of<CouponProvider>(context, listen: false).discount, couponDiscountTitle: '',
                         deliveryAddressId: !selfPickup ? locationProvider.addressList![checkoutProvider.orderAddressIndex].id : 0,
                         orderAmount: amount!+ (deliveryCharge ?? 0),
-                        orderNote: orderNote ?? '', orderType: orderType,
-                        paymentMethod: checkoutProvider.selectedPaymentMethod!.getWay!,
+                        orderNote: selfPickup ? '' : (orderNote ?? ''), orderType: orderType,
+                        paymentMethod: paymentMethod,
                         couponCode: Provider.of<CouponProvider>(context, listen: false).coupon?.code,
                         branchId: branches[checkoutProvider.branchIndex].id,
                         distance: selfPickup ? 0 : checkoutProvider.distance,

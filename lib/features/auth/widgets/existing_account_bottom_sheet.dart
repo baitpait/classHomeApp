@@ -34,7 +34,7 @@ class _ExistingAccountBottomSheetState extends State<ExistingAccountBottomSheet>
   Widget build(BuildContext context) {
 
     final ConfigModel? configModel = context.read<SplashProvider>().configModel;
-    final Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.sizeOf(context);
 
     return Column(mainAxisSize: MainAxisSize.min, children: [
 

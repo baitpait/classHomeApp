@@ -44,7 +44,7 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
     return Consumer<OrderMapProvider>(
       builder: (context, orderMapProvider, _) {
         return Container(
-          height: 200, width: MediaQuery.of(context).size.width - 100,
+          height: 200, width: MediaQuery.sizeOf(context).width - 100,
           margin: const EdgeInsets.all(20),
           padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
           alignment: Alignment.center,

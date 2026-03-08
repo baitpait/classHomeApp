@@ -43,7 +43,10 @@ class CustomStepperWidget extends StatelessWidget {
             height: height,
             child: CustomPaint(
               size: const Size(2, double.infinity),
-              painter: DashedLineVerticalPainter(isActive: isComplete),
+              painter: DashedLineVerticalPainter(
+                isActive: isComplete,
+                activeColor: Theme.of(context).primaryColor,
+              ),
             ),
           ),
 
@@ -60,13 +63,17 @@ class CustomStepperWidget extends StatelessWidget {
           margin: const EdgeInsets.only(left: 6),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
-            color: Theme.of(context).primaryColor.withValues(alpha: 0.05),
+            color: isComplete
+                ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
+                : const Color(0xFF3A4756).withValues(alpha: 0.06),
           ),
           child: Padding(
             padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
             child: Image.asset(
               statusImage!, width: 30,
-              color: Theme.of(context).primaryColor.withValues(alpha: isComplete ? 1 : 0.5),
+              color: isComplete
+                  ? Theme.of(context).primaryColor
+                  : Theme.of(context).disabledColor,
             ),
           ),
         ),
@@ -91,15 +98,22 @@ class CustomStepperWidget extends StatelessWidget {
 class DashedLineVerticalPainter extends CustomPainter {
   final bool? isActive;
   final Axis? axis;
-  DashedLineVerticalPainter({this.isActive = false, this.axis = Axis.vertical});
+  final Color? activeColor;
+  DashedLineVerticalPainter({
+    this.isActive = false,
+    this.axis = Axis.vertical,
+    this.activeColor,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
+    final ctx = Get.context!;
+    final color = isActive! ? (activeColor ?? Theme.of(ctx).primaryColor) : Theme.of(ctx).disabledColor;
     double dashHeight = 6, dashSpace = 3, startY = 0, dashWidth = 6, startX = 0;
 
     if(axis == Axis.vertical){
       final paint = Paint()
-        ..color = isActive! ?  Theme.of(Get.context!).primaryColor : Theme.of(Get.context!).disabledColor
+        ..color = color
         ..strokeWidth = size.width;
       while (startY < size.height) {
         canvas.drawLine(Offset(0, startY), Offset(0, startY + dashHeight), paint);
@@ -107,7 +121,7 @@ class DashedLineVerticalPainter extends CustomPainter {
       }
     }else{
       final paint = Paint()
-        ..color = isActive! ?  Theme.of(Get.context!).primaryColor : Theme.of(Get.context!).disabledColor
+        ..color = color
         ..strokeWidth = size.height;
       while (startX < size.width) {
         canvas.drawLine(Offset(startX, 0), Offset(startX + dashWidth, 0), paint);
@@ -150,32 +164,46 @@ class WebStepper extends StatelessWidget {
           children: [
             Container(
               decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withValues(alpha: 0.05),
+                color: isComplete
+                    ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
+                    : const Color(0xFF3A4756).withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
               ),
               padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
               margin: const EdgeInsets.all(Dimensions.paddingSizeSmall),
               child: CustomAssetImageWidget(
                 statusImage!, width: 30,
-                color: Theme.of(context).primaryColor.withValues(alpha: isComplete ? 1 : 0.5),
+                color: isComplete
+                    ? (color ?? Theme.of(context).primaryColor)
+                    : Theme.of(context).disabledColor,
               ),
             ),
 
             if(haveTopBar) CustomPaint(
               size: const Size(120, 2),
-              painter: DashedLineVerticalPainter(isActive: isComplete, axis: Axis.horizontal),
+              painter: DashedLineVerticalPainter(
+                isActive: isComplete,
+                axis: Axis.horizontal,
+                activeColor: Theme.of(context).primaryColor,
+              ),
             ),
           ],
         ),
         const SizedBox(height: Dimensions.paddingSizeDefault),
 
         Row(children: [
-          Text(title!, style: rubikRegular.copyWith(color: color ?? Theme.of(context).primaryColor)),
+          Text(
+            title!,
+            style: rubikRegular.copyWith(
+              color: color ?? (isComplete ? Theme.of(context).primaryColor : Theme.of(context).disabledColor),
+            ),
+          ),
           const SizedBox(width: Dimensions.paddingSizeSmall),
-
-          if(isActive) Icon(Icons.check_circle, color: color ?? Theme.of(context).primaryColor, size:  20),
-
-
+          if(isActive) Icon(
+            Icons.check_circle,
+            color: color ?? Theme.of(context).primaryColor,
+            size: 20,
+          ),
         ]),
         const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 

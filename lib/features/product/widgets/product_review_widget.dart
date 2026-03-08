@@ -22,7 +22,7 @@ class ProductReviewListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.sizeOf(context);
 
     final ProductProvider productProvider = Provider.of<ProductProvider>(context, listen: false);
 

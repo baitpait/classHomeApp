@@ -45,7 +45,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:url_strategy/url_strategy.dart';
 import 'di_container.dart' as di;
-import 'package:universal_html/html.dart' as html;
+
 
 late AndroidNotificationChannel channel;
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -57,30 +57,31 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
 
+  final List<Future> initFutures = [di.init()];
+
   if (!FeatureFlags.disableFirebaseAndPush) {
     if(kIsWeb) {
-      await Firebase.initializeApp(options: const FirebaseOptions(
+      initFutures.add(Firebase.initializeApp(options: const FirebaseOptions(
           apiKey: "AIzaSyBCtDfdfPqxXDO6rDNlmQC1VJSHOtuyo3w",
           authDomain: "gem-b5006.firebaseapp.com",
           projectId: "gem-b5006",
           storageBucket: "gem-b5006.firebasestorage.app",
           messagingSenderId: "384321080318",
           appId: "1:384321080318:web:9cf2ec90f41dfb8a2c0eaf"
-      ));
+      )));
 
-      await FacebookAuth.instance.webAndDesktopInitialize(
+      initFutures.add(FacebookAuth.instance.webAndDesktopInitialize(
         appId: "YOUR_APP_ID",
         cookie: true,
         xfbml: true,
         version: "v13.0",
-      );
+      ));
 
     } else {
-      await Firebase.initializeApp();
-      await FirebaseMessaging.instance.requestPermission();
+      initFutures.add(Firebase.initializeApp().then((_) => FirebaseMessaging.instance.requestPermission()));
     }
   }
-  await di.init();
+  await Future.wait(initFutures);
   if (!FeatureFlags.disableFirebaseAndPush) {
     try {
       await NotificationHelper.initialize(flutterLocalNotificationsPlugin);
@@ -156,21 +157,6 @@ class _MyAppState extends State<MyApp> {
   }
   Future<void> _route() async {
    await Provider.of<SplashProvider>(context, listen: false).initConfig();
-   Provider.of<AuthProvider>(context, listen: false).updateToken();
-
-   _onRemoveLoader();
-
-  }
-
-  void _onRemoveLoader() {
-    final preloader = html.document.querySelector('.preloader');
-    final header = html.document.querySelector('.header');
-    if (preloader != null) {
-      preloader.remove();
-    }
-    if (header != null) {
-      header.remove();
-    }
   }
   @override
   Widget build(BuildContext context) {

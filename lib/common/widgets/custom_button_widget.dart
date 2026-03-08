@@ -21,10 +21,12 @@ class CustomButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double resolvedHeight = height ?? 56;
+
     final ButtonStyle flatButtonStyle = TextButton.styleFrom(
       backgroundColor: onTap == null ? ColorResources.getGreyColor(context) : backgroundColor ?? Theme.of(context).primaryColor,
-      minimumSize: Size(0, height ?? 48),
-      maximumSize: Size(double.infinity, height ?? 48),
+      minimumSize: Size(0, resolvedHeight),
+      maximumSize: Size(double.infinity, resolvedHeight),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(radius),

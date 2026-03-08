@@ -2,13 +2,13 @@ import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hexacom_user/common/enums/footer_type_enum.dart';
-import 'package:hexacom_user/common/widgets/custom_app_bar_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_button_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_loader_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_text_field_widget.dart';
+import 'package:hexacom_user/common/widgets/custom_web_title_widget.dart';
 import 'package:hexacom_user/common/widgets/footer_web_widget.dart';
-import 'package:hexacom_user/common/widgets/phone_number_field_widget.dart';
 import 'package:hexacom_user/common/widgets/web_app_bar_widget.dart';
+import 'package:hexacom_user/common/widgets/phone_number_field_widget.dart';
 import 'package:hexacom_user/features/order/providers/order_provider.dart';
 import 'package:hexacom_user/features/order/widgets/track_order_web_widget.dart';
 import 'package:hexacom_user/features/splash/providers/splash_provider.dart';
@@ -45,85 +45,170 @@ class _OrderSearchScreenState extends State<OrderSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDesktop = ResponsiveHelper.isDesktop(context);
     return Scaffold(
-      appBar: ResponsiveHelper.isDesktop(context) ? const PreferredSize(
-        preferredSize: Size.fromHeight(100), child: WebAppBarWidget(),
-      ) : CustomAppBarWidget(
-        isBackButtonExist: ResponsiveHelper.isMobile(context),
-        title: getTranslated('order_details', context),
-        actionView: _TrackRefreshButtonView(
-          orderIdTextController: orderIdTextController,
-          phoneNumberTextController: phoneNumberTextController,
-        ),
-      ) as PreferredSizeWidget,
-
+      appBar: isDesktop
+          ? const PreferredSize(
+              preferredSize: Size.fromHeight(120),
+              child: WebAppBarWidget(),
+            )
+          : null,
       body: CustomScrollView(slivers: [
-
-        SliverToBoxAdapter(child: Container(
-          margin: ResponsiveHelper.isDesktop(context) ? EdgeInsets.symmetric(horizontal: (MediaQuery.sizeOf(context).width - Dimensions.webScreenWidth) / 2).copyWith(top: Dimensions.paddingSizeDefault) : null,
-          decoration: ResponsiveHelper.isDesktop(context) ? BoxDecoration(
-            color: Theme.of(context).canvasColor, borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
-            boxShadow: [BoxShadow(color: Theme.of(context).shadowColor, blurRadius: 5, spreadRadius: 1)],
-          ) : null,
-          child: Column(children: [
-            if(ResponsiveHelper.isDesktop(context)) Center(child: Container(
-              padding: const EdgeInsets.only(top: Dimensions.paddingSizeLarge),
-              width: Dimensions.webScreenWidth,
-              child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.center, children: [
-                const SizedBox(width: 150,),
-                Text(getTranslated('track_your_order', context), style: rubikBold.copyWith(fontSize: Dimensions.fontSizeOverLarge)),
-                Padding(padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
-                  child: _TrackRefreshButtonView(
-                    orderIdTextController: orderIdTextController,
-                    phoneNumberTextController: phoneNumberTextController,
+        SliverToBoxAdapter(
+          child: Center(
+            child: Container(
+              width: isDesktop ? Dimensions.getWebContentWidth(MediaQuery.sizeOf(context).width) : null,
+              padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (!isDesktop)
+                    SizedBox(
+                      height: MediaQuery.paddingOf(context).top + Dimensions.paddingSizeSmall,
+                    ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(Dimensions.paddingSizeSmall, 8, Dimensions.paddingSizeSmall, 0),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          onPressed: () => context.pop(),
+                          icon: Icon(Icons.arrow_back_ios_new, size: 20, color: Theme.of(context).textTheme.bodyLarge?.color),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                        ),
+                        if (!isDesktop) ...[
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              getTranslated('track_order', context),
+                              style: rubikSemiBold.copyWith(fontSize: Dimensions.fontSizeLarge),
+                            ),
+                          ),
+                        ],
+                        if (isDesktop)
+                          _TrackRefreshButtonView(
+                            orderIdTextController: orderIdTextController,
+                            phoneNumberTextController: phoneNumberTextController,
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-              ]),
-            )),
-
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
-              child: Column(children: [
-
-                Padding(
-                  padding: ResponsiveHelper.isDesktop(context) ? const EdgeInsets.symmetric(
-                    horizontal: Dimensions.paddingSizeLarge, vertical: Dimensions.paddingSizeSmall,
-                  ) : const EdgeInsets.only(top: Dimensions.paddingSizeSmall),
-                  child: _InputView(
-                    orderIdTextController: orderIdTextController, orderIdFocusNode: orderIdFocusNode,
-                    phoneFocusNode: phoneFocusNode, phoneNumberTextController: phoneNumberTextController,
-                    onValueChange: (String code) {
-                      setState(() {
-                        countryCode = code;
-                      });
-                    },
-                    countryCode: countryCode,
-
+                  CustomWebTitleWidget(title: getTranslated('track_order', context)),
+                  Container(
+                    margin: const EdgeInsets.only(
+                      left: Dimensions.paddingSizeSmall,
+                      right: Dimensions.paddingSizeSmall,
+                      bottom: Dimensions.paddingSizeLarge,
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: Dimensions.paddingSizeLarge,
+                      vertical: Dimensions.paddingSizeDefault,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: const Color(0xFF3A4756),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.location_on_rounded, color: Colors.white, size: 22),
+                        ),
+                        const SizedBox(width: Dimensions.paddingSizeDefault),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                getTranslated('track_your_order', context),
+                                style: rubikSemiBold.copyWith(fontSize: Dimensions.fontSizeLarge, color: Colors.white),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                getTranslated('enter_your_order_id', context),
+                                style: rubikRegular.copyWith(
+                                  fontSize: Dimensions.fontSizeSmall,
+                                  color: Colors.white.withValues(alpha: 0.7),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-
-               Consumer<OrderProvider>(builder: (context, orderProvider, _) {
-                    return orderProvider.trackModel == null || orderProvider.trackModel?.id == null  ? Column(children: [
-                      const SizedBox(height: Dimensions.paddingSizeLarge),
-                      Image.asset(Images.outForDelivery, color: Theme.of(context).disabledColor.withValues(alpha: 0.5), width:  70),
-                      const SizedBox(height: Dimensions.paddingSizeDefault),
-
-                      Text(getTranslated('enter_your_order_id', context), style: rubikRegular.copyWith(
-                        color: Theme.of(context).disabledColor,
-                      ), maxLines: 2,  textAlign: TextAlign.center),
-                      const SizedBox(height: 100),
-                    ]) : ResponsiveHelper.isDesktop(context) ? TrackOrderWebWidget(
-                      phoneNumber: '${CountryCode.fromCountryCode(countryCode!).dialCode}${phoneNumberTextController.text.trim()}',
-                    ) : const SizedBox();
-                }),
-
-
-              ]),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
+                    padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).shadowColor.withValues(alpha: 0.10),
+                          blurRadius: 18,
+                          spreadRadius: 0,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        _InputView(
+                          orderIdTextController: orderIdTextController,
+                          orderIdFocusNode: orderIdFocusNode,
+                          phoneFocusNode: phoneFocusNode,
+                          phoneNumberTextController: phoneNumberTextController,
+                          onValueChange: (String code) {
+                            setState(() {
+                              countryCode = code;
+                            });
+                          },
+                          countryCode: countryCode,
+                        ),
+                        if (!isDesktop)
+                          _TrackRefreshButtonView(
+                            orderIdTextController: orderIdTextController,
+                            phoneNumberTextController: phoneNumberTextController,
+                          ),
+                        Consumer<OrderProvider>(
+                          builder: (context, orderProvider, _) {
+                            return orderProvider.trackModel == null || orderProvider.trackModel?.id == null
+                                ? Column(
+                                    children: [
+                                      const SizedBox(height: Dimensions.paddingSizeLarge),
+                                      Image.asset(Images.outForDelivery, color: Theme.of(context).disabledColor.withValues(alpha: 0.5), width: 70),
+                                      const SizedBox(height: Dimensions.paddingSizeDefault),
+                                      Text(
+                                        getTranslated('enter_your_order_id', context),
+                                        style: rubikRegular.copyWith(color: Theme.of(context).disabledColor),
+                                        maxLines: 2,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      const SizedBox(height: 60),
+                                    ],
+                                  )
+                                : isDesktop
+                                    ? TrackOrderWebWidget(
+                                        phoneNumber: '${CountryCode.fromCountryCode(countryCode!).dialCode}${phoneNumberTextController.text.trim()}',
+                                      )
+                                    : const SizedBox();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-
-          ]),
-        )),
-
+          ),
+        ),
         const FooterWebWidget(footerType: FooterType.sliver),
       ]),
     );
@@ -145,7 +230,7 @@ class _TrackRefreshButtonView extends StatelessWidget {
     return FloatingActionButton.extended(
       elevation: 0,
       hoverElevation: 0,
-      hoverColor:  Theme.of(context).primaryColor.withValues(alpha: 0.1),
+      hoverColor:  const Color(0xFF3A4756).withValues(alpha: 0.08),
       backgroundColor:  Theme.of(context).cardColor,
       onPressed: () {
         orderIdTextController.clear();
@@ -153,7 +238,7 @@ class _TrackRefreshButtonView extends StatelessWidget {
         Provider.of<OrderProvider>(context, listen: false).clearPrevData(isUpdate: true);
       },
       label: Text(getTranslated('refresh', context), style: rubikMedium.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color)),
-      icon: Icon(Icons.refresh, color: Theme.of(context).primaryColor),
+      icon: Icon(Icons.refresh, color: const Color(0xFF3A4756)),
     );
   }
 }

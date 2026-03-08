@@ -30,31 +30,34 @@ class NotLoggedInScreen extends StatelessWidget {
 
                     Image.asset(
                       Images.guestLogin,
-                      width: MediaQuery.of(context).size.height*0.25,
-                      height: MediaQuery.of(context).size.height*0.25,
+                      width: MediaQuery.sizeOf(context).height*0.25,
+                      height: MediaQuery.sizeOf(context).height*0.25,
                     ),
-                    SizedBox(height: MediaQuery.of(context).size.height*0.03),
+                    SizedBox(height: MediaQuery.sizeOf(context).height*0.03),
 
                     Text(
                       getTranslated('guest_mode', context),
-                      style: rubikBold.copyWith(fontSize: MediaQuery.of(context).size.height*0.023),
+                      style: rubikBold.copyWith(fontSize: MediaQuery.sizeOf(context).height*0.023),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: MediaQuery.of(context).size.height*0.02),
+                    SizedBox(height: MediaQuery.sizeOf(context).height*0.02),
 
                     Text(
                       getTranslated('now_you_are_in_guest_mode', context),
-                      style: rubikRegular.copyWith(fontSize: MediaQuery.of(context).size.height*0.0175),
+                      style: rubikRegular.copyWith(fontSize: MediaQuery.sizeOf(context).height*0.0175),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: MediaQuery.of(context).size.height*0.03),
+                    SizedBox(height: MediaQuery.sizeOf(context).height*0.03),
 
                     SizedBox(
-                      height: 40,
-                      width: 100,
-                      child: CustomButtonWidget(btnTxt: getTranslated('login', context), onTap: () {
-                        RouteHelper.getLoginRoute(context, fromPage, action: RouteAction.push);
-                      }),
+                      width: 220,
+                      height: 46,
+                      child: CustomButtonWidget(
+                        btnTxt: getTranslated('login', context),
+                        onTap: () {
+                          RouteHelper.getLoginRoute(context, fromPage, action: RouteAction.push);
+                        },
+                      ),
                     ),
 
                   ]),

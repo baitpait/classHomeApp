@@ -2,14 +2,12 @@ import 'package:hexacom_user/helper/responsive_helper.dart';
 import 'package:hexacom_user/localization/language_constrants.dart';
 import 'package:hexacom_user/features/product/providers/product_provider.dart';
 import 'package:hexacom_user/common/enums/search_short_by_enum.dart';
-import 'package:hexacom_user/utill/color_resources.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:hexacom_user/utill/routes.dart';
-import 'package:hexacom_user/provider/theme_provider.dart';
 import 'package:hexacom_user/utill/styles.dart';
 import 'package:hexacom_user/common/widgets/custom_slider_list_widget.dart';
 import 'package:hexacom_user/common/widgets/product_card_widget.dart';
-import 'package:hexacom_user/common/widgets/title_widget.dart';
+import 'package:hexacom_user/utill/color_resources.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -33,115 +31,208 @@ class _OfferProductWidgetState extends State<OfferProductWidget> {
   Widget build(BuildContext context) {
     return Consumer<ProductProvider>(
       builder: (context, offerProduct, child) {
+        final isDesktop = ResponsiveHelper.isDesktop(context);
+        final backgroundColor = ColorResources.getOfferSectionBackground(context);
 
-        return ResponsiveHelper.isDesktop(context) ? CustomSliderListWidget(
+        return isDesktop ? CustomSliderListWidget(
           controller: scrollController,
-          verticalPosition: 270,
+          verticalPosition: 125,
           horizontalPosition: 0,
           isShowForwardButton: offerProduct.offerProductList != null && offerProduct.offerProductList!.length > 5,
           child: Container(
-            height: 410,
-            margin: const EdgeInsets.only(top: 30, bottom: 25),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(Dimensions.paddingSizeDefault),
-              color: Provider.of<ThemeProvider>(context).darkTheme
-                  ? ColorResources.offerSectionBackgroundDark
-                  : ColorResources.offerSectionBackground,
+            margin: const EdgeInsets.symmetric(
+              horizontal: Dimensions.paddingSizeLarge,
+              vertical: 8,
             ),
-            child: Column(children: [
-
-              Padding(
-                padding: const EdgeInsets.all(Dimensions.paddingSizeExtraLarge),
-                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-
-                  const SizedBox(),
-
-                  Text(getTranslated('offer_product', context), style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeOverLarge)),
-
-                  InkWell(
-                    hoverColor: Colors.transparent,
-                    onTap: () => RouteHelper.getSearchResultRoute(context, shortBy: SearchShortBy.offerProducts, action: RouteAction.push),
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: Dimensions.paddingSizeSmall),
-                      child: Text(getTranslated('view_all', context), style: rubikMedium),
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(Dimensions.paddingSizeLarge, 18, Dimensions.paddingSizeLarge, 14),
+                  child: _OfferHeader(
+                    onTap: () => RouteHelper.getSearchResultRoute(
+                      context,
+                      shortBy: SearchShortBy.offerProducts,
+                      action: RouteAction.push,
                     ),
                   ),
-
-                ]),
-              ),
-
-              Expanded(
-                child: Consumer<ProductProvider>(
-                    builder: (context, offerProduct, child) {
-                      return offerProduct.offerProductList == null ? const SizedBox() : offerProduct.offerProductList!.isEmpty ? const SizedBox() : SizedBox(
-                        child: ListView.builder(
-                          physics: const ClampingScrollPhysics(),
-                          controller: scrollController,
-                          itemCount: offerProduct.offerProductList!.length,
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.only(left: Dimensions.paddingSizeDefault, bottom: Dimensions.paddingSizeDefault),
-                          itemBuilder: (ctx, index) => Container(
-                            margin: const EdgeInsets.only(right: Dimensions.paddingSizeSmall),
-                            width: 210,
+                ),
+                Consumer<ProductProvider>(
+                  builder: (context, offerProduct, child) {
+                    return offerProduct.offerProductList == null
+                        ? const SizedBox()
+                        : offerProduct.offerProductList!.isEmpty
+                            ? const SizedBox()
+                            : Padding(
+                                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                                child: SizedBox(
+                                  height: Dimensions.horizontalProductCardHeight,
+                                  child: ListView.builder(
+                                    physics: const ClampingScrollPhysics(),
+                                    controller: scrollController,
+                                    itemCount: offerProduct.offerProductList!.length,
+                                    scrollDirection: Axis.horizontal,
+                                    itemBuilder: (ctx, index) => Padding(
+                                      padding: const EdgeInsets.only(right: 8),
+                                      child: SizedBox(
+                                        width: Dimensions.horizontalProductCardWidth,
+                                        height: Dimensions.horizontalProductCardHeight,
+                                        child: ProductCardWidget(
+                                          product: offerProduct.offerProductList![index],
+                                          direction: Axis.horizontal,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ) : Consumer<ProductProvider>(
+          builder: (context, offerProduct, child) {
+            if (offerProduct.offerProductList == null || offerProduct.offerProductList!.isEmpty) {
+              return const SizedBox.shrink();
+            }
+            return Container(
+              color: backgroundColor,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(Dimensions.paddingSizeLarge, 14, Dimensions.paddingSizeLarge, 6),
+                    child: Row(
+                      children: [
+                        const Expanded(child: _OfferMobileTitle()),
+                        _SectionViewAllLink(
+                          onTap: () => RouteHelper.getSearchResultRoute(
+                            context,
+                            shortBy: SearchShortBy.offerProducts,
+                            action: RouteAction.push,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(Dimensions.mobileContentPaddingHorizontal, 16, Dimensions.mobileContentPaddingHorizontal, 8),
+                    child: SizedBox(
+                      height: Dimensions.horizontalProductCardHeight,
+                      child: ListView.builder(
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: offerProduct.offerProductList!.length > 5 ? 5 : offerProduct.offerProductList!.length,
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (ctx, index) => Padding(
+                          padding: const EdgeInsets.only(right: 14),
+                          child: SizedBox(
+                            width: Dimensions.horizontalProductCardWidth,
+                            height: Dimensions.horizontalProductCardHeight,
                             child: ProductCardWidget(
                               product: offerProduct.offerProductList![index],
+                              direction: Axis.horizontal,
                             ),
                           ),
                         ),
-                      );
-                    }
-                ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-
-            ]),
-          ),
-        ) : Column(children: [
-
-          Stack(clipBehavior: Clip.none, children: [
-            Container(
-              height: 300,
-              alignment: Alignment.topCenter,
-              margin: const EdgeInsets.only(top: Dimensions.paddingSizeDefault, bottom: 80),
-              padding: const EdgeInsets.only(left: 20, top: 17, right: 20),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(Dimensions.paddingSizeDefault),
-                color: Provider.of<ThemeProvider>(context).darkTheme
-                    ? ColorResources.offerSectionBackgroundDark
-                    : ColorResources.offerSectionBackground,
-              ),
-              child: TitleWidget(
-                title: getTranslated('offer_product', context),
-                onTap: () => RouteHelper.getSearchResultRoute(context, shortBy: SearchShortBy.offerProducts, action: RouteAction.push),
-              ),
-            ),
-
-            Positioned(
-              right: 0, left: 0, top: 70,
-              child: SizedBox(
-                height: 320,
-                child: Consumer<ProductProvider>(
-                    builder: (context, offerProduct, child) {
-                      return offerProduct.offerProductList == null ? const SizedBox() :  ListView.builder(
-                        physics: const BouncingScrollPhysics(),
-                        itemCount: offerProduct.offerProductList != null && offerProduct.offerProductList!.length > 5 ? 5 : offerProduct.offerProductList?.length,
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
-                        itemBuilder: (ctx, index) => Container(
-                          margin: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeExtraSmall),
-                          width: MediaQuery.of(context).size.width * 0.55, height: 320,
-                          child: ProductCardWidget(
-                            product: offerProduct.offerProductList![index],
-                          ),
-                        ),
-                      );
-                    }
-                ),
-              ),
-            ),
-          ]),
-
-        ]);
+            );
+          },
+        );
       }
+    );
+  }
+}
+
+class _OfferHeader extends StatelessWidget {
+  const _OfferHeader({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final isDesktop = ResponsiveHelper.isDesktop(context);
+
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            getTranslated('offer_product', context),
+            style: rubikBold.copyWith(
+              color: onSurface,
+              fontSize: isDesktop ? 20 : 18,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        _SectionViewAllLink(onTap: onTap),
+      ],
+    );
+  }
+}
+
+class _OfferMobileTitle extends StatelessWidget {
+  const _OfferMobileTitle();
+
+  @override
+  Widget build(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            getTranslated('offer_product', context),
+            style: rubikBold.copyWith(color: onSurface, fontSize: 18),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SectionViewAllLink extends StatelessWidget {
+  const _SectionViewAllLink({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(Dimensions.radiusSizeSmall),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: Dimensions.paddingSizeExtraSmall,
+          horizontal: Dimensions.paddingSizeSmall,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              getTranslated('view_all', context),
+              style: rubikMedium.copyWith(
+                fontSize: Dimensions.fontSizeSmall,
+                color: const Color(0xFF3A4756),
+              ),
+            ),
+            const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+            const Icon(Icons.arrow_forward_ios, size: 12, color: Color(0xFF3A4756)),
+          ],
+        ),
+      ),
     );
   }
 }

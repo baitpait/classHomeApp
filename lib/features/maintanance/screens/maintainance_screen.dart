@@ -50,12 +50,12 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> with WidgetsBindi
   @override
   Widget build(BuildContext context) {
 
-    final Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.sizeOf(context);
     final ConfigModel? configModel = Provider.of<SplashProvider>(context).configModel;
 
     return Scaffold(
       body: Padding(
-        padding: EdgeInsets.all(MediaQuery.of(context).size.height*0.025),
+        padding: EdgeInsets.all(MediaQuery.sizeOf(context).height*0.025),
         child: Center(
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
 

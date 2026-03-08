@@ -27,7 +27,55 @@ class Dimensions {
   static const double radiusButton = 12.0;
 
 
-  static const double webScreenWidth = 1170;
+  /// Breakpoints for responsive web content width.
+  static const double webBreakpoint = 1400.0;
+  static const double webContentWidthSmall = 1170.0;
+  static const double webContentWidthLarge = 1440.0;
+
+  /// Max content width on desktop: 1170 for viewport < 1400px, 1440 for larger. Use [getWebContentWidth] when you have [BuildContext].
+  static const double webScreenWidth = webContentWidthSmall;
+
   static const int messageInputLength = 250;
   static const int webHeaderHeight = 90;
+
+  /// Returns content width based on viewport: [webContentWidthSmall] below [webBreakpoint], [webContentWidthLarge] above.
+  static double getWebContentWidth(double viewportWidth) {
+    return viewportWidth >= webBreakpoint ? webContentWidthLarge : webContentWidthSmall;
+  }
+
+  /// Mobile home screen: consistent spacing between sections and edges.
+  static const double mobileHomePaddingTop = 10.0;
+  static const double mobileHomeSectionGap = 12.0;
+  static const double mobileHomePaddingHorizontal = 12.0;
+  static const double mobileHomePaddingBottom = 12.0;
+
+  /// Single grid margin for mobile: inline padding used app-wide (slider, categories, products, etc.).
+  static const double mobileContentPaddingHorizontal = 4.0;
+
+  /// Product list / product pages: same as [mobileContentPaddingHorizontal] for unified grid.
+  static const double mobileProductPaddingHorizontal = 4.0;
+  static const double mobileProductGridGap = 4.0;
+  static const double mobileProductGridCrossAxisSpacing = 2.0;
+  /// Inline (horizontal) padding inside each product card cell on mobile grid.
+  static const double mobileProductCardPaddingHorizontal = 2.0;
+  static const double mobileProductCardPaddingVertical = 4.0;
+
+  /// Bottom nav bar: max width so the pill doesn't stretch on wide/shrunk viewports.
+  static const double bottomNavBarMaxWidth = 420.0;
+  /// Bottom nav bar: visual height (pill + bottom padding) for content padding so last items can scroll above the pill.
+  static const double bottomNavBarHeight = 66.0;
+
+  /// Category slider: card width by viewport (mobile vs desktop). Use with [getCategoryImageSize].
+  static double getCategoryCardWidth(double viewportWidth) {
+    return viewportWidth >= webBreakpoint ? 116.0 : 80.0;
+  }
+
+  /// Category slider: circle image size by viewport (mobile vs desktop). Use with [getCategoryCardWidth].
+  static double getCategoryImageSize(double viewportWidth) {
+    return viewportWidth >= webBreakpoint ? 104.0 : 76.0;
+  }
+
+  /// Horizontal product card (flash sale, offers, new arrival): fixed size so parents always provide constraints.
+  static const double horizontalProductCardWidth = 320.0;
+  static const double horizontalProductCardHeight = 160.0;
 }

@@ -18,8 +18,6 @@ import 'package:hexacom_user/features/auth/screens/create_account_screen.dart';
 import 'package:hexacom_user/features/auth/screens/login_screen.dart';
 import 'package:hexacom_user/features/auth/screens/otp_registration_screen.dart';
 import 'package:hexacom_user/features/auth/screens/send_otp_screen.dart';
-import 'package:hexacom_user/features/category/screens/all_category_screen.dart';
-import 'package:hexacom_user/features/category/screens/category_screen.dart';
 import 'package:hexacom_user/features/checkout/screens/checkout_screen.dart';
 import 'package:hexacom_user/features/coupon/screens/coupon_screen.dart';
 import 'package:hexacom_user/features/dashboard/screens/dashboard_screen.dart';
@@ -76,7 +74,6 @@ class RouteHelper {
   static const String dashboardScreen = '/main';
   static const String searchScreen = '/search';
   static const String searchResultScreen = '/search-result';
-  static const String categoryScreen = '/category-screen';
   static const String notificationScreen = '/notification';
   static const String checkoutScreen = '/checkout';
   static const String paymentScreen = '/payment';
@@ -100,7 +97,6 @@ class RouteHelper {
   static const String returnPolicyScreen = '/return-policy';
   static const String refundPolicyScreen = '/refund-policy';
   static const String cancellationPolicyScreen = '/cancellation-policy';
-  static String categories = '/categories';
   static const String flashSaleDetailsScreen = '/flash-sale-details';
   static const String orderWebPayment = '/order-web-payment';
   static const String orderListScreen = '/order-list';
@@ -137,7 +133,10 @@ class RouteHelper {
   static String getMaintainRoute(BuildContext context, {RouteAction? action}) => _navigateRoute(context, maintain, route: action);
   static String getSendOtpScreen(BuildContext context, String fromPage, {RouteAction? action}) => _navigateRoute(context, '$sendOtp?page=$fromPage', route: action);
   static String getUpdateRoute(BuildContext context, {RouteAction? action}) => _navigateRoute(context, update, route: action);
-  static String getDashboardRoute(BuildContext context, String page, {RouteAction? action}) => _navigateRoute(context, '$dashboardScreen?page=$page', route: action);
+  static String getDashboardRoute(BuildContext context, String page, {int? categoryId, RouteAction? action}) {
+    final query = categoryId != null ? '&category_id=$categoryId' : '';
+    return _navigateRoute(context, '$dashboardScreen?page=$page$query', route: action);
+  }
   static String getProductDetailsRoute(BuildContext context, int? id, {RouteAction? action}) => _navigateRoute(context, '$productDetails?id=$id', route: action);
   static String getProductImageRoute(BuildContext context, String images, {RouteAction? action}) => _navigateRoute(context, '$productImages?images=$images', route: action);
   static String getSearchRoute(BuildContext context, {RouteAction? action}) => _navigateRoute(context, searchScreen, route: action);
@@ -150,8 +149,9 @@ class RouteHelper {
     return _navigateRoute(context, '$searchResultScreen?text=$data&short_by=${shortBy != null ? shortBy.name : ''}', route: action);
   }
   static String getNotificationRoute(BuildContext context, {RouteAction? action}) => _navigateRoute(context, notificationScreen, route: action);
-  static String getCategoryRoute(BuildContext context, CategoryModel? categoryModel,{int? subCategoryId, RouteAction? action}) {
-    return _navigateRoute(context, '$categoryScreen?sub_id=${subCategoryId ?? '-1'}&id=${categoryModel?.id}', route: action);
+  /// Navigates to store tab with the given category pre-selected (replaces old category page).
+  static String getCategoryRoute(BuildContext context, CategoryModel? categoryModel, {int? subCategoryId, RouteAction? action}) {
+    return getDashboardRoute(context, 'store', categoryId: categoryModel?.id, action: action);
   }
 
   static String getCheckoutRoute(BuildContext context, {
@@ -210,7 +210,6 @@ class RouteHelper {
   static String getReturnPolicyRoute(BuildContext context, {RouteAction? action}) => _navigateRoute(context, returnPolicyScreen, route: action);
   static String getCancellationPolicyRoute(BuildContext context, {RouteAction? action}) => _navigateRoute(context, cancellationPolicyScreen, route: action);
   static String getRefundPolicyRoute(BuildContext context, {RouteAction? action}) => _navigateRoute(context, refundPolicyScreen, route: action);
-  static String getCategoryAllRoute(BuildContext context, {RouteAction? action}) => _navigateRoute(context, categories, route: action);
   static String getFlashSaleDetailsRoute(BuildContext context, {RouteAction? action}) => _navigateRoute(context, flashSaleDetailsScreen, route: action);
   static String getOrderListScreen(BuildContext context, {RouteAction? action}) => _navigateRoute(context, orderListScreen, route: action);
   static String getOrderSearchScreen(BuildContext context, {RouteAction? action}) => _navigateRoute(context, orderSearchScreen, route: action);
@@ -346,13 +345,23 @@ class RouteHelper {
       GoRoute(path: maintain, builder: (context, state) => _routeHandler(context, const MaintenanceScreen(), path: _getPath(state))),
 
       GoRoute(path: dashboardScreen, builder: (context, state) {
-        return _routeHandler(context, DashboardScreen(
-          pageIndex: state.uri.queryParameters['page'] == 'home'
-              ? 0 : state.uri.queryParameters['page'] == 'cart'
-              ? 1 : state.uri.queryParameters['page'] == 'favourite'
-              ? 2 : state.uri.queryParameters['page'] == 'menu'
-              ? 3  : 0,
-        ),path: _getPath(state));
+        final page = state.uri.queryParameters['page'];
+        final pageIndex = page == 'home'
+            ? 0
+            : page == 'store'
+                ? 1
+                : page == 'cart'
+                    ? 2
+                    : page == 'favourite'
+                        ? 3
+                        : page == 'menu'
+                            ? 4
+                            : 0;
+        final categoryIdParam = state.uri.queryParameters['category_id'];
+        final initialStoreCategoryId = categoryIdParam != null && categoryIdParam.isNotEmpty
+            ? int.tryParse(categoryIdParam)
+            : null;
+        return _routeHandler(context, DashboardScreen(pageIndex: pageIndex, initialStoreCategoryId: initialStoreCategoryId), path: _getPath(state));
       }),
       GoRoute(path: update, builder: (context, state) => _routeHandler(context, const UpdateScreen(), path: _getPath(state))),
 
@@ -391,13 +400,6 @@ class RouteHelper {
         );
       }),
       GoRoute(path: notificationScreen, builder: (context, state) => _routeHandler(context, const NotificationScreen(), path: _getPath(state))),
-      GoRoute(path: categoryScreen,  builder: (context, state) {
-
-        return _routeHandler(context, CategoryScreen(
-          categoryId: int.parse(state.uri.queryParameters['id']!),
-          subCategoryId: '${state.uri.queryParameters['sub_id']}' == '-1' ? null : int.tryParse(state.uri.queryParameters['sub_id']!),
-        ), path: _getPath(state));
-      }),
 
       GoRoute(path: checkoutScreen, builder: (context, state){
         return _routeHandler(context, CheckoutScreen(
@@ -485,7 +487,6 @@ class RouteHelper {
       GoRoute(path: returnPolicyScreen, builder: (context, state) => _routeHandler(context, const HtmlViewerScreen(htmlType: HtmlType.returnPolicy), path: _getPath(state))),
       GoRoute(path: cancellationPolicyScreen, builder: (context, state) => _routeHandler(context, const HtmlViewerScreen(htmlType: HtmlType.cancellationPolicy), path: _getPath(state))),
       GoRoute(path: refundPolicyScreen, builder: (context, state) => _routeHandler(context, const HtmlViewerScreen(htmlType: HtmlType.refundPolicy), path: _getPath(state))),
-      GoRoute(path: categories, builder: (context, state) => _routeHandler(context, const AllCategoryScreen(), path: _getPath(state))),
       GoRoute(path: flashSaleDetailsScreen, builder: (context, state) => _routeHandler(context, const FlashSaleDetailsScreen(), path: _getPath(state))),
       GoRoute(path: orderListScreen, builder: (context, state) => _routeHandler(context, const OrderScreen(), path: _getPath(state))),
       GoRoute(path: orderSearchScreen, builder: (context, state) => _routeHandler(context, const OrderSearchScreen(), path: _getPath(state))),

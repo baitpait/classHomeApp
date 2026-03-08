@@ -20,14 +20,14 @@ class ProductImageWidget extends StatelessWidget {
         return Stack(
           children: [
             SizedBox(
-              height: ResponsiveHelper.isDesktop(context) ? MediaQuery.of(context).size.height * 0.5 : MediaQuery.of(context).size.height * 0.4,
+              height: ResponsiveHelper.isDesktop(context) ? MediaQuery.sizeOf(context).height * 0.5 : MediaQuery.sizeOf(context).height * 0.4,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(15),
                 child: CustomZoomWidget(
                   child: CustomImageWidget(
                     image: '${Provider.of<SplashProvider>(context, listen: false).baseUrls!.productImageUrl}/${product.product!.image![Provider.of<CartProvider>(context, listen: false).productSelect]}',
                     fit: ResponsiveHelper.isTab(context) ? BoxFit.fitHeight : BoxFit.cover,
-                    width: MediaQuery.of(context).size.width,
+                    width: MediaQuery.sizeOf(context).width,
                   ),
                 ),
               ),

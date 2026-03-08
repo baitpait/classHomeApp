@@ -30,9 +30,9 @@ class DioClient {
   Future<void> updateHeader({String? getToken, Dio? dioC})async {
     dio
       ?..options.baseUrl = baseUrl
-      ..options.connectTimeout = const Duration(seconds: 30)
-      ..options.receiveTimeout = const Duration(seconds: 30)
-      ..httpClientAdapter
+      ..options.connectTimeout = const Duration(seconds: 15)
+      ..options.receiveTimeout = const Duration(seconds: 15)
+      ..options.sendTimeout = const Duration(seconds: 15)
       ..options.headers = {
 
         'Content-Type': 'application/json; charset=UTF-8',

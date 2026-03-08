@@ -21,7 +21,8 @@ class ProductListWidget extends StatelessWidget {
 
     return Consumer<ProductProvider>(
       builder: (context, productProvider, child) {
-
+        final isDesktop = ResponsiveHelper.isDesktop(context);
+        final isTab = ResponsiveHelper.isTab(context);
         return PaginatedListView(
           scrollController: scrollController!,
           totalSize: productProvider.latestProductModel?.totalSize,
@@ -31,30 +32,55 @@ class ProductListWidget extends StatelessWidget {
             offset!,limit: productProvider.latestProductModel?.limit,
             filterType: filterType, isUpdate: true,
           ),
-          itemView: productProvider.latestProductModel != null ? productProvider.latestProductModel!.products!.isNotEmpty ?
-
-          ResponsiveHelper.isDesktop(context) ? GridView.builder(
-            shrinkWrap: true,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisSpacing: ResponsiveHelper.isDesktop(context) ? 13 : 5,
-                mainAxisSpacing: ResponsiveHelper.isDesktop(context) ? 13 : 5,
-                childAspectRatio: ResponsiveHelper.isDesktop(context) ? (1/1.4) : 4,
-                crossAxisCount: ResponsiveHelper.isDesktop(context) ? 5 : ResponsiveHelper.isTab(context) ? 2 : 1),
-            itemCount: productProvider.latestProductModel?.products?.length,
-            itemBuilder: (BuildContext context, int index) {
-              return ProductCardWidget(product: productProvider.latestProductModel!.products![index]);
-            },
-          ) : StaggeredGrid.count(
-              crossAxisCount: ResponsiveHelper.isDesktop(context) ? 5 : 2,
-              mainAxisSpacing: 4,
-              crossAxisSpacing: 4,
-              children: productProvider.latestProductModel!.products!.map((product) => StaggeredGridTile.fit(
-                crossAxisCellCount: 1,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ProductCardWidget(product: product),
-                ),
-              )).toList()): const NoDataScreen(
+          itemView: productProvider.latestProductModel != null
+              ? productProvider.latestProductModel!.products!.isNotEmpty
+                  ? isDesktop
+                      // Desktop: fixed grid, 5 columns
+                      ? GridView.builder(
+                          shrinkWrap: true,
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisSpacing: 13,
+                            mainAxisSpacing: 13,
+                            childAspectRatio: 1 / 1.4,
+                            crossAxisCount: 5,
+                          ),
+                          itemCount: productProvider.latestProductModel?.products?.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return ProductCardWidget(product: productProvider.latestProductModel!.products![index]);
+                          },
+                        )
+                      : isTab
+                          // Tablet (iPad): fixed grid, 3 columns like PC cards
+                          ? GridView.builder(
+                              shrinkWrap: true,
+                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisSpacing: 13,
+                                mainAxisSpacing: 13,
+                                childAspectRatio: 1 / 1.4,
+                                crossAxisCount: 3,
+                              ),
+                              itemCount: productProvider.latestProductModel?.products?.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return ProductCardWidget(product: productProvider.latestProductModel!.products![index]);
+                              },
+                            )
+                          // Mobile: masonry, 2 columns
+                          : MasonryGridView.count(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              crossAxisCount: 2,
+                              mainAxisSpacing: Dimensions.mobileProductGridGap,
+                              crossAxisSpacing: Dimensions.mobileProductGridCrossAxisSpacing,
+                              itemCount: productProvider.latestProductModel!.products!.length,
+                              itemBuilder: (context, index) => Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: Dimensions.mobileProductCardPaddingHorizontal,
+                                  vertical: Dimensions.mobileProductCardPaddingVertical,
+                                ),
+                                child: ProductCardWidget(product: productProvider.latestProductModel!.products![index]),
+                              ),
+                            )
+                  : const NoDataScreen(
 
           ) : GridView.builder(
             shrinkWrap: true,

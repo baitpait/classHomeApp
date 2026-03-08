@@ -16,34 +16,18 @@ class ResponsiveHelper {
   }
 
   static bool isMobile(context) {
-    final size = MediaQuery.of(context).size.width;
-    if (size < 650 || !kIsWeb) {
-      return true;
-    } else {
-      return false;
-    }
+    final width = MediaQuery.sizeOf(context).width;
+    return width < 650 || !kIsWeb;
   }
 
   static bool isTab(context) {
-    final size = MediaQuery
-        .of(context)
-        .size
-        .width;
-    if (size < 1200 && size >= 600) {
-      return true;
-    } else {
-      return false;
-    }
+    final width = MediaQuery.sizeOf(context).width;
+    return width < 1200 && width >= 600;
   }
 
   static bool isDesktop(context) {
-    final size = MediaQuery.of(context).size.width;
-
-    if (size >= 1200) {
-      return true;
-    } else {
-      return false;
-    }
+    final width = MediaQuery.sizeOf(context).width;
+    return width >= 1200;
   }
 
   static Future showDialogOrBottomSheet(BuildContext context, Widget view) async {

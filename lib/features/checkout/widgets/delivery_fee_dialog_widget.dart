@@ -39,7 +39,7 @@ class DeliveryFeeDialogWidget extends StatelessWidget {
       return Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         child: Container(
-          width: ResponsiveHelper.isDesktop(context) ? MediaQuery.of(context).size.width*0.4 : MediaQuery.of(context).size.width ,
+          width: ResponsiveHelper.isDesktop(context) ? MediaQuery.sizeOf(context).width*0.4 : MediaQuery.sizeOf(context).width ,
           padding: const EdgeInsets.all(Dimensions.paddingSizeLarge),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
 

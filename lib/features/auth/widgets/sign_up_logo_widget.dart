@@ -3,12 +3,16 @@ import 'package:hexacom_user/localization/language_constrants.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:hexacom_user/utill/images.dart';
 import 'package:hexacom_user/utill/styles.dart';
+import 'package:hexacom_user/utill/color_resources.dart';
 import 'package:flutter/material.dart';
 
 class SignUpLogoWidget extends StatelessWidget {
   const SignUpLogoWidget({
     super.key,
+    this.titleColor,
   });
+
+  final Color? titleColor;
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +29,7 @@ class SignUpLogoWidget extends StatelessWidget {
         const SizedBox(height: Dimensions.paddingSizeSmall),
         Text(getTranslated('signup', context), style: rubikMedium.copyWith(
           fontSize: Dimensions.fontSizeOverLarge,
+          color: titleColor ?? ColorResources.getTextColor(context),
         )),
         const SizedBox(height: Dimensions.paddingSizeLarge),
       ]),

@@ -62,7 +62,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
   @override
   Widget build(BuildContext context) {
     final bool isDark = Provider.of<ThemeProvider>(context, listen: false).darkTheme;
-    final size = MediaQuery.of(context).size;
+    final size = MediaQuery.sizeOf(context);
 
     return Scaffold(
       appBar: ResponsiveHelper.isDesktop(context) ? const CustomAppBarWidget(onlyDesktop: true) : null,

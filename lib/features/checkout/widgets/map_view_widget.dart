@@ -42,62 +42,62 @@ class _MapViewWidgetState extends State<MapViewWidget> {
       return Consumer<CheckoutProvider>( builder: (context, checkoutProvider, _) {
         return Column(
           children: [
-            //_branches!.length > 1 ?
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Dimensions.paddingSizeDefault,
-                ).copyWith(top: ResponsiveHelper.isDesktop(context) ? Dimensions.paddingSizeSmall : 0.0),
-                child: Text(getTranslated('select_branch', context), style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeLarge)),
-              ),
-
-              SizedBox(
-                height: 50,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: _branches!.length,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: Dimensions.paddingSizeSmall),
-                      child: InkWell(
-                        onTap: () async {
-                          checkoutProvider.setBranchIndex(index);
-                          orderProvider.setAreaID(isReload: true);
-                          orderProvider.setDeliveryCharge(null);
-                          await CheckOutHelper.selectDeliveryAddressAuto(orderType: widget.isSelfPickUp ? 'self_pickup' : 'delivery', isLoggedIn: (isLoggedIn || CheckOutHelper.isGuestCheckout(context)));
-
-                          deliveryCharge = CheckOutHelper.getDeliveryCharge(
-                            context: context,
-                            freeDeliveryType: checkoutProvider.getCheckOutData?.freeDeliveryType,
-                            orderAmount: widget.amount ?? 0.0,
-                            distance: checkoutProvider.distance,
-                            discount: widget.discount ?? 0.0,
-                            configModel: configModel,
-                            isSelfPickUp: widget.isSelfPickUp,
-                          );
-                          orderProvider.setDeliveryCharge(deliveryCharge);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: Dimensions.paddingSizeExtraSmall,
-                            horizontal: Dimensions.paddingSizeDefault,
-                          ),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: index == checkoutProvider.branchIndex ? Theme.of(context).primaryColor : Theme.of(context).shadowColor,
-                            borderRadius: BorderRadius.circular(32),
-                          ),
-                          child: Text(_branches![index].name!, maxLines: 1, overflow: TextOverflow.ellipsis, style: rubikMedium.copyWith(
-                            color: index == checkoutProvider.branchIndex ? Colors.white : Theme.of(context).textTheme.bodyLarge!.color,
-                          )),
-                        ),
-                      ),
-                    );
-                  },
+              if (_branches != null && _branches!.length > 1) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Dimensions.paddingSizeDefault,
+                  ).copyWith(top: ResponsiveHelper.isDesktop(context) ? Dimensions.paddingSizeSmall : 0.0),
+                  child: Text(getTranslated('select_branch', context), style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeLarge)),
                 ),
-              ),
+                SizedBox(
+                  height: 50,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: _branches!.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(right: Dimensions.paddingSizeSmall),
+                        child: InkWell(
+                          onTap: () async {
+                            checkoutProvider.setBranchIndex(index);
+                            orderProvider.setAreaID(isReload: true);
+                            orderProvider.setDeliveryCharge(null);
+                            await CheckOutHelper.selectDeliveryAddressAuto(orderType: widget.isSelfPickUp ? 'self_pickup' : 'delivery', isLoggedIn: (isLoggedIn || CheckOutHelper.isGuestCheckout(context)));
+
+                            deliveryCharge = CheckOutHelper.getDeliveryCharge(
+                              context: context,
+                              freeDeliveryType: checkoutProvider.getCheckOutData?.freeDeliveryType,
+                              orderAmount: widget.amount ?? 0.0,
+                              distance: checkoutProvider.distance,
+                              discount: widget.discount ?? 0.0,
+                              configModel: configModel,
+                              isSelfPickUp: widget.isSelfPickUp,
+                            );
+                            orderProvider.setDeliveryCharge(deliveryCharge);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: Dimensions.paddingSizeExtraSmall,
+                              horizontal: Dimensions.paddingSizeDefault,
+                            ),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: index == checkoutProvider.branchIndex ? const Color(0xFF3A4756) : Theme.of(context).shadowColor,
+                              borderRadius: BorderRadius.circular(32),
+                            ),
+                            child: Text(_branches![index].name!, maxLines: 1, overflow: TextOverflow.ellipsis, style: rubikMedium.copyWith(
+                              color: index == checkoutProvider.branchIndex ? Colors.white : Theme.of(context).textTheme.bodyLarge!.color,
+                            )),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
 
               if(ResponsiveHelper.isDesktop(context) && CheckOutHelper.getDeliveryChargeType(context) == DeliveryChargeType.area.name && !widget.isSelfPickUp)...[
                 ZipCodeViewWidget(

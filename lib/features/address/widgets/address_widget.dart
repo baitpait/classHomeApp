@@ -24,6 +24,9 @@ class AddressWidget extends StatelessWidget {
   final int index;
   final bool fromSelectAddress;
   final bool? isAvailableForDelivery;
+
+  static const _slate = Color(0xFF3A4756);
+
   const AddressWidget({
     super.key,
     required this.addressModel,
@@ -41,6 +44,7 @@ class AddressWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
       child: InkWell(
+        borderRadius: BorderRadius.circular(14),
         onTap: () async {
           if(fromSelectAddress){
             if((configModel.googleMapStatus ?? false) && CheckOutHelper.getDeliveryChargeType(context) == DeliveryChargeType.distance.name){
@@ -66,13 +70,19 @@ class AddressWidget extends StatelessWidget {
         },
         child: Stack(children: [
 
-          Container(padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+          Container(padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              border: fromSelectAddress && index == addressProvider.selectAddressIndex ? Border.all(width: 1, color: Theme.of(context).primaryColor) : null,
-              borderRadius: BorderRadius.circular(7),
+              border: fromSelectAddress && index == addressProvider.selectAddressIndex
+                  ? Border.all(width: 1.5, color: _slate)
+                  : null,
+              borderRadius: BorderRadius.circular(14),
               color: Theme.of(context).cardColor,
               boxShadow: [
-                BoxShadow(color: Theme.of(context).shadowColor, spreadRadius: 0.5, blurRadius: 0.5)
+                BoxShadow(
+                  color: Theme.of(context).shadowColor.withValues(alpha: 0.10),
+                  blurRadius: 18, spreadRadius: 0,
+                  offset: const Offset(0, 4),
+                ),
               ],
             ),
             child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -80,11 +90,18 @@ class AddressWidget extends StatelessWidget {
               Expanded(flex: 2, child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
 
                 fromSelectAddress ? Radio(
-                  activeColor: Theme.of(context).primaryColor,
+                  activeColor: _slate,
                   value: index,
                   groupValue: addressProvider.selectAddressIndex,
                   onChanged: (_){},
-                ) : Icon(Icons.location_on, color: Theme.of(context).primaryColor, size: 25),
+                ) : Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: _slate.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.location_on_rounded, color: _slate, size: 20),
+                ),
                 const SizedBox(width: Dimensions.paddingSizeDefault),
 
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -92,12 +109,13 @@ class AddressWidget extends StatelessWidget {
                   Text(
                     addressModel.city != null && addressModel.city!.isNotEmpty
                         ? addressModel.city!
-                        : (getTranslated('address', context) ?? 'Address'),
+                        : getTranslated('address', context),
                     style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeLarge),
                   ),
+                  const SizedBox(height: 4),
 
                   Text(addressModel.address ?? '', maxLines: fromSelectAddress ? 1 : 3, style: rubikRegular.copyWith(
-                    color: Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha: 0.6), fontSize: Dimensions.fontSizeLarge,
+                    color: Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha: 0.6), fontSize: Dimensions.fontSizeDefault,
                   )),
                 ]))
 
@@ -105,6 +123,14 @@ class AddressWidget extends StatelessWidget {
 
               if(!fromSelectAddress) PopupMenuButton<String>(
                 padding: const EdgeInsets.all(0),
+                icon: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: _slate.withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.more_vert_rounded, color: _slate, size: 18),
+                ),
                 onSelected: (String result) {
                   if (result == 'delete') {
                     ResponsiveHelper.showDialogOrBottomSheet(context, CustomAlertDialogWidget(
@@ -115,7 +141,7 @@ class AddressWidget extends StatelessWidget {
                         Navigator.pop(context);
 
                         showDialog(context: context, barrierDismissible: false, builder: (context) => Center(
-                          child: CustomLoaderWidget(color: Theme.of(context).primaryColor),
+                          child: CustomLoaderWidget(color: _slate),
                         ));
 
                         addressProvider.deleteUserAddressByID(addressModel.id, index, (bool isSuccessful, String message) {
@@ -134,11 +160,19 @@ class AddressWidget extends StatelessWidget {
                 itemBuilder: (BuildContext c) => <PopupMenuEntry<String>>[
                   PopupMenuItem<String>(
                     value: 'edit',
-                    child: Text(getTranslated('edit', context), style: rubikMedium),
+                    child: Row(children: [
+                      const Icon(Icons.edit_outlined, size: 18, color: _slate),
+                      const SizedBox(width: 8),
+                      Text(getTranslated('edit', context), style: rubikMedium),
+                    ]),
                   ),
                   PopupMenuItem<String>(
                     value: 'delete',
-                    child: Text(getTranslated('delete', context), style: rubikMedium),
+                    child: Row(children: [
+                      Icon(Icons.delete_outline_rounded, size: 18, color: Colors.red.shade400),
+                      const SizedBox(width: 8),
+                      Text(getTranslated('delete', context), style: rubikMedium.copyWith(color: Colors.red.shade400)),
+                    ]),
                   ),
                 ],
               ),
@@ -151,7 +185,7 @@ class AddressWidget extends StatelessWidget {
               child: Container(
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),
+                  borderRadius: BorderRadius.circular(14),
                   color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.6),
                 ),
                 child: Text(

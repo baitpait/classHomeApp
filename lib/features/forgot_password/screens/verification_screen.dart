@@ -62,7 +62,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
   @override
   Widget build(BuildContext context) {
 
-    final Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.sizeOf(context);
     final ConfigModel configModel = context.read<SplashProvider>().configModel!;
     final bool isFirebaseOTP = AuthHelper.isCustomerVerificationEnable(configModel) && AuthHelper.isFirebaseVerificationEnable(configModel);
     final AuthProvider authProvider = context.read<AuthProvider>();
@@ -127,7 +127,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                   padding: EdgeInsets.symmetric(horizontal: size.width > 850 ? 20 : 39, vertical: 30),
                   child: Directionality(
                     textDirection: TextDirection.ltr,
-                    child: PinCodeTextField(
+                  child: PinCodeTextField(
                       length: 6,
                       appContext: context,
                       obscureText: false,
@@ -139,11 +139,11 @@ class _VerificationScreenState extends State<VerificationScreen> {
                         fieldWidth: 40,
                         borderWidth: 1,
                         borderRadius: BorderRadius.circular(10),
-                        selectedColor: Theme.of(context).primaryColor.withValues(alpha: 0.4),
-                        selectedFillColor: Colors.white,
+                        selectedColor: ColorResources.primary,
+                        selectedFillColor: ColorResources.getSearchBg(context),
                         inactiveFillColor: ColorResources.getSearchBg(context),
-                        inactiveColor: Theme.of(context).secondaryHeaderColor,
-                        activeColor: Theme.of(context).primaryColor,
+                        inactiveColor: ColorResources.lightGray,
+                        activeColor: ColorResources.primary,
                         activeFillColor: ColorResources.getSearchBg(context),
                       ),
                       animationDuration: const Duration(milliseconds: 300),
@@ -337,13 +337,17 @@ class _VerificationScreenState extends State<VerificationScreen> {
                                   seconds = duration.inSeconds - (24 * days * 60 * 60) - (hours * 60 * 60) - (minutes * 60);
 
                                   return CustomDirectionalityWidget(
-                                    child: Text((verificationProvider.currentTime != null && verificationProvider.currentTime! > 0)
-                                        ? '${getTranslated('resend', context)} (${minutes > 0 ? '${minutes}m :' : ''}${seconds}s)'
-                                        : getTranslated('resend_it', context), textAlign: TextAlign.end,
-                                        style: rubikMedium.copyWith(
-                                          color: verificationProvider.currentTime != null && verificationProvider.currentTime! > 0 ?
-                                          Theme.of(context).disabledColor : Theme.of(context).primaryColor.withValues(alpha: .6),
-                                        )),
+                                    child: Text(
+                                      (verificationProvider.currentTime != null && verificationProvider.currentTime! > 0)
+                                          ? '${getTranslated('resend', context)} (${minutes > 0 ? '${minutes}m :' : ''}${seconds}s)'
+                                          : getTranslated('resend_it', context),
+                                      textAlign: TextAlign.end,
+                                      style: rubikMedium.copyWith(
+                                        color: verificationProvider.currentTime != null && verificationProvider.currentTime! > 0
+                                            ? Theme.of(context).disabledColor
+                                            : ColorResources.primary,
+                                      ),
+                                    ),
                                   );
                                 }
                             )),

@@ -44,18 +44,18 @@ class SelectedPaymentWidget extends StatelessWidget {
             image: '${configModel.baseUrls?.getWayImageUrl}/${checkoutProvider.paymentMethod?.getWayImage}',
           ) : Image.asset(
             Images.cashOnDelivery,
-            width: 20, height: 20, color: Theme.of(context).secondaryHeaderColor,
+            width: 20, height: 20
           ),
 
           const SizedBox(width: Dimensions.paddingSizeSmall),
 
           Expanded(child: Text('${checkoutProvider.selectedPaymentMethod?.getWayTitle}',
-            style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).primaryColor),
+            style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: const Color(0xFF3A4756)),
           )),
 
           Text(
             PriceConverterHelper.convertPrice(total + (orderProvider.deliveryCharge ?? 0.0)), textDirection: TextDirection.ltr,
-            style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).primaryColor),
+            style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeLarge, color: const Color(0xFF3A4756)),
           )
 
         ]),

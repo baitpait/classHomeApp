@@ -29,13 +29,22 @@ class ButtonViewWidget extends StatelessWidget {
     final CheckoutProvider checkoutProvider = Provider.of<CheckoutProvider>(context, listen: false);
     final CouponProvider couponProvider = Provider.of<CouponProvider>(context, listen: false);
 
-    return Container(
-      width: Dimensions.webScreenWidth,
-      padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-      child: CustomButtonWidget(
-          btnTxt: getTranslated('proceed_to_checkout', context), onTap: () {
+    final double screenWidth = MediaQuery.sizeOf(context).width;
+
+    return Center(
+      child: Container(
+        width: screenWidth - (Dimensions.paddingSizeSmall * 2),
+        padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+        child: CustomButtonWidget(
+            btnTxt: getTranslated('proceed_to_checkout', context), onTap: () {
         if(itemPrice < Provider.of<SplashProvider>(context, listen: false).configModel!.minimumOrderValue!) {
-          showCustomSnackBar('Minimum order amount is ${PriceConverterHelper.convertPrice(Provider.of<SplashProvider>(context, listen: false).configModel!.minimumOrderValue)}, you have ${PriceConverterHelper.convertPrice(itemPrice)} in your cart, please add more item.', context);
+          final splash = Provider.of<SplashProvider>(context, listen: false);
+          final minOrder = PriceConverterHelper.convertPrice(splash.configModel!.minimumOrderValue);
+          final current = PriceConverterHelper.convertPrice(itemPrice);
+          showCustomSnackBar(
+            '${getTranslated('minimum_order_amount_is', context)} $minOrder, ${getTranslated('in_your_cart_please_add_more', context)} $current',
+            context,
+          );
         } else {
           RouteHelper.getCheckoutRoute(
             context,
@@ -50,6 +59,7 @@ class ButtonViewWidget extends StatelessWidget {
 
         }
       }),
+      ),
     );
   }
 }

@@ -21,7 +21,7 @@ class OrderSuccessfulScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final size = MediaQuery.of(context).size;
+    final size = MediaQuery.sizeOf(context);
 
     return CustomPopScopeWidget(
       onPopInvoked: (){
@@ -53,12 +53,12 @@ class OrderSuccessfulScreen extends StatelessWidget {
                         Container(
                           height: 100, width: 100,
                           decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
+                            color: const Color(0xFF3A4756).withValues(alpha: 0.10),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
                             status == 0 ? Icons.check_circle : status == 1 ? Icons.sms_failed : Icons.cancel,
-                            color: Theme.of(context).primaryColor, size: 80,
+                            color: const Color(0xFF3A4756), size: 80,
                           ),
                         ),
                         const SizedBox(height: Dimensions.paddingSizeLarge),

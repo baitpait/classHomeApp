@@ -7,19 +7,28 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
 class LocationPermissionDialogWidget extends StatelessWidget {
+  static const _slate = Color(0xFF3A4756);
+
   const LocationPermissionDialogWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(Dimensions.paddingSizeLarge),
         child: SizedBox(
           width: 300,
           child: Column(mainAxisSize: MainAxisSize.min, children: [
 
-            Icon(Icons.add_location_alt_rounded, color: Theme.of(context).primaryColor, size: 100),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: _slate.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Icon(Icons.add_location_alt_rounded, color: _slate, size: 60),
+            ),
             const SizedBox(height: Dimensions.paddingSizeLarge),
 
             Text(
@@ -32,10 +41,10 @@ class LocationPermissionDialogWidget extends StatelessWidget {
               Expanded(
                 child: TextButton(
                   style: TextButton.styleFrom(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(width: 2, color: Theme.of(context).primaryColor)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: const BorderSide(width: 1.5, color: _slate)),
                     minimumSize: const Size(1, 50),
                   ),
-                  child: Text(getTranslated('no', context)),
+                  child: Text(getTranslated('no', context), style: const TextStyle(color: _slate)),
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
@@ -44,8 +53,8 @@ class LocationPermissionDialogWidget extends StatelessWidget {
               Expanded(child: TextButton(
 
                   style: TextButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(width: 2, color: Theme.of(context).primaryColor)),
+                    backgroundColor: _slate,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     minimumSize: const Size(1, 50),
                   ),
                   child: Text(getTranslated('yes', context), style: TextStyle(color: Theme.of(context).cardColor)),

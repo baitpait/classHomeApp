@@ -29,7 +29,7 @@ class _DeliveryManReviewWidgetState extends State<DeliveryManReviewWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
+    final height = MediaQuery.sizeOf(context).height;
 
     return SingleChildScrollView(
       child: Column(

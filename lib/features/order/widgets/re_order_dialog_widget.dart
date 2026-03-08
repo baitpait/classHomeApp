@@ -33,7 +33,7 @@ class ReOrderDialogWidget extends StatelessWidget {
           ),
           width: 600,
           constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.8,
+            maxHeight: MediaQuery.sizeOf(context).height * 0.8,
           ),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Flexible(child: CustomSingleChildListWidget(
@@ -121,12 +121,13 @@ class ReOrderProductItem extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isProductNotAvailable ? Theme.of(context).colorScheme.error.withValues(alpha: 0.3)
                     : Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(14),
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context).shadowColor,
-                    blurRadius: 5,
-                    spreadRadius: 1,
+                    color: Theme.of(context).shadowColor.withValues(alpha: 0.10),
+                    blurRadius: 18,
+                    spreadRadius: 0,
+                    offset: const Offset(0, 4),
                   )
                 ],
               ),
@@ -185,7 +186,7 @@ class ReOrderProductItem extends StatelessWidget {
               padding: const EdgeInsets.all(2),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: isProductNotAvailable ? Theme.of(context).colorScheme.error : Theme.of(context).primaryColor,
+                color: isProductNotAvailable ? Theme.of(context).colorScheme.error : const Color(0xFF3A4756),
               ),
               child: Icon(
                 isProductNotAvailable ? Icons.not_interested_outlined : Icons.done_outlined,

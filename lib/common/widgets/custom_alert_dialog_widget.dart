@@ -120,7 +120,7 @@ class _CustomAlertDialogShape extends StatelessWidget {
       )),
     ) : Container(
       constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.7,
+        maxHeight: MediaQuery.sizeOf(context).height * 0.7,
       ),
       padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
       decoration: BoxDecoration(

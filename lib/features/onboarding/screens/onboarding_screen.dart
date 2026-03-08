@@ -39,7 +39,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   @override
   Widget build(BuildContext context) {
     Provider.of<OnBoardingProvider>(context, listen: false).initBoardingList(context);
-    Size size = MediaQuery.of(context).size;
+    Size size = MediaQuery.sizeOf(context);
 
     return CustomPopScopeWidget(
       child: Scaffold(

@@ -14,14 +14,16 @@ import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:hexacom_user/utill/images.dart';
 import 'package:hexacom_user/utill/routes.dart';
 import 'package:hexacom_user/utill/styles.dart';
+import 'package:hexacom_user/utill/color_resources.dart';
 import 'package:hexacom_user/common/widgets/custom_button_widget.dart';
 import 'package:hexacom_user/helper/custom_snackbar_helper.dart';
+import 'package:hexacom_user/common/widgets/auth_background_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_text_field_widget.dart';
 import 'package:hexacom_user/common/widgets/footer_web_widget.dart';
-import 'package:hexacom_user/common/widgets/web_app_bar_widget.dart';
 import 'package:hexacom_user/features/auth/widgets/code_picker_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:hexacom_user/common/widgets/web_app_bar_widget.dart';
 
 class CreateAccountScreen extends StatefulWidget {
   final String fromPage;
@@ -46,20 +48,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   final TextEditingController _confirmPasswordController = TextEditingController();
   String? _countryDialCode;
 
-  List<Map<String, dynamic>>? _userTypes;
-  int? _selectedUserTypeId;
-
   final ScrollController _scrollController = ScrollController();
-  double _scrollPosition = 0;
-  double _maxScroll = 1;
-
-  _scrollListener() {
-    setState(() {
-      _scrollPosition = _scrollController.position.pixels;
-      _maxScroll = _scrollController.position.maxScrollExtent;
-
-    });
-  }
 
   @override
   void initState() {
@@ -71,8 +60,6 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
     final AuthProvider authProvider = Provider.of<AuthProvider>(context, listen: false);
     final RegistrationProvider registrationProvider = Provider.of<RegistrationProvider>(context, listen: false);
-
-    _scrollController.addListener(_scrollListener);
 
     _numberFocus.addListener(() {
       setState(() {
@@ -87,20 +74,6 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     registrationProvider.setErrorMessage = '';
 
     _countryDialCode = CountryCode.fromCountryCode(Provider.of<SplashProvider>(context, listen: false).configModel!.countryCode!).dialCode;
-
-    _loadUserTypes(authProvider);
-  }
-
-  Future<void> _loadUserTypes(AuthProvider authProvider) async {
-    final apiResponse = await authProvider.authRepo?.getUserTypes();
-    if (apiResponse?.response?.statusCode == 200 && apiResponse?.response?.data != null) {
-      final list = apiResponse!.response!.data as List<dynamic>?;
-      if (list != null && list.isNotEmpty && mounted) {
-        setState(() {
-          _userTypes = list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
-        });
-      }
-    }
   }
 
   @override
@@ -114,50 +87,29 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   @override
   Widget build(BuildContext context) {
     final config = Provider.of<SplashProvider>(context, listen: false).configModel!;
-    final Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.sizeOf(context);
     final fontFamily = Theme.of(context).textTheme.bodyLarge?.fontFamily;
 
     return Scaffold(
-      backgroundColor: ResponsiveHelper.isDesktop(context) ? null : Theme.of(context).cardColor,
-      appBar: ResponsiveHelper.isDesktop(context)? const PreferredSize(preferredSize: Size.fromHeight(90), child: WebAppBarWidget()) : null,
-      body: Consumer<AuthProvider>(
-        builder: (context, authProvider, child) => SafeArea(
-          child: NestedScrollView(
+      backgroundColor: ColorResources.navBarNavy,
+      appBar: ResponsiveHelper.isDesktop(context) ? const PreferredSize(preferredSize: Size.fromHeight(90), child: WebAppBarWidget()) : null,
+      body: AuthBackgroundWidget(
+        child: Consumer<AuthProvider>(
+          builder: (context, authProvider, child) => SafeArea(
+            child: NestedScrollView(
             controller: _scrollController,
             headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+              // On mobile we don't show an extra app bar/header; the card already contains logo + title.
+              if (!ResponsiveHelper.isDesktop(context)) {
+                return <Widget>[];
+              }
+
               return <Widget>[
-
-                if(!ResponsiveHelper.isDesktop(context))
-                  SliverToBoxAdapter(child: SizedBox(height: size.height * 0.02)),
-
-               if(!ResponsiveHelper.isDesktop(context)) SliverAppBar(
-                 elevation: 5,
-                 backgroundColor: Theme.of(context).cardColor,
-                  automaticallyImplyLeading: false,
-                  pinned: true,
-                  expandedHeight: innerBoxIsScrolled ? 100 : 160,
-                  title: AnimatedOpacity(
-                    opacity: (_scrollPosition / _maxScroll).floor().toDouble(),
-                    duration: const Duration(milliseconds: 500),
-                    child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-
-
-
-                      Image.asset(Images.logo, width: 40, height: 40),
-                      const SizedBox(width: 10),
-
-                      Text(getTranslated('signup', context),
-                        style: rubikBold.copyWith(color: Theme.of(context).primaryColor, fontFamily: fontFamily),
-                        maxLines: 1, overflow: TextOverflow.ellipsis,
-                      ),
-
-                    ]),
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: size.height * 0.02,
                   ),
-
-                  flexibleSpace: const FlexibleSpaceBar(
-                    background:  SignUpLogoWidget(),
-                  ),
-                )
+                ),
               ];
             },
             body: CustomScrollView(slivers: [
@@ -172,23 +124,70 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
 
               SliverToBoxAdapter(child: Center(child: Container(
-                width: size.width > 700 ? 500 : size.width,
-                margin: const EdgeInsets.only(top: Dimensions.paddingSizeLarge),
-                padding: size.width > 700 ? const EdgeInsets.symmetric(
-                  horizontal: 40,
-                  vertical: Dimensions.paddingSizeExtraLarge
-                ) : const EdgeInsets.all(Dimensions.paddingSizeLarge),
-                decoration: size.width > 700 ? BoxDecoration(
-                  color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(10),
+                width: size.width > 700 ? 500 : (size.width - (Dimensions.paddingSizeDefault * 2)),
+                margin: EdgeInsets.only(
+                  top: Dimensions.paddingSizeLarge,
+                  left: size.width > 700 ? 0 : Dimensions.paddingSizeDefault,
+                  right: size.width > 700 ? 0 : Dimensions.paddingSizeDefault,
+                  bottom: size.width > 700 ? 0 : Dimensions.paddingSizeLarge,
+                ),
+                padding: size.width > 700
+                    ? const EdgeInsets.symmetric(
+                        horizontal: 40,
+                        vertical: Dimensions.paddingSizeExtraLarge,
+                      )
+                    : const EdgeInsets.symmetric(
+                        horizontal: Dimensions.paddingSizeLarge,
+                        vertical: Dimensions.paddingSizeDefault,
+                      ),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(16),
                   boxShadow: [
-                    BoxShadow(color: Theme.of(context).shadowColor, blurRadius: 5, spreadRadius: 1),
+                    BoxShadow(
+                      offset: const Offset(0, 4),
+                      blurRadius: size.width > 700 ? 20 : 16,
+                      spreadRadius: 0,
+                      color: Theme.of(context).shadowColor.withValues(alpha: size.width > 700 ? 0.14 : 0.08),
+                    ),
                   ],
-                ) : null,
+                ),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 
-                    // for first name section
-
-                    if(ResponsiveHelper.isDesktop(context)) const Center(child: SignUpLogoWidget()),
+                    if (ResponsiveHelper.isDesktop(context))
+                      const Center(child: SignUpLogoWidget())
+                    else
+                      Center(
+                        child: Column(
+                          children: [
+                            Image.asset(
+                              Images.logo,
+                              height: 64,
+                              fit: BoxFit.scaleDown,
+                            ),
+                            const SizedBox(height: Dimensions.paddingSizeSmall),
+                            Text(
+                              getTranslated('signup', context),
+                              style: rubikMedium.copyWith(
+                                fontSize: Dimensions.fontSizeOverLarge,
+                                color: ColorResources.getTextColor(context),
+                                fontFamily: fontFamily,
+                              ),
+                            ),
+                            const SizedBox(height: Dimensions.paddingSizeSmall),
+                            Text(
+                              getTranslated('please_login_or_signup', context),
+                              textAlign: TextAlign.center,
+                              style: rubikRegular.copyWith(
+                                fontSize: Dimensions.fontSizeDefault,
+                                color: ColorResources.getTextColor(context).withValues(alpha: 0.75),
+                                fontFamily: fontFamily,
+                              ),
+                            ),
+                            const SizedBox(height: Dimensions.paddingSizeLarge),
+                          ],
+                        ),
+                      ),
 
                     CustomTextFieldWidget(
                       prefixAssetUrl: Images.profile,
@@ -221,38 +220,6 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                       capitalization: TextCapitalization.words,
                     ),
                     const SizedBox(height: Dimensions.paddingSizeDefault),
-
-                    if (_userTypes != null && _userTypes!.isNotEmpty) ...[
-                      Text(
-                        getTranslated('user_type', context),
-                        style: rubikMedium.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color),
-                      ),
-                      const SizedBox(height: Dimensions.paddingSizeExtraSmall),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
-                          border: Border.all(color: Theme.of(context).hintColor.withValues(alpha: 0.2), width: 1),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<int?>(
-                            value: _selectedUserTypeId,
-                            isExpanded: true,
-                            hint: Text(getTranslated('default', context)),
-                            items: [
-                              DropdownMenuItem<int?>(value: null, child: Text(getTranslated('default', context))),
-                              ..._userTypes!.map((e) {
-                                final id = e['id'] is int ? e['id'] as int : int.tryParse(e['id'].toString());
-                                final name = e['name']?.toString() ?? '';
-                                return DropdownMenuItem<int?>(value: id, child: Text(name));
-                              }),
-                            ],
-                            onChanged: (int? value) => setState(() => _selectedUserTypeId = value),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: Dimensions.paddingSizeSmall),
-                    ],
 
                     // for email section
 
@@ -461,7 +428,6 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                                   email: email,
                                   password: password,
                                   phone: number,
-                                  userTypeId: _selectedUserTypeId,
                                 );
 
                                 registrationProvider.registration(context, signUpModel, config).then((status) async {
@@ -535,6 +501,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
             ]),
           ),
         ),
+      ),
       ),
     );
   }

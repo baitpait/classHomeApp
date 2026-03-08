@@ -21,6 +21,7 @@ class AddressProvider with ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage = '';
   String? _addressStatusMessage = '';
+  String? _lastAddressSuccessType;
   List<String> _getAllAddressType = [];
   int _selectAddressIndex = 0;
   String? _countryCode;
@@ -34,6 +35,7 @@ class AddressProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   String? get addressStatusMessage => _addressStatusMessage;
+  String? get lastAddressSuccessType => _lastAddressSuccessType;
   List<String> get getAllAddressType => _getAllAddressType;
   int get selectAddressIndex => _selectAddressIndex;
   String? get countryCode => _countryCode;
@@ -87,6 +89,7 @@ class AddressProvider with ChangeNotifier {
       String? message = map["message"];
       responseModel = ResponseModel(true, message);
       _addressStatusMessage = message;
+      _lastAddressSuccessType = 'add';
     } else {
 
       _errorMessage = ApiCheckerHelper.getError(apiResponse).errors![0].message;
@@ -111,6 +114,7 @@ class AddressProvider with ChangeNotifier {
       String? message = map["message"];
       responseModel = ResponseModel(true, message);
       _addressStatusMessage = message;
+      _lastAddressSuccessType = 'update';
     } else {
       _errorMessage = ApiCheckerHelper.getError(apiResponse).errors![0].message;
       responseModel = ResponseModel(false, _errorMessage);

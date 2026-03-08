@@ -39,7 +39,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
   @override
   Widget build(BuildContext context) {
 
-    final Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.sizeOf(context);
     isPhone = EmailCheckerHelper.isNotValid(widget.userInput ?? '');
     userInput = widget.userInput;
     if(!userInput!.contains('+') && isPhone) {

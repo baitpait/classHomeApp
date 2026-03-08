@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hexacom_user/common/models/address_model.dart';
-import 'package:hexacom_user/features/address/providers/address_provider.dart';
-import 'package:hexacom_user/features/address/widgets/address_button_widget.dart';
 import 'package:hexacom_user/features/address/widgets/address_details_web_widget.dart';
-import 'package:provider/provider.dart';
+import 'package:hexacom_user/localization/language_constrants.dart';
+import 'package:hexacom_user/utill/dimensions.dart';
+import 'package:hexacom_user/utill/styles.dart';
 
 class AddressWebWidget extends StatefulWidget {
   final TextEditingController contactPersonNameController;
@@ -42,61 +42,72 @@ class AddressWebWidget extends StatefulWidget {
 }
 
 class _AddressWebWidgetState extends State<AddressWebWidget> {
+  static const _slate = Color(0xFF3A4756);
+
   @override
   Widget build(BuildContext context) {
 
-    final Size size = MediaQuery.of(context).size;
-    final AddressProvider addressProvider = context.read<AddressProvider>();
-
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: size.width * 0.06, vertical: size.height * 0.02),
-      margin: EdgeInsets.symmetric(horizontal: size.width * 0.08),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: Theme.of(context).cardColor,
-        boxShadow: [
-          BoxShadow(color:Theme.of(context).shadowColor, blurRadius: 10)
-        ],
+    final Size size = MediaQuery.sizeOf(context);
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 640),
+        child: Container(
+          padding: EdgeInsets.fromLTRB(
+            size.width * 0.03,
+            size.height * 0.025,
+            size.width * 0.03,
+            size.height * 0.035,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: Theme.of(context).cardColor,
+            border: Border.all(color: _slate, width: 4.5),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).shadowColor.withValues(alpha: 0.10),
+                blurRadius: 18,
+                spreadRadius: 0,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Align(
+                alignment: Alignment.center,
+                child: Text(
+                  getTranslated(
+                    widget.isUpdateEnable ? 'update_address' : 'add_new_address',
+                    context,
+                  ),
+                  textAlign: TextAlign.center,
+                  style: rubikBold.copyWith(
+                    fontSize: Dimensions.fontSizeOverLarge,
+                    color: _slate,
+                  ),
+                ),
+              ),
+              const SizedBox(height: Dimensions.paddingSizeLarge),
+              AddressDetailsWebWidget(
+                contactPersonNameController: widget.contactPersonNameController,
+                contactPersonNumberController: widget.contactPersonNumberController,
+                addressTextController: widget.addressTextController,
+                addressNode: widget.addressNode,
+                nameNode: widget.nameNode,
+                numberNode: widget.numberNode,
+                isUpdateEnable: widget.isUpdateEnable,
+                address: widget.address,
+                fromCheckout: widget.fromCheckout,
+                selectedCity: widget.selectedCity,
+                onCityChanged: widget.onCityChanged,
+                selectedAreaId: widget.selectedAreaId,
+                onAreaChanged: widget.onAreaChanged,
+              ),
+            ],
+          ),
+        ),
       ),
-      child: Column(children: [
-
-        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
-          Expanded(flex: 5, child: AddressDetailsWebWidget(
-            contactPersonNameController: widget.contactPersonNameController,
-            contactPersonNumberController: widget.contactPersonNumberController,
-            addressTextController: widget.addressTextController,
-            addressNode: widget.addressNode,
-            nameNode: widget.nameNode,
-            numberNode: widget.numberNode,
-            isUpdateEnable: widget.isUpdateEnable,
-            address: widget.address,
-            fromCheckout: widget.fromCheckout,
-            selectedCity: widget.selectedCity,
-            onCityChanged: widget.onCityChanged,
-            selectedAreaId: widget.selectedAreaId,
-            onAreaChanged: widget.onAreaChanged,
-          )),
-
-        ]),
-
-        Row(children: [
-          Expanded(child: Container()),
-          Expanded(child: AddressButtonWidget(
-            isUpdateEnable: widget.isUpdateEnable,
-            fromCheckout: widget.fromCheckout,
-            contactPersonNumberController: widget.contactPersonNumberController,
-            contactPersonNameController: widget.contactPersonNameController,
-            addressTextController: widget.addressTextController,
-            address: widget.address,
-            selectedCity: widget.selectedCity ?? '',
-            countryCode: addressProvider.countryCode ?? '',
-            selectedAreaId: widget.selectedAreaId,
-          )),
-          Expanded(child: Container()),
-        ]),
-
-      ]),
     );
   }
 }

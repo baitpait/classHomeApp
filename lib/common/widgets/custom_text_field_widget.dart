@@ -5,6 +5,7 @@ import 'package:hexacom_user/common/widgets/custom_asset_image_widget.dart';
 import 'package:hexacom_user/features/auth/widgets/code_picker_widget.dart';
 import 'package:hexacom_user/helper/responsive_helper.dart';
 import 'package:hexacom_user/localization/language_constrants.dart';
+import 'package:hexacom_user/utill/color_resources.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:hexacom_user/utill/styles.dart';
 
@@ -122,7 +123,7 @@ class _CustomTextFieldWidgetState extends State<CustomTextFieldWidget> {
   @override
   Widget build(BuildContext context) {
 
-    final Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.sizeOf(context);
     final fontFamily = Theme.of(context).textTheme.bodyLarge?.fontFamily;
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
@@ -168,19 +169,31 @@ class _CustomTextFieldWidgetState extends State<CustomTextFieldWidget> {
           inputFormatters: widget.inputFormatters ?? (widget.inputType == TextInputType.phone ? <TextInputFormatter>[FilteringTextInputFormatter.allow(RegExp('[0-9+]'))] : null),
           decoration: InputDecoration(
             counterText: '',
-            contentPadding: widget.contentPadding ?? EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall, horizontal: widget.isPadding ? 22 : 0),
+            contentPadding: widget.contentPadding
+                ?? EdgeInsets.symmetric(
+                  vertical: Dimensions.paddingSizeLarge,
+                  horizontal: widget.isPadding ? 22 : 0,
+                ),
             enabledBorder: !widget.isShowBorder ? InputBorder.none : OutlineInputBorder(
               borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
-              borderSide: BorderSide(width: 1 , color: widget.borderColor ?? Theme.of(context).hintColor.withValues(alpha: 0.2)),
+              borderSide: BorderSide(
+                width: 1,
+                color: widget.borderColor ?? ColorResources.lightGray.withValues(alpha: 0.9),
+              ),
             ),
             focusedBorder: !widget.isShowBorder ? InputBorder.none : OutlineInputBorder(
               borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
-              borderSide: BorderSide(width: 1 ,color: widget.borderColor ?? Theme.of(context).primaryColor.withValues(alpha: 0.5)),
+              borderSide: BorderSide(
+                width: 1,
+                color: widget.borderColor ?? ColorResources.primary,
+              ),
             ),
             border: !widget.isShowBorder ? InputBorder.none : OutlineInputBorder(
               borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
-
-              borderSide: BorderSide( width: 1 , color: widget.borderColor ?? Theme.of(context).hintColor.withValues(alpha: 0.2)),
+              borderSide: BorderSide(
+                width: 1,
+                color: widget.borderColor ?? ColorResources.lightGray.withValues(alpha: 0.8),
+              ),
             ),
             isDense: widget.isDense,
             hintText: getTranslated(widget.hintText, context),

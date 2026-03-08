@@ -43,21 +43,11 @@ class _AddressMapWidgetState extends State<AddressMapWidget> {
   bool _updateAddress = true;
   bool onCameraIdolAction = true;
 
-
+  static const _slate = Color(0xFF3A4756);
 
   @override
   void initState() {
     super.initState();
-
-    // if(widget.address != null) {
-    //   _initialPosition = LatLng(double.parse(widget.address!.latitude!), double.parse(widget.address!.longitude!));
-    // }else{
-    //   _initialPosition = LatLng(
-    //     double.parse(Provider.of<SplashProvider>(context, listen: false).configModel!.branches![0].latitude ?? '0'),
-    //     double.parse(Provider.of<SplashProvider>(context, listen: false).configModel!.branches![0].longitude ?? '0'),
-    //   );
-    // }
-
     if (widget.isUpdateEnable && widget.address != null) {
       _updateAddress = false;
     }
@@ -84,11 +74,21 @@ class _AddressMapWidgetState extends State<AddressMapWidget> {
 
               if(configModel.googleMapStatus ?? false)...[
                 Consumer<LocationProvider>(builder: (context, locationProvider, _) {
-                  return SizedBox(
+                  return Container(
                     height: ResponsiveHelper.isMobile(context) ? 130 : 250,
-                    width: MediaQuery.of(context).size.width,
+                    width: MediaQuery.sizeOf(context).width,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).shadowColor.withValues(alpha: 0.10),
+                          blurRadius: 18, spreadRadius: 0,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),
+                      borderRadius: BorderRadius.circular(14),
                       child: Stack(clipBehavior: Clip.none, children: [
 
                         GoogleMap(
@@ -138,11 +138,6 @@ class _AddressMapWidgetState extends State<AddressMapWidget> {
                                 });
                               }
 
-
-                              // _checkPermission(() {
-                              //   locationProvider.getCurrentLocation(context, true, mapController: _controller);
-                              // });
-
                             } else{
                               Future.delayed(const Duration(milliseconds: 800)).then((value) {
                                 _controller = controller;
@@ -157,13 +152,13 @@ class _AddressMapWidgetState extends State<AddressMapWidget> {
                         ),
 
                         if(locationProvider.isLoading) Center(child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+                          valueColor: const AlwaysStoppedAnimation<Color>(_slate),
                         )),
 
                         Container(
-                          width: MediaQuery.of(context).size.width,
+                          width: MediaQuery.sizeOf(context).width,
                           alignment: Alignment.center,
-                          height: MediaQuery.of(context).size.height,
+                          height: MediaQuery.sizeOf(context).height,
                           child: const CustomAssetImageWidget(Images.marker, width: 25, height: 35),
                         ),
 
@@ -175,18 +170,20 @@ class _AddressMapWidgetState extends State<AddressMapWidget> {
                               locationProvider.getCurrentLocation(context, true, mapController: _controller);
                             }),
                             child: Container(
-                              width: ResponsiveHelper.isDesktop(context) ? 40 : 30,
-                              height: ResponsiveHelper.isDesktop(context) ? 40 : 30,
+                              width: ResponsiveHelper.isDesktop(context) ? 40 : 34,
+                              height: ResponsiveHelper.isDesktop(context) ? 40 : 34,
                               margin: const EdgeInsets.only(right: Dimensions.paddingSizeLarge),
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),
+                                borderRadius: BorderRadius.circular(10),
                                 color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.10),
+                                    blurRadius: 8, offset: const Offset(0, 2),
+                                  ),
+                                ],
                               ),
-                              child: Icon(
-                                Icons.my_location,
-                                color: Theme.of(context).primaryColor,
-                                size: 20,
-                              ),
+                              child: const Icon(Icons.my_location, color: _slate, size: 18),
                             ),
                           ),
                         ),
@@ -203,18 +200,20 @@ class _AddressMapWidgetState extends State<AddressMapWidget> {
 
                             },
                             child: Container(
-                              width: ResponsiveHelper.isDesktop(context) ? 40 : 30,
-                              height: ResponsiveHelper.isDesktop(context) ? 40 : 30,
+                              width: ResponsiveHelper.isDesktop(context) ? 40 : 34,
+                              height: ResponsiveHelper.isDesktop(context) ? 40 : 34,
                               margin: const EdgeInsets.only(right: Dimensions.paddingSizeLarge),
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),
+                                borderRadius: BorderRadius.circular(10),
                                 color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.10),
+                                    blurRadius: 8, offset: const Offset(0, 2),
+                                  ),
+                                ],
                               ),
-                              child: Icon(
-                                Icons.fullscreen,
-                                color: Theme.of(context).primaryColor,
-                                size: 20,
-                              ),
+                              child: const Icon(Icons.fullscreen, color: _slate, size: 20),
                             ),
                           ),
                         ),
@@ -256,11 +255,11 @@ class _AddressMapWidgetState extends State<AddressMapWidget> {
                       padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeDefault, horizontal: Dimensions.paddingSizeLarge),
                       margin: const EdgeInsets.only(right: 17),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),
+                        borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: addressProvider.selectAddressIndex == index ? Theme.of(context).primaryColor : Theme.of(context).dividerColor.withValues(alpha: 0.5),
+                          color: addressProvider.selectAddressIndex == index ? _slate : Theme.of(context).dividerColor.withValues(alpha: 0.5),
                         ),
-                        color: addressProvider.selectAddressIndex == index ? Theme.of(context).primaryColor : Theme.of(context).dividerColor.withValues(alpha: 0.3),
+                        color: addressProvider.selectAddressIndex == index ? _slate : Theme.of(context).dividerColor.withValues(alpha: 0.3),
                       ),
                       child: Text(
                         getTranslated(addressProvider.getAllAddressType[index].toLowerCase(), context),

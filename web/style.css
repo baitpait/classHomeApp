@@ -1,6 +1,7 @@
 /* Reset */
 :root {
   --primary-color: #9c2e2e;
+  --header-top: #3A4756;
 }
 *, *::before, *::after {
   box-sizing: border-box;
@@ -15,6 +16,12 @@
   background-color: #fff;
   display: grid;
   place-items: center;
+  z-index: 100;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+.preloader.fade-out {
+  opacity: 0;
+  visibility: hidden;
 }
 .theme-dark .preloader {
    background-color: #111;
@@ -45,7 +52,13 @@
   inset-inline-start: 0;
   inline-size: 100%;
   background-color: #fff;
-  box-shadow: 0px 6px 12px -3px rgba(165, 4, 4, 0.1);
+  box-shadow: 0px 6px 12px -3px rgba(0, 0, 0, 0.08);
+  z-index: 99;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+.header.fade-out {
+  opacity: 0;
+  visibility: hidden;
 }
 .theme-dark .header{
    background-color: rgba(255, 255, 255, 0.15);
@@ -56,18 +69,17 @@
 .header-container {
   max-inline-size: 1290px;
   margin-inline: auto;
-  padding: 1.45rem 1.6rem;
-  border-radius: 0 0 0.625rem 0.625rem;
+  padding: 1.2rem 1.6rem;
 }
 .header-top-line {
-  padding: 1rem;
-  background-color: #EFE6FE;
+  padding: 0.55rem;
+  background-color: var(--header-top);
 }
 .theme-dark .header-top-line {
-  background-color: #EFE6FC34;
+  background-color: #2a343f;
 }
 .header .logo {
-  max-block-size: 2.315rem;
+  max-block-size: 2.8rem;
 }
 @media (max-width: 1024px) {
   .header {
@@ -75,16 +87,32 @@
   }
 }
 .placeholder {
-  block-size: 0.825rem;
+  block-size: 0.75rem;
   inline-size: 3rem;
-  background-color: #F5F5F5;
+  background: linear-gradient(90deg, #eee 25%, #ddd 50%, #eee 75%);
+  background-size: 200% 100%;
   border-radius: 0.3rem;
+  animation: shimmer 1.5s ease-in-out infinite;
 }
 .theme-dark .placeholder {
-  background-color: rgba(224, 224, 224, 0.2);
+  background: linear-gradient(90deg, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.1) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
 }
 .placeholder-wide {
-  inline-size: 20rem;
+  inline-size: 18rem;
+  block-size: 2.2rem;
+  border-radius: 1.1rem;
+}
+.placeholder-circle {
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  border-radius: 50%;
+}
+.placeholder-pill {
+  inline-size: 5.5rem;
+  block-size: 2.2rem;
+  border-radius: 1.1rem;
 }
 /* Common Classes */
 .d-flex {
@@ -104,6 +132,9 @@
 }
 .text-center {
   text-align: center;
+}
+.gap-2 {
+  gap: 0.5rem;
 }
 .gap-3 {
   gap: 1rem;
@@ -133,5 +164,13 @@
   100% {
     opacity: 1;
     filter: grayscale(0);
+  }
+}
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
   }
 }

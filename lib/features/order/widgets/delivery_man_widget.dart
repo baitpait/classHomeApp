@@ -20,10 +20,10 @@ class DeliveryManWidget extends StatelessWidget {
       padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(14),
         boxShadow: [BoxShadow(
-          color: Theme.of(context).shadowColor,
-          blurRadius: 5, spreadRadius: 1,
+          color: Theme.of(context).shadowColor.withValues(alpha: 0.10),
+          blurRadius: 18, spreadRadius: 0, offset: const Offset(0, 4),
         )],
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

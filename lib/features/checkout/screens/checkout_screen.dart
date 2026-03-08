@@ -7,6 +7,7 @@ import 'package:hexacom_user/common/widgets/custom_app_bar_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_web_title_widget.dart';
 import 'package:hexacom_user/common/widgets/footer_web_widget.dart';
 import 'package:hexacom_user/common/widgets/not_logged_in_screen.dart';
+import 'package:hexacom_user/common/widgets/web_app_bar_widget.dart';
 import 'package:hexacom_user/features/address/providers/address_provider.dart';
 import 'package:hexacom_user/features/auth/domain/enums/from_page_enum.dart';
 import 'package:hexacom_user/features/auth/providers/auth_provider.dart';
@@ -22,11 +23,14 @@ import 'package:hexacom_user/features/order/providers/order_provider.dart';
 import 'package:hexacom_user/features/profile/providers/profile_provider.dart';
 import 'package:hexacom_user/features/splash/providers/splash_provider.dart';
 import 'package:hexacom_user/helper/checkout_helper.dart';
+import 'package:hexacom_user/helper/price_converter_helper.dart';
 import 'package:hexacom_user/helper/responsive_helper.dart';
 import 'package:hexacom_user/localization/language_constrants.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
+import 'package:hexacom_user/utill/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class CheckoutScreen extends StatefulWidget {
@@ -63,6 +67,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   late List<CartModel?> _cartList;
   List<Branches>? _branches = [];
   bool _guestAddressLoadScheduled = false;
+  /// True while guest ID is being created (avoids flashing NotLoggedInScreen).
+  bool _isAwaitingGuestId = false;
 
   @override
   void initState() {
@@ -75,14 +81,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     _isLoggedIn = Provider.of<AuthProvider>(context, listen: false).isLoggedIn();
     _branches = Provider.of<SplashProvider>(context, listen: false).configModel?.branches;
     orderProvider.setAreaID(isReload: true, isUpdate: false);
-    orderProvider.setDeliveryCharge(0, notify: true);
+    // Avoid notifying listeners during build; initial value only.
+    orderProvider.setDeliveryCharge(0, notify: false);
 
-    // Ensure guest ID exists when not logged in (allows guest checkout)
     if (!_isLoggedIn && authProvider.getGuestId() == null) {
-      authProvider.addOrUpdateGuest();
+      _isAwaitingGuestId = true;
+      authProvider.addOrUpdateGuest().then((_) {
+        if (mounted) setState(() => _isAwaitingGuestId = false);
+      });
     }
 
-    // Always set cart and checkout data so guest checkout works
     Provider.of<CheckoutProvider>(context, listen: false).clearPrevData();
     _cartList = [];
     if (widget.fromCart) {
@@ -100,7 +108,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       }
     }
 
-    // Use 0 for deliveryCharge; build() recalculates from area/fixed/distance so we never show a stale default (e.g. 100)
     checkoutProvider.setCheckOutData = CheckOutModel(
       orderType: widget.orderType,
       deliveryCharge: 0,
@@ -110,32 +117,37 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       couponCode: widget.couponCode, orderNote: null,
       widgetDiscount: widget.discount,
     );
-
   }
 
   @override
   Widget build(BuildContext context) {
-
     final ConfigModel configModel = Provider.of<SplashProvider>(context, listen: false).configModel!;
     final OrderProvider orderProvider = context.read<OrderProvider>();
     final CheckoutProvider checkoutProvider = context.read<CheckoutProvider>();
     final SplashProvider splashProvider = context.read<SplashProvider>();
     bool kmWiseCharge = splashProvider.deliveryInfoModelList?[checkoutProvider.branchIndex].deliveryChargeSetup?.deliveryChargeType == 'distance';
     bool selfPickup = widget.orderType == 'self_pickup';
+    final bool isDesktop = ResponsiveHelper.isDesktop(context);
 
     return Scaffold(
       key: _scaffoldKey,
-      appBar: CustomAppBarWidget(title: getTranslated('checkout', context)),
+      appBar: isDesktop
+          ? const PreferredSize(
+              preferredSize: Size.fromHeight(120),
+              child: WebAppBarWidget(),
+            )
+          : null,
       body: Consumer<AuthProvider>(
         builder: (context, authProvider, _) {
-          // Allow checkout when logged in OR when guest ID is available (guest checkout, login not mandatory)
           final bool canCheckout = _isLoggedIn || authProvider.getGuestId() != null;
 
           if (!canCheckout) {
+            if (_isAwaitingGuestId) {
+              return const Center(child: CircularProgressIndicator());
+            }
             return NotLoggedInScreen(fromPage: FromPage.checkOut.name);
           }
 
-          // When guest gets ID asynchronously, load address list once
           if (!_isLoggedIn && !_guestAddressLoadScheduled) {
             _guestAddressLoadScheduled = true;
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -146,139 +158,200 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           }
 
           return Consumer<CheckoutProvider>(
-        builder: (context, checkoutProvider, child) {
+            builder: (context, checkoutProvider, child) {
+              double deliveryCharge = CheckOutHelper.getDeliveryCharge(
+                orderAmount: widget.amount ?? 0.0,
+                distance: checkoutProvider.distance,
+                discount: widget.discount ?? 0.0,
+                freeDeliveryType: checkoutProvider.getCheckOutData?.freeDeliveryType,
+                configModel: configModel,
+                context: context,
+                isSelfPickUp: widget.orderType == 'self_pickup',
+              );
+              orderProvider.setDeliveryCharge(deliveryCharge, notify: true);
 
-          double deliveryCharge = CheckOutHelper.getDeliveryCharge(
-              orderAmount: widget.amount ?? 0.0,
-              distance: checkoutProvider.distance,
-              discount: widget.discount ?? 0.0,
-              freeDeliveryType:  checkoutProvider.getCheckOutData?.freeDeliveryType,
-              configModel: configModel,
-              context: context,
-              isSelfPickUp: widget.orderType == 'self_pickup'
-          );
-          orderProvider.setDeliveryCharge(deliveryCharge, notify: true);
+              return Consumer<AddressProvider>(builder: (context, address, child) {
+                final double total = (widget.amount ?? 0) + (orderProvider.deliveryCharge ?? 0);
 
-          return Consumer<AddressProvider>(builder: (context, address, child) {
-            return Column(children: [
+                return Column(children: [
+                  Expanded(child: CustomScrollView(controller: scrollController, slivers: [
+                    SliverToBoxAdapter(child: Center(child: SizedBox(width: isDesktop ? Dimensions.getWebContentWidth(MediaQuery.sizeOf(context).width) : MediaQuery.sizeOf(context).width,
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        if(!isDesktop) SizedBox(height: MediaQuery.paddingOf(context).top + Dimensions.paddingSizeSmall),
+                        CustomWebTitleWidget(title: getTranslated('', context)),
 
-              Expanded(child: CustomScrollView(controller: scrollController, slivers: [
-                SliverToBoxAdapter(child: Center(child: SizedBox(width: Dimensions.webScreenWidth,
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
-                    CustomWebTitleWidget(title: getTranslated('checkout', context)),
-
-                    if(!ResponsiveHelper.isDesktop(context))
-                      MapViewWidget(isSelfPickUp: selfPickup),
-                    const SizedBox(height: Dimensions.paddingSizeDefault),
-
-                    //Zip/Area
-                    if(!ResponsiveHelper.isDesktop(context) && CheckOutHelper.getDeliveryChargeType(context) == DeliveryChargeType.area.name && !selfPickup)...[
-                      ZipCodeViewWidget(
-                        dropDownKey: dropDownKey,
-                        discount: widget.discount ?? 0.0,
-                        amount: widget.amount ?? 0.0,
-                        isSelfPickUp: selfPickup,
-                      ),
-                    ],
-
-                    if(!ResponsiveHelper.isDesktop(context))...[
-                      DeliveryAddressWidget(selfPickup: selfPickup),
-                    ],
-
-                    if(!ResponsiveHelper.isDesktop(context)) Selector<OrderProvider, double?>(
-                        selector: (context, orderProvider) => orderProvider.deliveryCharge,
-                        builder: (context, deliveryCharge, child) {
-                          return DetailsViewWidget(
-                            amount: widget.amount ?? 0,
-                            kmWiseCharge: kmWiseCharge,
-                            selfPickup: selfPickup,
-                            deliveryCharge: orderProvider.deliveryCharge ?? 0.0,
-                            orderNoteController: _noteController,
-                            orderType: widget.orderType,
-                            cartList: _cartList,
-                          );
-                        }
-                    ),
-
-                    if(ResponsiveHelper.isDesktop(context)) Padding(
-                      padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
-                      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
-                        Expanded(flex: 6, child: Container(
+                        // --- Checkout header banner (same as cart; back button next to icon) ---
+                        Container(
+                          margin: const EdgeInsets.only(
+                            left: Dimensions.paddingSizeSmall,
+                            right: Dimensions.paddingSizeSmall,
+                            bottom: Dimensions.paddingSizeLarge,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: Dimensions.paddingSizeLarge,
+                            vertical: Dimensions.paddingSizeDefault,
+                          ),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).cardColor,
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: [
-                              BoxShadow(color:Theme.of(context).shadowColor, blurRadius: 10),
+                            borderRadius: BorderRadius.circular(16),
+                            color: const Color(0xFF3A4756),
+                          ),
+                          child: Row(
+                            children: [
+                              IconButton(
+                                onPressed: () => context.pop(),
+                                icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Colors.white),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                              ),
+                              const SizedBox(width: 4),
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.15),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.shopping_cart_checkout_rounded, color: Colors.white, size: 22),
+                              ),
+                              const SizedBox(width: Dimensions.paddingSizeDefault),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      getTranslated('checkout', context),
+                                      style: rubikSemiBold.copyWith(fontSize: Dimensions.fontSizeLarge, color: Colors.white),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      '${_cartList.length} ${getTranslated('items', context)}',
+                                      style: rubikRegular.copyWith(
+                                        fontSize: Dimensions.fontSizeSmall,
+                                        color: Colors.white.withValues(alpha: 0.7),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    getTranslated('total_amount', context),
+                                    style: rubikRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Colors.white.withValues(alpha: 0.7)),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    PriceConverterHelper.convertPrice(total),
+                                    style: rubikBold.copyWith(
+                                      color: Colors.white,
+                                      fontSize: Dimensions.fontSizeExtraLarge,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
-                          child: MapViewWidget(
-                            isSelfPickUp: selfPickup,
+                        ),
+
+                        if(!isDesktop)
+                          MapViewWidget(isSelfPickUp: selfPickup),
+                        const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                        if(!isDesktop && CheckOutHelper.getDeliveryChargeType(context) == DeliveryChargeType.area.name && !selfPickup)...[
+                          ZipCodeViewWidget(
                             dropDownKey: dropDownKey,
                             discount: widget.discount ?? 0.0,
                             amount: widget.amount ?? 0.0,
+                            isSelfPickUp: selfPickup,
                           ),
-                        )),
-                        const SizedBox(width: Dimensions.paddingSizeLarge),
+                        ],
 
-                        Expanded(flex: 3, child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeLarge),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).cardColor,
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: [
-                              BoxShadow(color:Theme.of(context).shadowColor, blurRadius: 10),
-                            ],
-                          ),
-                          child: DetailsViewWidget(
-                            amount: widget.amount ?? 0,
-                            kmWiseCharge: kmWiseCharge,
-                            selfPickup: selfPickup,
-                            deliveryCharge: orderProvider.deliveryCharge ?? 0.0,
-                            orderNoteController: _noteController,
-                            orderType: widget.orderType ?? '',
-                            cartList: _cartList,
-                            scrollController: scrollController,
-                            dropdownKey: dropDownKey,
-                          ),
-                        )),
+                        if(!isDesktop)...[
+                          DeliveryAddressWidget(selfPickup: selfPickup),
+                        ],
 
+                        if(!isDesktop) Selector<OrderProvider, double?>(
+                          selector: (context, orderProvider) => orderProvider.deliveryCharge,
+                          builder: (context, deliveryCharge, child) {
+                            return DetailsViewWidget(
+                              amount: widget.amount ?? 0,
+                              kmWiseCharge: kmWiseCharge,
+                              selfPickup: selfPickup,
+                              deliveryCharge: orderProvider.deliveryCharge ?? 0.0,
+                              orderNoteController: _noteController,
+                              orderType: widget.orderType,
+                              cartList: _cartList,
+                            );
+                          },
+                        ),
+
+                        if(isDesktop) Padding(
+                          padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
+                          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                            Expanded(flex: 7, child: Container(
+                              padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).cardColor,
+                                borderRadius: BorderRadius.circular(14),
+                                boxShadow: [
+                                  BoxShadow(color: Theme.of(context).shadowColor.withValues(alpha: 0.10), blurRadius: 18, spreadRadius: 0, offset: const Offset(0, 4)),
+                                ],
+                              ),
+                              child: MapViewWidget(
+                                isSelfPickUp: selfPickup,
+                                dropDownKey: dropDownKey,
+                                discount: widget.discount ?? 0.0,
+                                amount: widget.amount ?? 0.0,
+                              ),
+                            )),
+                            const SizedBox(width: Dimensions.paddingSizeLarge),
+
+                            Expanded(flex: 4, child: Container(
+                              padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).cardColor,
+                                borderRadius: BorderRadius.circular(14),
+                                boxShadow: [
+                                  BoxShadow(color: Theme.of(context).shadowColor.withValues(alpha: 0.10), blurRadius: 18, spreadRadius: 0, offset: const Offset(0, 4)),
+                                ],
+                              ),
+                              child: DetailsViewWidget(
+                                amount: widget.amount ?? 0,
+                                kmWiseCharge: kmWiseCharge,
+                                selfPickup: selfPickup,
+                                deliveryCharge: orderProvider.deliveryCharge ?? 0.0,
+                                orderNoteController: _noteController,
+                                orderType: widget.orderType ?? '',
+                                cartList: _cartList,
+                                scrollController: scrollController,
+                                dropdownKey: dropDownKey,
+                              ),
+                            )),
+                          ]),
+                        ),
                       ]),
-                    ),
+                    ))),
+                    const FooterWebWidget(footerType: FooterType.sliver),
+                  ])),
 
-                  ]),
-                ))),
-
-                const FooterWebWidget(footerType: FooterType.sliver),
-
-
-              ])),
-
-              if(!ResponsiveHelper.isDesktop(context)) PlaceOrderButtonView(
-                deliveryCharge: orderProvider.deliveryCharge,
-                amount: widget.amount,
-                cartList: _cartList,
-                kmWiseCharge: kmWiseCharge,
-                orderNote: _noteController.text,
-                orderType: widget.orderType,
-                scrollController: scrollController,
-                dropdownKey: dropDownKey,
-              ),
-
-            ]);
-
-          },
+                  if(!isDesktop) PlaceOrderButtonView(
+                    deliveryCharge: orderProvider.deliveryCharge,
+                    amount: widget.amount,
+                    cartList: _cartList,
+                    kmWiseCharge: kmWiseCharge,
+                    orderNote: _noteController.text,
+                    orderType: widget.orderType,
+                    scrollController: scrollController,
+                    dropdownKey: dropDownKey,
+                  ),
+                ]);
+              });
+            },
           );
-        },
-        );
         },
       ),
     );
   }
-
-
-
 
   Future<Uint8List> convertAssetToUnit8List(String imagePath, {int width = 50}) async {
     ByteData data = await rootBundle.load(imagePath);
@@ -286,13 +359,4 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     FrameInfo fi = await codec.getNextFrame();
     return (await fi.image.toByteData(format: ImageByteFormat.png))!.buffer.asUint8List();
   }
-
 }
-
-
-
-
-
-
-
-

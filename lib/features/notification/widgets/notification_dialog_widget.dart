@@ -32,7 +32,7 @@ class NotificationDialogWidget extends StatelessWidget {
           ),
 
           Container(
-            height: 150, width: MediaQuery.of(context).size.width,
+            height: 150, width: MediaQuery.sizeOf(context).width,
             margin: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), color: Theme.of(context).primaryColor.withValues(alpha: 0.20)),
             child: ClipRRect(
@@ -40,7 +40,7 @@ class NotificationDialogWidget extends StatelessWidget {
               child: CustomImageWidget(
                 placeholder: Images.placeholder(context),
                 image: '${Provider.of<SplashProvider>(context, listen: false).baseUrls!.notificationImageUrl}/${notificationModel.image}',
-                height: 150, width: MediaQuery.of(context).size.width,
+                height: 150, width: MediaQuery.sizeOf(context).width,
 
               ),
             ),

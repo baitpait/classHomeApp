@@ -11,16 +11,16 @@ class CookiesWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double width  = MediaQuery.of(context).size.width;
+    final double width  = MediaQuery.sizeOf(context).width;
     final double padding = (width - Dimensions.webScreenWidth) / 2;
 
     return Consumer<SplashProvider>(
         builder: (context, splashProvide, _) {
           return ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.6),
+            constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.6),
             child: SingleChildScrollView(
               child: Container(
-                width: MediaQuery.of(context).size.width,
+                width: MediaQuery.sizeOf(context).width,
                 decoration: const BoxDecoration(color: Colors.black87, borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(Dimensions.radiusSizeDefault),
                   topRight: Radius.circular(Dimensions.radiusSizeDefault),

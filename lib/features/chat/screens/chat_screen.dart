@@ -68,7 +68,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     final bool isAdmin = widget.orderId == null;
     final SplashProvider splashProvider = Provider.of<SplashProvider>(context, listen: false);
-    final Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.sizeOf(context);
 
     return PopScope(
       canPop: false,
@@ -133,7 +133,7 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Column(mainAxisSize: MainAxisSize.min,
                 children: [
                   SizedBox(
-                    width: ResponsiveHelper.isDesktop(context) ?1170:MediaQuery.of(context).size.width,
+                    width: ResponsiveHelper.isDesktop(context) ?1170:MediaQuery.sizeOf(context).width,
                     height: size.height * 0.8,
                     child: Column(
                       children: [

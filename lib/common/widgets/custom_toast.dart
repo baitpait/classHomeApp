@@ -80,13 +80,14 @@ class _AnimatedToastWidgetState extends State<_AnimatedToastWidget>
     if (widget.animate) {
       _controller = AnimationController(
         vsync: this,
-        duration: const Duration(milliseconds: 400),
+        duration: const Duration(milliseconds: 350),
       );
 
+      // Slide down from top
       _animation = Tween<Offset>(
-        begin: const Offset(1, 0),
-        end: const Offset(0, 0),
-      ).animate(CurvedAnimation(parent: _controller!, curve: Curves.easeOut));
+        begin: const Offset(0, -1),
+        end: Offset.zero,
+      ).animate(CurvedAnimation(parent: _controller!, curve: Curves.easeOutCubic));
 
       _controller?.forward();
     }
@@ -94,33 +95,54 @@ class _AnimatedToastWidgetState extends State<_AnimatedToastWidget>
 
   @override
   Widget build(BuildContext context) {
+    final borderRadius = widget.borderRadius ?? 28.0;
+    final isError = widget.isError;
+    final backgroundColor = isError ? Colors.red.shade700 : Colors.green.shade700;
 
     final toastContent = Material(
       color: Colors.transparent,
       child: Container(
-        constraints: const BoxConstraints(minHeight: 40, maxWidth: 400),
-        padding: const EdgeInsets.all(16),
+        constraints: const BoxConstraints(minHeight: 52, maxWidth: 400),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.8),
-          borderRadius: BorderRadius.circular(widget.borderRadius ?? 20),
-        ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          CircleAvatar(
-            radius: 12,
-            backgroundColor: widget.isError ? Colors.red : Colors.green,
-            child: Icon(
-              widget.isError ? Icons.close_rounded : Icons.check,
-              color: Colors.white,
-              size: 16,
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(borderRadius),
+          boxShadow: [
+            BoxShadow(
+              color: (isError ? Colors.red : Colors.green).withValues(alpha: 0.35),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
             ),
-          ),
-          const SizedBox(width: 8),
-
-          Flexible(child: Text(widget.message, style: rubikBold.copyWith(
-            color: Colors.white,
-            fontSize: Dimensions.fontSizeDefault,
-          ))),
-        ]),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.25),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                widget.isError ? Icons.close_rounded : Icons.check_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Flexible(
+              child: Text(
+                widget.message,
+                style: rubikBold.copyWith(
+                  color: Colors.white,
+                  fontSize: Dimensions.fontSizeDefault,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
 
@@ -150,7 +172,7 @@ class ToastPosition {
 
   const ToastPosition({this.top, this.bottom, this.left, this.right});
 
-  static const topCenter = ToastPosition(top: 50, left: 50, right: 50);
+  static const topCenter = ToastPosition(top: 24, left: 24, right: 24);
   static const bottomCenter = ToastPosition(bottom: 50, left: 50, right: 50);
   static const topRight = ToastPosition(top: 150, right: 50);
   static const bottomRight = ToastPosition(bottom: 50, right: 20);

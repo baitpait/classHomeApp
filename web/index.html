@@ -48,6 +48,8 @@
   <!-- Robots and SEO -->
   <meta name="author" content="6amTech">
 
+  <!-- Browser header / address bar color on mobile -->
+  <meta name="theme-color" content="#2C2C2E">
 
 
   <!-- iOS meta tags & icons -->
@@ -57,11 +59,15 @@
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
 
-  <title>Hexacom</title>
+  <title>Mahfooz</title>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" type="text/css" href="style.css">
 
   <link rel="shortcut icon" type="image/png" href="favicon.png"/>
+
+  <!-- Preload critical resources -->
+  <link rel="preload" href="style.css" as="style">
+  <link rel="preload" href="assets/preloader.svg" as="image">
 
   <!-- Resource hints for faster external connections -->
   <link rel="dns-prefetch" href="https://maps.googleapis.com">
@@ -93,31 +99,6 @@
 <body>
 
 
-<div class="preloader">
-  <div class="preloader-container">
-    <img width="55" class="svg preloader-img" src="assets/preloader.svg" alt="">
-    <div class="loader"></div>
-  </div>
-</div>
-<!-- Header -->
-<header class="header">
-  <div class="header-top-line"></div>
-  <div class="header-container d-flex align-items-center justify-content-between">
-    <div class="header-start d-flex gap-4 align-items-center">
-      <img class="logo" src="assets/logo.svg" alt="">
-      <div class="placeholder"></div>
-      <div class="placeholder"></div>
-      <div class="placeholder"></div>
-    </div>
-    <div class="header-end d-flex align-items-center gap-4">
-      <div class="placeholder placeholder-wide"></div>
-      <div class="placeholder"></div>
-      <div class="placeholder"></div>
-      <img src="assets/cart_icon.svg" alt="">
-      <img src="assets/menu_icon.svg" alt="">
-    </div>
-  </div>
-</header>
 
 <script>
   // Check if localStorage is supported in the browser
@@ -150,7 +131,8 @@
         serviceWorkerVersion: {{flutter_service_worker_version}},
       },
       onEntrypointLoaded: function(engineInitializer) {
-        let config = { renderer: 'html' };
+        var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+        var config = { renderer: isMobile ? 'html' : 'canvaskit' };
         engineInitializer.initializeEngine(config).then(function(appRunner) {
           appRunner.runApp();
         });

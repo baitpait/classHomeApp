@@ -14,16 +14,17 @@ class TitleWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDesktop = ResponsiveHelper.isDesktop(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeExtraSmall),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.center, children: [
         Expanded(
           child: Text(
             title!,
-            style: (ResponsiveHelper.isDesktop(context) ? theme.textTheme.titleLarge : theme.textTheme.titleMedium)?.copyWith(
-              fontWeight: FontWeight.w600,
+            style: rubikBold.copyWith(
               color: theme.colorScheme.onSurface,
-            ) ?? rubikMedium.copyWith(fontSize: ResponsiveHelper.isDesktop(context) ? Dimensions.fontSizeOverLarge : Dimensions.fontSizeLarge),
+              fontSize: isDesktop ? 20 : 18,
+            ),
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -34,7 +35,7 @@ class TitleWidget extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeExtraSmall, horizontal: Dimensions.paddingSizeSmall),
             child: Text(
               getTranslated('view_all', context),
-              style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: theme.primaryColor),
+              style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: const Color(0xFF3A4756)),
             ),
           ),
         ) : const SizedBox(),

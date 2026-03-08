@@ -51,7 +51,7 @@
 //
 //   @override
 //   Widget build(BuildContext context) {
-//     final Size size = MediaQuery.of(context).size;
+//     final Size size = MediaQuery.sizeOf(context);
 //
 //
 //     final List<String> statusList = ['pending', 'confirmed', 'processing' ,'out_for_delivery', 'delivered', 'returned', 'failed', 'canceled'];
@@ -196,7 +196,7 @@
 //                                               addressModel: order.trackModel!.deliveryAddress
 //                                           ) :
 //                                           Container(
-//                                             height: 200, width: MediaQuery.of(context).size.width - 100,
+//                                             height: 200, width: MediaQuery.sizeOf(context).width - 100,
 //                                             margin: const EdgeInsets.all(20),
 //                                             padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
 //                                             alignment: Alignment.center,
