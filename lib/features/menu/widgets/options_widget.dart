@@ -64,9 +64,9 @@ class OptionsWidget extends StatelessWidget {
                 title: Text(getTranslated('address', context), style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeLarge)),
               ),
               ListTile(
-                onTap: () => RouteHelper.getCouponRoute(context, action: RouteAction.push),
-                leading: CustomAssetImageWidget(Images.coupon, width: 20, height: 20, color: Theme.of(context).textTheme.bodyLarge!.color),
-                title: Text(getTranslated('coupon', context), style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeLarge)),
+                onTap: () => RouteHelper.getNotificationRoute(context, action: RouteAction.push),
+                leading: CustomAssetImageWidget(Images.notificationWeb, width: 20, height: 20, color: Theme.of(context).textTheme.bodyLarge!.color),
+                title: Text(getTranslated('notification', context), style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeLarge)),
               ),
               ListTile(
                 onTap: () => RouteHelper.getLanguageRoute(context, 'menu', action: RouteAction.push),

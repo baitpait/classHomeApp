@@ -44,30 +44,31 @@ class RegistrationProvider with ChangeNotifier {
     ApiResponseModel apiResponse = await authRepo!.registration(signUpModel);
     ResponseModel responseModel;
     String? token;
-    String? tempToken;
 
     if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
-      showCustomSnackBar(getTranslated('registration_successful', context), Get.context!, isError: false);
+      showCustomSnackBar(getTranslated('registration_successful', Get.context!), Get.context!, isError: false);
 
       Map map = apiResponse.response?.data;
 
       if(map.containsKey('token')){
         token = map["token"];
-      }else if(map.containsKey('temporary_token')){
-        tempToken = map["temporary_token"];
       }
 
       if(token != null){
-        await authProvider.login(context, signUpModel.phone!, signUpModel.password, VerificationType.phone.name, fromPage : FromPage.registration.name);
+        await authProvider.login(Get.context!, signUpModel.phone!, signUpModel.password, VerificationType.phone.name, fromPage : FromPage.registration.name);
         responseModel = ResponseModel(true, 'successful');
 
       }else{
         String type;
         String userInput;
+        final bool hasEmail = (signUpModel.email ?? '').trim().isNotEmpty;
         if(AuthHelper.isFirebaseVerificationEnable(config) && AuthHelper.isPhoneVerificationEnable(config)){
           type = VerificationType.phone.name;
           userInput = signUpModel.phone!;
         }else if(!AuthHelper.isFirebaseVerificationEnable(config) && AuthHelper.isPhoneVerificationEnable(config)){
+          type = VerificationType.phone.name;
+          userInput = signUpModel.phone!;
+        }else if(!hasEmail){
           type = VerificationType.phone.name;
           userInput = signUpModel.phone!;
         }else {
@@ -75,7 +76,7 @@ class RegistrationProvider with ChangeNotifier {
           userInput = signUpModel.email!;
         }
 
-        verificationProvider.sendVerificationCode(context, config, userInput, type: type, fromPage: FromPage.login.name);
+        verificationProvider.sendVerificationCode(Get.context!, config, userInput, type: type, fromPage: FromPage.login.name);
         responseModel = ResponseModel(false, null);
       }
 

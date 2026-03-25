@@ -23,6 +23,8 @@ class NoDataScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.sizeOf(context);
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
 
     return SingleChildScrollView(
       physics: scrollable ? const BouncingScrollPhysics() : const NeverScrollableScrollPhysics(),
@@ -45,7 +47,10 @@ class NoDataScreen extends StatelessWidget {
 
                 Text(
                   getTranslated(title ?? 'nothing_found', context),
-                  style: rubikSemiBold.copyWith(color: Theme.of(context).disabledColor.withValues(alpha: 0.1), fontSize: size.height * 0.023),
+                  style: rubikSemiBold.copyWith(
+                    color: onSurface.withValues(alpha: 0.75),
+                    fontSize: size.height * 0.023,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 10),
@@ -53,7 +58,7 @@ class NoDataScreen extends StatelessWidget {
                if(subTitle != null) Text(
                  subTitle ?? '',
                   style: rubikMedium.copyWith(
-                    color: Theme.of(context).disabledColor.withValues(alpha: 0.1),
+                    color: onSurfaceVariant.withValues(alpha: 0.75),
                     fontSize: size.height * 0.0175,
                   ), textAlign: TextAlign.center,
                 ),

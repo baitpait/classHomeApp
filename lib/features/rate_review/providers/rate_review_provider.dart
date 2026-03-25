@@ -100,16 +100,10 @@ class RateReviewProvider extends ChangeNotifier {
   Future<ResponseModel> submitDeliveryManReview(ReviewBodyModel reviewBody) async {
     _isLoading = true;
     notifyListeners();
-    ApiResponseModel response = await productRepo!.submitDeliveryManReview(reviewBody);
     ResponseModel responseModel;
-    if (response.response != null && response.response!.statusCode == 200) {
-      _deliveryManRating = 0;
-      responseModel = ResponseModel(true, getTranslated('review_submit_successfully', Get.context!));
-      notifyListeners();
-    } else {
-
-      responseModel = ResponseModel(false, ApiCheckerHelper.getError(response).errors?.first.message);
-    }
+    // Delivery man review feature is disabled in this project.
+    _deliveryManRating = 0;
+    responseModel = ResponseModel(false, getTranslated('delivery_man_review_disabled', Get.context!));
     _isLoading = false;
     notifyListeners();
     return responseModel;

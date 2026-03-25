@@ -55,15 +55,6 @@ class ProductRepo extends DataSyncRepo{
     }
   }
 
-  Future<ApiResponseModel> submitDeliveryManReview(ReviewBodyModel reviewBody) async {
-    try {
-      final response = await dioClient.post(AppConstants.deliverManReviewUri, data: reviewBody);
-      return ApiResponseModel.withSuccess(response);
-    } catch (e) {
-      return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
-    }
-  }
-
   Future<ApiResponseModel> getProductReviewList(int? productID, int? offset) async {
     try {
       final response = await dioClient.get('${AppConstants.productReviewUri}$productID?limit=10&offset=${offset ?? 1}');

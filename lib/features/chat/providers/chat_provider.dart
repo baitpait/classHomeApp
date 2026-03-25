@@ -39,34 +39,18 @@ class ChatProvider extends ChangeNotifier {
   bool get isMe => _isMe;
   List<Messages>?  _messageList = [];
   List<Messages>? get messageList => _messageList;
-  final List<Messages>  _adminManMessage = [];
-  List<Messages> get adminManMessages => _adminManMessage;
   List <XFile>?_chatImage = [];
   List<XFile>? get chatImage => _chatImage;
   bool get currentRouteIsChat => _currentRouteIsChat;
-
-  Future<void> getDeliveryManMessages (int orderId) async {
-    ApiResponseModel apiResponse = await chatRepo!.getDeliveryManMessage(orderId,1);
-    // _deliveryManMessages = [];
-    if (apiResponse.response != null&& apiResponse.response!.data['messages']!= {} && apiResponse.response!.statusCode == 200) {
-      _messageList?.addAll(ChatModel.fromJson(apiResponse.response!.data).messages!);
-    } else {
-      ApiCheckerHelper.checkApi(apiResponse);
-    }
-    notifyListeners();
-  }
 
   Future<void> getMessages (int offset, int? orderId, bool isFirst) async {
     ApiResponseModel apiResponse;
     if(isFirst) {
       _messageList = null;
     }
-    
-    if(orderId == null) {
-      apiResponse = await chatRepo!.getAdminMessage(1);
-    }else {
-     apiResponse = await chatRepo!.getDeliveryManMessage(orderId, 1);
-    }
+
+    // Delivery man chat is disabled; always load admin messages.
+    apiResponse = await chatRepo!.getAdminMessage(1);
     if (apiResponse.response != null&& apiResponse.response!.data['messages'] != {} && apiResponse.response!.statusCode == 200) {
       _messageList = [];
       _messageList?.addAll(ChatModel.fromJson(apiResponse.response!.data).messages!);
@@ -95,34 +79,12 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<http.StreamedResponse> sendMessageToDeliveryMan(String message, List<XFile> file, int orderId, BuildContext context, String token) async {
-    _isLoading = true;
-    // notifyListeners();
-    http.StreamedResponse response = await chatRepo!.sendMessageToDeliveryMan(message, file, orderId, token);
-    if (response.statusCode == 200) {
-      // _imageFiles = [];
-      // _chatImage = [];
-      file =[];
-      getDeliveryManMessages(orderId);
-      _isLoading = false;
-    }
-    _imageFiles = [];
-    _chatImage = [];
-    _isSendButtonActive = false;
-    notifyListeners();
-    _isLoading = false;
-    return response;
-  }
-
   Future<http.StreamedResponse> sendMessage(String message, BuildContext context, String token, int? orderId) async {
     http.StreamedResponse response;
     _isLoading = true;
     // notifyListeners();
-    if(orderId == null) {
-      response = await chatRepo!.sendMessageToAdmin(message, _chatImage!, token);
-    }else {
-      response = await chatRepo!.sendMessageToDeliveryMan(message, _chatImage!, orderId, token);
-    }
+    // Delivery man chat is disabled; always send to admin.
+    response = await chatRepo!.sendMessageToAdmin(message, _chatImage!, token);
     if (response.statusCode == 200) {
       getMessages(1, orderId, false);
       _isLoading = false;

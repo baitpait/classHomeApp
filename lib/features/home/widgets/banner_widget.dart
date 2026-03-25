@@ -15,6 +15,7 @@ class BannerWidget extends StatefulWidget {
   const BannerWidget({super.key});
 
   static const double mobileRadius = 14.0;
+  static const double desktopRadius = 10.0;
 
   @override
   State<BannerWidget> createState() => _BannerWidgetState();
@@ -200,7 +201,10 @@ class _BannerWidgetState extends State<BannerWidget> {
             );
           }
 
-          return content;
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(BannerWidget.desktopRadius),
+            child: content,
+          );
         },
       ),
     );
@@ -219,7 +223,7 @@ class BannerShimmer extends StatelessWidget {
         : (MediaQuery.sizeOf(context).width - 2 * Dimensions.mobileContentPaddingHorizontal);
     // Match the same aspect ratio used in [BannerWidget].
     final height = width / _BannerWidgetState._heroAspectRatio;
-    final radius = isMobile ? BannerWidget.mobileRadius : 0.0;
+    final radius = isMobile ? BannerWidget.mobileRadius : BannerWidget.desktopRadius;
 
     Widget child = Shimmer(
       duration: const Duration(seconds: 2),
@@ -256,6 +260,9 @@ class BannerShimmer extends StatelessWidget {
       );
     }
 
-    return child;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(BannerWidget.desktopRadius),
+      child: child,
+    );
   }
 }

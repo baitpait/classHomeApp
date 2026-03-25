@@ -146,14 +146,31 @@ class _AnimatedToastWidgetState extends State<_AnimatedToastWidget>
       ),
     );
 
+    Widget child = widget.animate && _animation != null
+        ? SlideTransition(position: _animation!, child: toastContent)
+        : toastContent;
+
+    if (widget.position.centerHorizontally) {
+      return Positioned(
+        top: widget.position.top,
+        bottom: widget.position.bottom,
+        left: widget.position.left,
+        right: widget.position.right,
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: child,
+          ),
+        ),
+      );
+    }
+
     return Positioned(
       top: widget.position.top,
       bottom: widget.position.bottom,
       left: widget.position.left,
       right: widget.position.right,
-      child: widget.animate && _animation != null
-          ? SlideTransition(position: _animation!, child: toastContent)
-          : toastContent,
+      child: child,
     );
   }
 
@@ -169,11 +186,20 @@ class ToastPosition {
   final double? bottom;
   final double? left;
   final double? right;
+  final bool centerHorizontally;
 
-  const ToastPosition({this.top, this.bottom, this.left, this.right});
+  const ToastPosition({
+    this.top,
+    this.bottom,
+    this.left,
+    this.right,
+    this.centerHorizontally = false,
+  });
 
   static const topCenter = ToastPosition(top: 24, left: 24, right: 24);
   static const bottomCenter = ToastPosition(bottom: 50, left: 50, right: 50);
   static const topRight = ToastPosition(top: 150, right: 50);
   static const bottomRight = ToastPosition(bottom: 50, right: 20);
+  /// Centered popup in the middle of the screen (phone + desktop).
+  static const popup = ToastPosition(top: 0, bottom: 0, left: 0, right: 0, centerHorizontally: true);
 }

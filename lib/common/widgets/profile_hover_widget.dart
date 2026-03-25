@@ -27,8 +27,23 @@ class ProfileHoverWidget extends StatelessWidget {
     return Selector<AuthProvider, bool>(
       selector: (context, authProvider) => authProvider.isLoading,
       builder: (context, isLoading, child) {
-        return Container(color: Theme.of(context).cardColor, child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        final theme = Theme.of(context);
+        return Container(
+          decoration: BoxDecoration(
+            color: theme.cardColor,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: theme.shadowColor.withValues(alpha: 0.08),
+                blurRadius: 18,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
+          child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
           children: list.map((item) => InkWell(
             onTap: (){
               if(item.title == getTranslated('log_out', context)){
@@ -55,22 +70,33 @@ class ProfileHoverWidget extends StatelessWidget {
 
             },
             child: TextHoverWidget(builder: (isHover)=> Container(
-              margin: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeExtraSmall),
-              decoration: BoxDecoration(
-                color: isHover ? Theme.of(context).focusColor : Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(8),
+              margin: const EdgeInsets.symmetric(
+                horizontal: Dimensions.paddingSizeSmall,
+                vertical: Dimensions.paddingSizeExtraSmall,
               ),
-              child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: Dimensions.paddingSizeSmall,
-                    vertical: Dimensions.paddingSizeExtraSmall,
+              padding: const EdgeInsets.symmetric(
+                horizontal: Dimensions.paddingSizeLarge,
+                vertical: Dimensions.paddingSizeSmall,
+              ),
+              decoration: BoxDecoration(
+                color: isHover ? theme.primaryColor.withValues(alpha: 0.06) : Colors.transparent,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Align(
+                alignment: Alignment.center,
+                child: Text(
+                  item.title ?? '',
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  textAlign: TextAlign.center,
+                  style: rubikMedium.copyWith(
+                    fontSize: Dimensions.fontSizeDefault,
+                    color: (item.title == getTranslated('log_out', context))
+                        ? theme.colorScheme.error
+                        : theme.textTheme.bodyLarge?.color,
                   ),
-                  child: Text(item.title ?? '', overflow: TextOverflow.ellipsis, maxLines: 1, style: rubikRegular),
                 ),
-
-                Divider(height: 1, color: (list.indexOf(item) + 1) != list.length ? null : Theme.of(context).cardColor),
-              ]),
+              ),
             )),
           )).toList(),
         ));

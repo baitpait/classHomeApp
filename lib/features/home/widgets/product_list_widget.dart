@@ -18,7 +18,6 @@ class ProductListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Consumer<ProductProvider>(
       builder: (context, productProvider, child) {
         final isDesktop = ResponsiveHelper.isDesktop(context);

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:hexacom_user/common/widgets/custom_toast.dart';
+import 'package:hexacom_user/helper/responsive_helper.dart';
 import 'package:hexacom_user/main.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:flutter/material.dart';
@@ -26,13 +27,17 @@ void showCustomSnackBar(String? message, BuildContext context, {bool isError = t
     });
   }
 
-  // Always show from top using overlay (mobile + desktop)
+  // Desktop: top right. Mobile: bottom bar (chocolate bar).
+  final position = ResponsiveHelper.isDesktop(context)
+      ? ToastPosition.topRight
+      : ToastPosition.bottomCenter;
+
   CustomToast().show(
     message ?? '',
     navigatorKey: navigatorKey,
     isError: isError,
     duration: effectiveDuration,
     borderRadius: Dimensions.paddingSizeSmall,
-    position: ToastPosition.topCenter,
+    position: position,
   );
 }

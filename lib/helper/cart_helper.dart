@@ -45,7 +45,7 @@ class CartHelper{
 
     double discountedPrice = PriceConverterHelper.convertWithDiscount(price, product.discount, product.discountType) ?? 0;
     double? discountAmount = (price! - PriceConverterHelper.convertWithDiscount(price, product.discount, product.discountType)!);
-    double? taxAmount = discountedPrice - PriceConverterHelper.convertWithDiscount(discountedPrice, product.tax, product.taxType)!;
+    double? taxAmount = 0;
 
     cartModel = CartModel(
       product.id, price, discountedPrice, variation,

@@ -16,7 +16,7 @@ class FeatureFlags {
 
   /// Disable Firebase and push notifications (FCM init, token, background handler).
   /// Same as admin: Firebase hidden and disabled.
-  static const bool disableFirebaseAndPush = true;
+  static const bool disableFirebaseAndPush = false;
 
   /// Disable Firebase OTP verification in auth (phone login uses SMS only). Same as admin.
   static const bool disableFirebaseAuth = true;

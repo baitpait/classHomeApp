@@ -59,38 +59,53 @@ class MenuMobileContent extends StatelessWidget {
                     children: [
                       const _SocialLinksSection(),
                       const SizedBox(height: Dimensions.paddingSizeLarge),
+                      const _MenuLoyaltyPointsSection(),
+                      const SizedBox(height: Dimensions.paddingSizeLarge),
                       _SectionLabel(title: getTranslated('general', context)),
                       _MenuCard(
                         children: [
                           _MenuTile(
                             icon: Images.profileMenuIcon,
+                            iconData: Icons.person_rounded,
                             title: getTranslated('profile', context),
                             onTap: () => RouteHelper.getProfileRoute(context),
                           ),
                           _MenuTile(
                             icon: Images.trackOrder,
+                            iconData: Icons.delivery_dining_rounded,
                             title: getTranslated('track_order', context),
                             onTap: () =>
                                 RouteHelper.getOrderSearchScreen(context),
                           ),
                           _MenuTile(
                             icon: Images.order,
+                            iconData: Icons.receipt_long_rounded,
                             title: getTranslated('my_orders', context),
                             onTap: () =>
                                 RouteHelper.getOrderListScreen(context),
                           ),
                           _MenuTile(
                             icon: Images.address,
+                            iconData: Icons.location_on_rounded,
                             title: getTranslated('my_address', context),
                             onTap: () => RouteHelper.getAddressRoute(context),
                           ),
                           _MenuTile(
-                            icon: Images.couponMenuIcon,
-                            title: getTranslated('coupon', context),
-                            onTap: () => RouteHelper.getCouponRoute(context),
+                            icon: Images.notificationWeb,
+                            iconData: Icons.notifications_rounded,
+                            title: getTranslated('notification', context),
+                            onTap: () => RouteHelper.getNotificationRoute(context),
                           ),
+                          if (isLoggedIn && (configModel?.loyaltyPointsEnabled ?? false))
+                            _MenuTile(
+                              icon: Images.ratingIcon,
+                              iconData: Icons.stars_rounded,
+                              title: getTranslated('my_points', context),
+                              onTap: () => RouteHelper.getMyPointsRoute(context),
+                            ),
                           _MenuTile(
                             icon: Images.language,
+                            iconData: Icons.language_rounded,
                             title: getTranslated('language', context),
                             onTap: () => _showLanguageSheet(context),
                             showDivider: false,
@@ -103,17 +118,27 @@ class MenuMobileContent extends StatelessWidget {
                         children: [
                           _MenuTile(
                             icon: Images.aboutUs,
+                            iconData: Icons.contact_support_rounded,
+                            title: getTranslated('contact_us', context),
+                            onTap: () =>
+                                RouteHelper.getContactUsRoute(context),
+                          ),
+                          _MenuTile(
+                            icon: Images.aboutUs,
+                            iconData: Icons.info_outline_rounded,
                             title: getTranslated('about_us', context),
                             onTap: () =>
                                 RouteHelper.getAboutUsRoute(context),
                           ),
                           _MenuTile(
                             icon: Images.termsAndCondition,
+                            iconData: Icons.description_rounded,
                             title: getTranslated('terms_and_condition', context),
                             onTap: () => RouteHelper.getTermsRoute(context),
                           ),
                           _MenuTile(
                             icon: Images.privacyPolicy,
+                            iconData: Icons.privacy_tip_rounded,
                             title: getTranslated('privacy_policy', context),
                             onTap: () => RouteHelper.getPolicyRoute(context),
                             showDivider: false,
@@ -121,6 +146,7 @@ class MenuMobileContent extends StatelessWidget {
                           if (policyModel?.refundPage?.status ?? false)
                             _MenuTile(
                               icon: Images.refundPolicy,
+                              iconData: Icons.money_off_rounded,
                               title: getTranslated('refund_policy', context),
                               onTap: () =>
                                   RouteHelper.getRefundPolicyRoute(context),
@@ -128,6 +154,7 @@ class MenuMobileContent extends StatelessWidget {
                           if (policyModel?.returnPage?.status ?? false)
                             _MenuTile(
                               icon: Images.refundPolicy,
+                              iconData: Icons.assignment_return_rounded,
                               title: getTranslated('return_policy', context),
                               onTap: () =>
                                   RouteHelper.getReturnPolicyRoute(context),
@@ -135,6 +162,7 @@ class MenuMobileContent extends StatelessWidget {
                           if (policyModel?.cancellationPage?.status ?? false)
                             _MenuTile(
                               icon: Images.cancellationPolicy,
+                              iconData: Icons.cancel_rounded,
                               title: getTranslated(
                                   'cancellation_policy', context),
                               onTap: () =>
@@ -150,6 +178,7 @@ class MenuMobileContent extends StatelessWidget {
                           children: [
                             _MenuTile(
                               icon: Images.userDeleteIcon,
+                              iconData: Icons.delete_outline_rounded,
                               title: getTranslated('delete_account', context),
                               onTap: () => _showDeleteAccountDialog(context),
                               showDivider: false,
@@ -416,6 +445,7 @@ class _MenuTile extends StatelessWidget {
   final VoidCallback onTap;
   final bool showDivider;
   final bool destructive;
+  final IconData? iconData;
 
   const _MenuTile({
     required this.icon,
@@ -423,6 +453,7 @@ class _MenuTile extends StatelessWidget {
     required this.onTap,
     this.showDivider = true,
     this.destructive = false,
+    this.iconData,
   });
 
   @override
@@ -459,12 +490,14 @@ class _MenuTile extends StatelessWidget {
                       borderRadius: BorderRadius.circular(Dimensions.radiusSizeSmall),
                     ),
                     alignment: Alignment.center,
-                    child: CustomAssetImageWidget(
-                      icon,
-                      height: 20,
-                      width: 20,
-                      color: iconColor,
-                    ),
+                    child: iconData != null
+                        ? Icon(iconData!, size: 22, color: iconColor)
+                        : CustomAssetImageWidget(
+                            icon,
+                            height: 20,
+                            width: 20,
+                            color: iconColor,
+                          ),
                   ),
                   const SizedBox(width: Dimensions.paddingSizeDefault),
                   Expanded(
@@ -592,14 +625,8 @@ class _SocialLinksSection extends StatelessWidget {
         final links = splash.configModel?.socialMediaLink;
         if (links == null || links.isEmpty) return const SizedBox.shrink();
 
-        final locale = Localizations.localeOf(context);
-        final isArabic = locale.languageCode == 'ar';
-        final title = isArabic
-            ? 'تابعنا على وسائل التواصل'
-            : 'Follow us on social media';
-        final subtitle = isArabic
-            ? 'كن أول من يعرف عن آخر العروض والأخبار'
-            : 'Be the first to know about new offers & updates';
+        final title = getTranslated('social_follow_us_title', context);
+        final subtitle = getTranslated('social_follow_us_subtitle', context);
         final hintColor = Theme.of(context).hintColor;
         final primary = Theme.of(context).primaryColor;
         final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -668,52 +695,51 @@ class _SocialLinksSection extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: Dimensions.paddingSizeDefault),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 12,
+                runSpacing: 12,
                 children: links.map((link) {
                   if (link.link == null || link.link!.isEmpty) {
                     return const SizedBox.shrink();
                   }
                   final linkIconColor = iconTintColor ?? primary;
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: InkWell(
-                      onTap: () => _launchUrl(link.link!),
-                      borderRadius: BorderRadius.circular(14),
-                      child: Container(
-                        width: 52,
-                        height: 52,
-                        decoration: BoxDecoration(
-                          color: iconBgColor,
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        padding: const EdgeInsets.all(12),
-                        child: isDark
-                            ? ColorFiltered(
-                                colorFilter: ColorFilter.mode(
-                                  linkIconColor,
-                                  BlendMode.srcIn,
-                                ),
-                                child: Image.asset(
-                                  Images.getSocialImage(link.name ?? ''),
-                                  fit: BoxFit.contain,
-                                  errorBuilder: (_, __, ___) => Icon(
-                                    Icons.link,
-                                    size: 24,
-                                    color: linkIconColor,
-                                  ),
-                                ),
-                              )
-                            : Image.asset(
+                  return InkWell(
+                    onTap: () => _launchUrl(link.link!),
+                    borderRadius: BorderRadius.circular(14),
+                    child: Container(
+                      width: 52,
+                      height: 52,
+                      decoration: BoxDecoration(
+                        color: iconBgColor,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      padding: const EdgeInsets.all(12),
+                      child: isDark
+                          ? ColorFiltered(
+                              colorFilter: ColorFilter.mode(
+                                linkIconColor,
+                                BlendMode.srcIn,
+                              ),
+                              child: Image.asset(
                                 Images.getSocialImage(link.name ?? ''),
                                 fit: BoxFit.contain,
                                 errorBuilder: (_, __, ___) => Icon(
-                                  Icons.link,
+                                  Icons.link_rounded,
                                   size: 24,
-                                  color: primary,
+                                  color: linkIconColor,
                                 ),
                               ),
-                      ),
+                            )
+                          : Image.asset(
+                              Images.getSocialImage(link.name ?? ''),
+                              fit: BoxFit.contain,
+                              errorBuilder: (_, __, ___) => Icon(
+                                Icons.link_rounded,
+                                size: 24,
+                                color: primary,
+                              ),
+                            ),
                     ),
                   );
                 }).toList(),
@@ -729,5 +755,108 @@ class _SocialLinksSection extends StatelessWidget {
     final uri = Uri.tryParse(url);
     if (uri == null) return;
     await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+}
+
+class _MenuLoyaltyPointsSection extends StatelessWidget {
+  const _MenuLoyaltyPointsSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final splashProvider = Provider.of<SplashProvider>(context, listen: false);
+    final isLoggedIn = authProvider.isLoggedIn();
+    final loyaltyEnabled = splashProvider.configModel?.loyaltyPointsEnabled ?? false;
+    if (!isLoggedIn || !loyaltyEnabled) return const SizedBox.shrink();
+
+    return Consumer<ProfileProvider>(
+      builder: (context, profileProvider, _) {
+        final points = profileProvider.userInfoModel?.loyaltyPoints ?? 0;
+        return Padding(
+          padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeLarge),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => RouteHelper.getMyPointsRoute(context),
+              borderRadius: BorderRadius.circular(Dimensions.radiusSizeLarge),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Dimensions.paddingSizeDefault,
+                  vertical: Dimensions.paddingSizeLarge,
+                ),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Theme.of(context).primaryColor.withValues(alpha: 0.12),
+                      Theme.of(context).primaryColor.withValues(alpha: 0.06),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(Dimensions.radiusSizeLarge),
+                  border: Border.all(
+                    color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
+                    width: 1,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Theme.of(context).shadowColor.withValues(alpha: 0.06),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
+                      ),
+                      child: Icon(
+                        Icons.stars_rounded,
+                        size: 28,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                    const SizedBox(width: Dimensions.paddingSizeDefault),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            getTranslated('loyalty_points', context),
+                            style: rubikRegular.copyWith(
+                              fontSize: Dimensions.fontSizeSmall,
+                              color: Theme.of(context).hintColor,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '$points ${getTranslated('points', context)}',
+                            style: rubikSemiBold.copyWith(
+                              fontSize: Dimensions.fontSizeLarge,
+                              color: Theme.of(context).textTheme.titleMedium?.color,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      size: 24,
+                      color: Theme.of(context).hintColor.withValues(alpha: 0.7),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }

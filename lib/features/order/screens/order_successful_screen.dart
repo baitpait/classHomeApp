@@ -16,7 +16,8 @@ import 'package:flutter/material.dart';
 class OrderSuccessfulScreen extends StatelessWidget {
   final String? orderID;
   final int status;
-  const OrderSuccessfulScreen({super.key, required this.orderID, required this.status});
+  final int? expectedPoints;
+  const OrderSuccessfulScreen({super.key, required this.orderID, required this.status, this.expectedPoints});
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +75,17 @@ class OrderSuccessfulScreen extends StatelessWidget {
                           const SizedBox(width: Dimensions.paddingSizeExtraSmall),
                           Text(orderID!, style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeSmall)),
                         ]),
+                        if (status == 0 && expectedPoints != null && expectedPoints! > 0) ...[
+                          const SizedBox(height: Dimensions.paddingSizeSmall),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
+                            child: Text(
+                              getTranslated('you_will_earn_points_on_delivery', context).replaceAll('%s', '$expectedPoints'),
+                              style: rubikRegular.copyWith(fontSize: Dimensions.fontSizeDefault),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
                         const SizedBox(height: 30),
 
                         SizedBox(

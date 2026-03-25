@@ -17,6 +17,66 @@ class TabBarWidget extends StatelessWidget {
 
   final Widget child;
 
+  Widget _tabButton({
+    required BuildContext context,
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+    required bool isDesktop,
+  }) {
+    final bg = isSelected
+        ? Theme.of(context).primaryColor.withValues(alpha: 0.10)
+        : Theme.of(context).hintColor.withValues(alpha: 0.05);
+
+    final border = isSelected
+        ? Theme.of(context).primaryColor.withValues(alpha: 0.35)
+        : Theme.of(context).hintColor.withValues(alpha: 0.10);
+
+    final textColor = isSelected ? Theme.of(context).primaryColor : Theme.of(context).disabledColor;
+
+    final textStyle = (isDesktop ? rubikBold : rubikMedium).copyWith(
+      fontSize: isDesktop ? Dimensions.fontSizeExtraLarge : Dimensions.fontSizeLarge,
+      color: textColor,
+      height: 1.1,
+    );
+
+    return InkWell(
+      hoverColor: Colors.transparent,
+      borderRadius: BorderRadius.circular(Dimensions.radiusSizeFifty),
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        padding: EdgeInsets.symmetric(
+          horizontal: isDesktop ? 22 : 16,
+          vertical: isDesktop ? 12 : 10,
+        ),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(Dimensions.radiusSizeFifty),
+          border: Border.all(color: border),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(label, style: textStyle),
+            if (isSelected) ...[
+              const SizedBox(width: 10),
+              Container(
+                height: 6,
+                width: 6,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final ProductProvider productProvider = Provider.of<ProductProvider>(context, listen: false);
@@ -27,68 +87,35 @@ class TabBarWidget extends StatelessWidget {
       width: Dimensions.webScreenWidth,
       child: Column(
         children: [
-          Row(children: [
-            InkWell(
-              hoverColor: Colors.transparent,
-              onTap: () => productProvider.setTabIndex(0),
-              child: Column(children: [
-
-                Center(child: Text(getTranslated('description', context), style: productProvider.tabIndex == 0 ? isDesktopSize ?  rubikBold.copyWith(
-                  fontSize: Dimensions.fontSizeOverLarge,
-                  color: Theme.of(context).primaryColor.withValues(alpha: 1),
-                ) : rubikMedium.copyWith(
-                  color: Theme.of(context).primaryColor,
-                ) : isDesktopSize ? rubikMedium.copyWith(
-                  fontSize: Dimensions.fontSizeOverLarge,
-                  color: Theme.of(context).disabledColor,
-                ) : rubikRegular.copyWith(
-                  color: Theme.of(context).disabledColor,
-                ))),
-                const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                Container(height: 4, width: isDesktopSize ? 170 : 100, color: Theme.of(context).primaryColor.withValues(alpha: productProvider.tabIndex == 0 ? 1 : 0.07)),
-
-              ]),
+          Padding(
+            padding: EdgeInsets.only(
+              top: isDesktopSize ? 10 : 0,
+              bottom: isDesktopSize ? 10 : 6,
             ),
-
-            InkWell(
-              hoverColor: Colors.transparent,
-              onTap: () async {
-                productProvider.setTabIndex(1);
-                await rateReviewProvider.getProductReviews(productId,1);
-              },
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
-                Padding(
-                  padding: EdgeInsets.only(left: isDesktopSize ? 30 : 50),
-                  child: Text(getTranslated('review', context), style: productProvider.tabIndex == 1 ? isDesktopSize ?  rubikBold.copyWith(
-                    fontSize: Dimensions.fontSizeOverLarge,
-                    color: Theme.of(context).primaryColor.withValues(alpha: 1),
-                  ) : rubikMedium.copyWith(
-                    color: Theme.of(context).primaryColor,
-                  ) : isDesktopSize ? rubikMedium.copyWith(
-                    fontSize: Dimensions.fontSizeOverLarge,
-                    color: Theme.of(context).disabledColor,
-                  ) : rubikRegular.copyWith(
-                    color: Theme.of(context).disabledColor,
-                  ),  textAlign: TextAlign.center),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _tabButton(
+                  context: context,
+                  label: getTranslated('description', context),
+                  isSelected: productProvider.tabIndex == 0,
+                  onTap: () => productProvider.setTabIndex(0),
+                  isDesktop: isDesktopSize,
                 ),
-                const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                Stack(
-                  children: [
-                    Container(
-                      height: 4,
-                      color: Theme.of(context).primaryColor.withValues(alpha: 0.07),
-                    ),
-
-                    Container(height: 4, width: 140, color: Theme.of(context).primaryColor.withValues(alpha: productProvider.tabIndex.toDouble())),
-                  ],
+                const SizedBox(width: 12),
+                _tabButton(
+                  context: context,
+                  label: getTranslated('review', context),
+                  isSelected: productProvider.tabIndex == 1,
+                  onTap: () async {
+                    productProvider.setTabIndex(1);
+                    await rateReviewProvider.getProductReviews(productId, 1);
+                  },
+                  isDesktop: isDesktopSize,
                 ),
-
-              ]),
+              ],
             ),
-          ]),
+          ),
 
           !ResponsiveHelper.isTab(context) ? const SizedBox(height: Dimensions.paddingSizeLarge) : const SizedBox.shrink(),
 

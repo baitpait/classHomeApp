@@ -14,26 +14,27 @@ class ApiErrorHandler {
     if (error is Exception) {
       try {
         if (error is DioException) {
-          
           switch (error.type) {
             case DioExceptionType.cancel:
-              errorDescription = "Request to API server was cancelled";
+              errorDescription = getTranslated('request_cancelled', Get.context!);
               break;
 
             case DioExceptionType.receiveTimeout:
-              errorDescription =
-              "Receive timeout in connection with API server";
+              errorDescription = getTranslated('send_timeout_with_server', Get.context!);
               break;
             case DioExceptionType.badResponse:
-              switch (error.response!.statusCode) {
+              final statusCode = error.response?.statusCode;
+              switch (statusCode) {
                 case 500:
                 case 503:
-                  errorDescription = error.response!.statusMessage;
+                  errorDescription = getTranslated('server_error', Get.context!);
                   break;
                 default:
                   ErrorResponseModel? errorResponse;
                   try {
-                    errorResponse = ErrorResponseModel.fromJson(error.response!.data);
+                    if (error.response?.data != null) {
+                      errorResponse = ErrorResponseModel.fromJson(error.response!.data);
+                    }
                   }catch(e) {
                     if (kDebugMode) {
                       print('error is -> ${e.toString()}');
@@ -46,8 +47,7 @@ class ApiErrorHandler {
                     }
                     errorDescription = errorResponse.toJson();
                   } else {
-                    errorDescription =
-                    "Failed to load data - status code: ${error.response!.statusCode}";
+                    errorDescription = getTranslated('unavailable_to_process_data', Get.context!);
                   }
               }
               break;

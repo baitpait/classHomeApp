@@ -5,6 +5,7 @@ import 'package:hexacom_user/common/widgets/custom_web_title_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_directionality_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_loader_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_pop_scope_widget.dart';
+import 'package:hexacom_user/common/widgets/app_back_button_widget.dart';
 import 'package:hexacom_user/common/widgets/footer_web_widget.dart';
 import 'package:hexacom_user/common/widgets/no_data_screen.dart';
 import 'package:hexacom_user/common/widgets/web_app_bar_widget.dart';
@@ -47,11 +48,8 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
     final OrderProvider orderProvider = Provider.of<OrderProvider>(context, listen: false);
     Provider.of<LocationProvider>(context, listen: false).initAddressList();
 
-    orderProvider.trackOrder(widget.orderID, widget.orderModel,  context, true, isUpdate: false, phoneNumber: widget.phone ).whenComplete((){
-      if(orderProvider.trackModel?.deliveryMan != null){
-        orderProvider.getDeliveryManData(widget.orderID);
-      }
-    });
+    // Delivery man live tracking is disabled; only load order tracking data.
+    orderProvider.trackOrder(widget.orderID, widget.orderModel,  context, true, isUpdate: false, phoneNumber: widget.phone );
 
     super.initState();
   }
@@ -129,13 +127,9 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
                         child: Row(
                           children: [
                             if (!isDesktop) ...[
-                              IconButton(
-                                onPressed: () {
-                                  RouteHelper.getMainRoute(context, action: RouteAction.push);
-                                },
-                                icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Colors.white),
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                              AppBackButtonWidget(
+                                onPressed: () => RouteHelper.getMainRoute(context, action: RouteAction.push),
+                                color: Colors.white,
                               ),
                               const SizedBox(width: 4),
                             ],
@@ -167,153 +161,31 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
                           child: TrackOrderWebWidget(phoneNumber: null),
                         )
                       else
-                        Column(children: [
-                    Container(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: Dimensions.paddingSizeSmall,
-                        vertical: Dimensions.paddingSizeSmall,
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 10),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(14),
-                        color: Theme.of(context).cardColor,
-                        boxShadow: [BoxShadow(color: Theme.of(context).shadowColor.withValues(alpha: 0.10), blurRadius: 18, spreadRadius: 0, offset: const Offset(0, 4))],
-                      ),
-                      child: Column(children: [
-                        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                          Expanded(child: Text(
-                            '${getTranslated('order_id', context)} #${orderProvider.trackModel!.id}',
-                            style: rubikRegular.copyWith(fontSize: Dimensions.fontSizeLarge),
-                          )),
-
-                          CustomDirectionalityWidget(child: Text(
-                            PriceConverterHelper.convertPrice(orderProvider.trackModel!.orderAmount),
-                            style: rubikBold.copyWith(color: const Color(0xFF3A4756), fontSize: Dimensions.fontSizeLarge),
-                          )),
-                        ]),
-
-                        const Divider(height: Dimensions.paddingSizeDefault),
-
-                        if(orderProvider.orderType != OrderConstants.selfPickUp)  Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                              Image.asset(Images.wareHouse, color: Theme.of(context).primaryColor, width: Dimensions.paddingSizeLarge),
-                              const SizedBox(width: 20),
-
-                              if(orderProvider.trackModel?.branchId != null) Expanded(child: Text(
-                                '${OrderHelper.getBranch(id: orderProvider.trackModel!.branchId!, branchList: context.read<SplashProvider>().configModel?.branches ?? [])?.address}',
-                                style: rubikRegular.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).textTheme.bodyLarge?.color),
-                              )),
-                            ]),
-
-                            Container(
-                              padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeExtraSmall),
-                              margin: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
-                              height: Dimensions.paddingSizeExtraLarge,
-                              child: CustomPaint(
-                                size: const Size(1, double.infinity),
-                                painter: DashedLineVerticalPainter(isActive: false),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                          child: Column(
+                            children: [
+                              _MobileTrackSummaryCard(orderProvider: orderProvider),
+                              const SizedBox(height: 12),
+                              if (orderProvider.orderType != OrderConstants.selfPickUp)
+                                _MobileTrackAddressCard(orderProvider: orderProvider),
+                              if (orderProvider.trackModel!.deliveryMan != null) ...[
+                                const SizedBox(height: 12),
+                                _MobileTrackDeliveryManCard(orderProvider: orderProvider),
+                              ],
+                              const SizedBox(height: 12),
+                              _MobileTrackTimelineCard(
+                                orderProvider: orderProvider,
+                                status: status,
+                                isOrderFailed: isOrderFailed,
                               ),
-                            ),
-
-                            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                              Icon(Icons.location_on, color: Theme.of(context).primaryColor),
-                              const SizedBox(width: 20),
-                              Expanded(
-                                child: Text(
-                                  orderProvider.trackModel!.deliveryAddress != null? orderProvider.trackModel!.deliveryAddress!.address! : getTranslated('address_was_deleted', context),
-                                  style: rubikRegular.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).textTheme.bodyLarge?.color),
-                                ),
-                              ),
-                            ]),
-                          ],
+                              const SizedBox(height: 20),
+                            ],
+                          ),
                         ),
-
-                        const SizedBox(height: Dimensions.paddingSizeDefault),
-
-                        if(orderProvider.trackModel!.deliveryMan != null) DeliveryManWidget(deliveryMan: orderProvider.trackModel!.deliveryMan),
-
-
-
-
-                      ]),
-                    ),
-
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: Dimensions.paddingSizeSmall,
-                      ),
-                      child: Column(children: [
-                      CustomStepperWidget(
-                        title: getTranslated('order_placed', context),
-                        isComplete: true,
-                        isActive: status == OrderConstants.pending,
-                        haveTopBar: false,
-                        statusImage: Images.orderPlace,
-                        subTitleWidget: Row(children: [
-                          const Icon(Icons.schedule, size: Dimensions.fontSizeLarge),
-                          const SizedBox(width: Dimensions.paddingSizeSmall),
-
-                          Text(DateConverterHelper.localDateToISOAMPMString(DateConverterHelper.convertStringToDatetime(orderProvider.trackModel!.createdAt!))),
-                        ]),
-                      ),
-
-                      if(isOrderFailed) CustomStepperWidget(
-                        height: orderProvider.trackModel?.deliveryMan == null ? 30 : 130,
-                        title: getTranslated(status, context),
-                        isComplete: isOrderFailed,
-                        isActive: isOrderFailed,
-                        statusImage: Images.orderFailed,
-                      ),
-
-                      CustomStepperWidget(
-                        title: getTranslated('order_accepted', context),
-                        isComplete: status == OrderConstants.confirmed
-                            || status == OrderConstants.processing
-                            || status == OrderConstants.outForDelivery
-                            || status == OrderConstants.delivered,
-                        isActive: status == OrderConstants.confirmed,
-                        statusImage: Images.orderAccepted,
-                      ),
-
-                      CustomStepperWidget(
-                        title: getTranslated('preparing_product', context),
-                        isComplete: status == OrderConstants.processing
-                            || status == OrderConstants.outForDelivery
-                            ||status == OrderConstants.delivered,
-                        statusImage: Images.preparingItems,
-                        isActive: status == OrderConstants.processing,
-                      ),
-
-                      if(!(orderProvider.trackModel?.orderType == 'self_pickup'))
-                        Consumer<LocationProvider>(builder: (context, locationProvider, _) {
-                        return CustomStepperWidget(
-                          title: getTranslated('order_is_on_the_way', context),
-                          isComplete: status == OrderConstants.outForDelivery || status == OrderConstants.delivered,
-                          statusImage: Images.outForDelivery,
-                          isActive: status == OrderConstants.outForDelivery,
-                          subTitle: getTranslated('your_delivery_man_is_coming', context),
-                          trailing: orderProvider.trackModel?.deliveryMan?.phone != null ? InkWell(
-                            onTap: ()=> launchUrlString('tel:${orderProvider.trackModel?.deliveryMan?.phone}'),
-                            child: const Icon(Icons.phone_in_talk),
-                          ) : const SizedBox(),
-                        );
-                      }),
-
-
-                      CustomStepperWidget(
-                        height: 30,
-                        title: getTranslated('order_delivered', context),
-                        isComplete: status == OrderConstants.delivered,
-                        isActive: status == OrderConstants.delivered,
-                        statusImage: Images.orderDelivered,
-                        child: const SizedBox(),
-                      ),
-                      ]),
-                    ),
-
-                  ]),
                     ],
                   )
                 ) : Center(child: CustomLoaderWidget(color: Theme.of(context).primaryColor));
@@ -324,6 +196,314 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
           ])),
 
         ]),
+      ),
+    );
+  }
+}
+
+class _MobileTrackSummaryCard extends StatelessWidget {
+  const _MobileTrackSummaryCard({required this.orderProvider});
+  final OrderProvider orderProvider;
+
+  static const _slate = Color(0xFF3A4756);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.10),
+            blurRadius: 18,
+            spreadRadius: 0,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: _slate.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(Icons.receipt_long_rounded, color: _slate, size: 22),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${getTranslated('order_id', context)} #${orderProvider.trackModel!.id}',
+                  style: rubikSemiBold.copyWith(fontSize: Dimensions.fontSizeLarge),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  getTranslated('track_order', context),
+                  style: rubikRegular.copyWith(
+                    fontSize: Dimensions.fontSizeSmall,
+                    color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.75),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          CustomDirectionalityWidget(
+            child: Text(
+              PriceConverterHelper.convertPrice(orderProvider.trackModel!.orderAmount),
+              style: rubikBold.copyWith(color: _slate, fontSize: Dimensions.fontSizeExtraLarge),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MobileTrackAddressCard extends StatelessWidget {
+  const _MobileTrackAddressCard({required this.orderProvider});
+  final OrderProvider orderProvider;
+
+  static const _slate = Color(0xFF3A4756);
+
+  @override
+  Widget build(BuildContext context) {
+    final branchAddress = orderProvider.trackModel?.branchId != null
+        ? OrderHelper.getBranch(
+            id: orderProvider.trackModel!.branchId!,
+            branchList: context.read<SplashProvider>().configModel?.branches ?? [],
+          )?.address
+        : null;
+    final deliveryAddress = orderProvider.trackModel!.deliveryAddress != null
+        ? orderProvider.trackModel!.deliveryAddress!.address!
+        : getTranslated('address_was_deleted', context);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.10),
+            blurRadius: 18,
+            spreadRadius: 0,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: _slate.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.store_mall_directory_outlined, color: _slate, size: 20),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  branchAddress ?? '-',
+                  style: rubikRegular.copyWith(
+                    fontSize: Dimensions.fontSizeDefault,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: _slate.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.location_on_outlined, color: _slate, size: 20),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  deliveryAddress,
+                  style: rubikRegular.copyWith(
+                    fontSize: Dimensions.fontSizeDefault,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                  ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MobileTrackDeliveryManCard extends StatelessWidget {
+  const _MobileTrackDeliveryManCard({required this.orderProvider});
+  final OrderProvider orderProvider;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.10),
+            blurRadius: 18,
+            spreadRadius: 0,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: DeliveryManWidget(deliveryMan: orderProvider.trackModel!.deliveryMan),
+    );
+  }
+}
+
+class _MobileTrackTimelineCard extends StatelessWidget {
+  const _MobileTrackTimelineCard({
+    required this.orderProvider,
+    required this.status,
+    required this.isOrderFailed,
+  });
+
+  final OrderProvider orderProvider;
+  final String? status;
+  final bool isOrderFailed;
+
+  @override
+  Widget build(BuildContext context) {
+    final Color lineColor = Theme.of(context).dividerColor.withValues(alpha: 0.35);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.10),
+            blurRadius: 18,
+            spreadRadius: 0,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF3A4756).withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.track_changes_rounded, color: Color(0xFF3A4756), size: 20),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                getTranslated('track_order', context),
+                style: rubikSemiBold.copyWith(fontSize: Dimensions.fontSizeLarge),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Container(height: 1, color: lineColor),
+          const SizedBox(height: 8),
+
+          CustomStepperWidget(
+            title: getTranslated('order_placed', context),
+            isComplete: true,
+            isActive: status == OrderConstants.pending,
+            haveTopBar: false,
+            statusImage: Images.orderPlace,
+            subTitleWidget: Row(children: [
+              const Icon(Icons.schedule, size: Dimensions.fontSizeLarge),
+              const SizedBox(width: Dimensions.paddingSizeSmall),
+              Text(
+                DateConverterHelper.localDateToISOAMPMString(
+                  DateConverterHelper.convertStringToDatetime(orderProvider.trackModel!.createdAt!),
+                ),
+              ),
+            ]),
+          ),
+
+          if (isOrderFailed)
+            CustomStepperWidget(
+              height: orderProvider.trackModel?.deliveryMan == null ? 30 : 130,
+              title: getTranslated(status, context),
+              isComplete: isOrderFailed,
+              isActive: isOrderFailed,
+              statusImage: Images.orderFailed,
+            ),
+
+          CustomStepperWidget(
+            title: getTranslated('order_accepted', context),
+            isComplete: status == OrderConstants.confirmed ||
+                status == OrderConstants.processing ||
+                status == OrderConstants.outForDelivery ||
+                status == OrderConstants.delivered,
+            isActive: status == OrderConstants.confirmed,
+            statusImage: Images.orderAccepted,
+          ),
+
+          CustomStepperWidget(
+            title: getTranslated('preparing_product', context),
+            isComplete: status == OrderConstants.processing ||
+                status == OrderConstants.outForDelivery ||
+                status == OrderConstants.delivered,
+            statusImage: Images.preparingItems,
+            isActive: status == OrderConstants.processing,
+          ),
+
+          if (!(orderProvider.trackModel?.orderType == 'self_pickup'))
+            CustomStepperWidget(
+              title: getTranslated('order_is_on_the_way', context),
+              isComplete: status == OrderConstants.outForDelivery || status == OrderConstants.delivered,
+              statusImage: Images.outForDelivery,
+              isActive: status == OrderConstants.outForDelivery,
+              subTitle: getTranslated('your_delivery_man_is_coming', context),
+              trailing: orderProvider.trackModel?.deliveryMan?.phone != null
+                  ? InkWell(
+                      onTap: () => launchUrlString('tel:${orderProvider.trackModel?.deliveryMan?.phone}'),
+                      child: const Icon(Icons.phone_in_talk),
+                    )
+                  : const SizedBox(),
+            ),
+
+          CustomStepperWidget(
+            height: 30,
+            title: getTranslated('order_delivered', context),
+            isComplete: status == OrderConstants.delivered,
+            isActive: status == OrderConstants.delivered,
+            statusImage: Images.orderDelivered,
+            child: const SizedBox(),
+          ),
+        ],
       ),
     );
   }

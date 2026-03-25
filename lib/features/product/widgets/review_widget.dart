@@ -22,58 +22,100 @@ class ReviewWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
+    final customer = reviewModel.customer;
+    final name = customer != null
+        ? '${customer.fName ?? ''} ${customer.lName ?? ''}'.trim()
+        : getTranslated('user_not_available', context);
+    final hasCustomerImage = (customer?.image != null) && (customer!.image!.toString().trim().isNotEmpty);
+    final avatarBg = Theme.of(context).primaryColor.withValues(alpha: 0.10);
+    final avatarFg = Theme.of(context).primaryColor;
+    final initials = name.isNotEmpty ? name.characters.first : '?';
+
     return Container(
       margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
-      padding: EdgeInsets.all(ResponsiveHelper.isDesktop(context) ? Dimensions.paddingSizeLarge : Dimensions.paddingSizeSmall),
+      padding: EdgeInsets.all(ResponsiveHelper.isDesktop(context) ? Dimensions.paddingSizeLarge : Dimensions.paddingSizeDefault),
       decoration: BoxDecoration(
-          color: ResponsiveHelper.isDesktop(context) ? Theme.of(context).hintColor.withValues(alpha: 0.01) : Theme.of(context).hintColor.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall)
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
+          border: Border.all(color: Theme.of(context).hintColor.withValues(alpha: 0.08)),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).hintColor.withValues(alpha: 0.06),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
+            )
+          ]
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(100),
-            child: CustomImageWidget(
-              image: '${Provider.of<SplashProvider>(context, listen: false).baseUrls!.customerImageUrl}/${
-                  reviewModel.customer != null ? reviewModel.customer!.image : getTranslated('user_not_available', context)
-              }',
-              width: 50, height: 50, fit: BoxFit.cover,
+        Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+          if (hasCustomerImage)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(999),
+              child: CustomImageWidget(
+                image: '${Provider.of<SplashProvider>(context, listen: false).baseUrls!.customerImageUrl}/${customer.image}',
+                width: 44,
+                height: 44,
+                fit: BoxFit.cover,
+              ),
+            )
+          else
+            CircleAvatar(
+              radius: 22,
+              backgroundColor: avatarBg,
+              child: Text(
+                initials,
+                style: rubikSemiBold.copyWith(color: avatarFg),
+              ),
             ),
-          ),
+
           const SizedBox(width: Dimensions.paddingSizeSmall),
 
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(
-              reviewModel.customer != null ?
-              '${reviewModel.customer!.fName} ${reviewModel.customer!.lName}' : getTranslated('user_not_available', context),
-              style: rubikSemiBold.copyWith(fontSize: Dimensions.fontSizeSmall),
-              maxLines: 1, overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 5),
-
-            Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-              Icon(Icons.star, color: ColorResources.getRatingColor(context), size: 16),
-              const SizedBox(width: Dimensions.paddingSizeSmall),
-            
-              Text(reviewModel.rating!.toStringAsFixed(1), style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeSmall)),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(
+                name,
+                style: rubikSemiBold.copyWith(fontSize: Dimensions.fontSizeDefault),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 6),
+              Row(children: [
+                Icon(Icons.star_rounded, color: ColorResources.getRatingColor(context), size: 18),
+                const SizedBox(width: 6),
+                Text(
+                  '${reviewModel.rating ?? 0}',
+                  style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeSmall),
+                ),
+              ]),
             ]),
-          ])),
-          
-          Text(DateConverterHelper.convertToAgo(reviewModel.createdAt!), style: rubikRegular.copyWith(
-            fontSize: Dimensions.fontSizeSmall,
-          )),
-        ]),
-        const SizedBox(height: Dimensions.paddingSizeSmall),
+          ),
 
-        Padding(
-          padding: const EdgeInsets.only(left: 60),
-          child: Text(reviewModel.comment!, style: rubikRegular.copyWith(
-            fontSize: ResponsiveHelper.isDesktop(context) ? Dimensions.fontSizeLarge : Dimensions.fontSizeDefault ,
-            color: Theme.of(context).hintColor.withValues(alpha: 0.6),
-            fontStyle: FontStyle.italic,
-          )),
-        ),
-        const SizedBox(height: Dimensions.paddingSizeSmall),
+          const SizedBox(width: Dimensions.paddingSizeSmall),
+          Text(
+            reviewModel.createdAt != null ? DateConverterHelper.convertToAgo(reviewModel.createdAt!) : '',
+            style: rubikRegular.copyWith(
+              fontSize: Dimensions.fontSizeSmall,
+              color: Theme.of(context).hintColor.withValues(alpha: 0.7),
+            ),
+          ),
+        ]),
+
+        const SizedBox(height: Dimensions.paddingSizeDefault),
+
+        if ((reviewModel.comment ?? '').trim().isNotEmpty)
+          Text(
+            reviewModel.comment!.trim(),
+            style: rubikRegular.copyWith(
+              fontSize: ResponsiveHelper.isDesktop(context) ? Dimensions.fontSizeLarge : Dimensions.fontSizeDefault,
+              color: Theme.of(context).hintColor.withValues(alpha: 0.78),
+              height: 1.35,
+            ),
+          ),
+
+        if ((reviewModel.attachment?.isNotEmpty ?? false)) ...[
+          const SizedBox(height: Dimensions.paddingSizeDefault),
+          const SizedBox(height: Dimensions.paddingSizeSmall),
+        ],
 
         CustomSingleChildListWidget(
             itemCount: reviewModel.attachment?.length ?? 0,
@@ -103,7 +145,7 @@ class ReviewWidget extends StatelessWidget {
                     height: 75,width: 75,
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(Dimensions.paddingSizeExtraSmall),
-                        border: Border.all(color: Theme.of(context).hintColor.withValues(alpha: 0.05))
+                        border: Border.all(color: Theme.of(context).hintColor.withValues(alpha: 0.10))
                     ),
                     child: CustomImageWidget(image: '${Provider.of<SplashProvider>(context,listen: false).baseUrls?.reviewImageUrl}/${reviewModel.attachment?[index]}'),
                   ),

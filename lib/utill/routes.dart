@@ -18,7 +18,8 @@ import 'package:hexacom_user/features/auth/screens/create_account_screen.dart';
 import 'package:hexacom_user/features/auth/screens/login_screen.dart';
 import 'package:hexacom_user/features/auth/screens/otp_registration_screen.dart';
 import 'package:hexacom_user/features/auth/screens/send_otp_screen.dart';
-import 'package:hexacom_user/features/checkout/screens/checkout_screen.dart';
+import 'package:hexacom_user/features/contact_us/screens/contact_us_screen.dart';
+import 'package:hexacom_user/features/loyalty/screens/my_points_screen.dart';
 import 'package:hexacom_user/features/coupon/screens/coupon_screen.dart';
 import 'package:hexacom_user/features/dashboard/screens/dashboard_screen.dart';
 import 'package:hexacom_user/features/flash_sale/screens/flash_sale_details_screen.dart';
@@ -104,6 +105,8 @@ class RouteHelper {
   static const String sendOtp = '/send-otp-verification';
   static const String otpRegistration = '/otp-registration';
   static const String imagePreviewScreen = '/image-preview';
+  static const String contactUsScreen = '/contact-us';
+  static const String myPointsScreen = '/my-points';
 
   static HistoryUrlStrategy historyUrlStrategy = HistoryUrlStrategy();
 
@@ -203,6 +206,8 @@ class RouteHelper {
     return getDashboardRoute(context, 'home', action: action ?? RouteAction.push);
   }
   static String getCouponRoute(BuildContext context, {RouteAction? action}) => _navigateRoute(context, couponScreen, route: action);
+  static String getContactUsRoute(BuildContext context, {RouteAction? action}) => _navigateRoute(context, contactUsScreen, route: action);
+  static String getMyPointsRoute(BuildContext context, {RouteAction? action}) => _navigateRoute(context, myPointsScreen, route: action);
   static String getSupportRoute(BuildContext context, {RouteAction? action}) => getDashboardRoute(context, 'home', action: action ?? RouteAction.push);
   static String getTermsRoute(BuildContext context, {RouteAction? action}) => _navigateRoute(context, termsScreen, route: action);
   static String getPolicyRoute(BuildContext context, {RouteAction? action}) => _navigateRoute(context, policyScreen, route: action);
@@ -213,9 +218,10 @@ class RouteHelper {
   static String getFlashSaleDetailsRoute(BuildContext context, {RouteAction? action}) => _navigateRoute(context, flashSaleDetailsScreen, route: action);
   static String getOrderListScreen(BuildContext context, {RouteAction? action}) => _navigateRoute(context, orderListScreen, route: action);
   static String getOrderSearchScreen(BuildContext context, {RouteAction? action}) => _navigateRoute(context, orderSearchScreen, route: action);
-  static String getOrderSuccessScreen(BuildContext context, String orderId, String status, {RouteAction? action}) => _navigateRoute(context,
-    "$orderSuccessScreen?id=$orderId&status=$status", route: action,
-  );
+  static String getOrderSuccessScreen(BuildContext context, String orderId, String status, {int? expectedPoints, RouteAction? action}) {
+    final q = expectedPoints != null && expectedPoints > 0 ? '&expected_points=$expectedPoints' : '';
+    return _navigateRoute(context, "$orderSuccessScreen?id=$orderId&status=$status$q", route: action);
+  }
   static String getOtpRegistrationScreen(BuildContext context, String? tempToken, String userInput, {String? userName, RouteAction action = RouteAction.pushNamedAndRemoveUntil}){
     String data = '';
     if(tempToken != null && tempToken.isNotEmpty){
@@ -401,16 +407,10 @@ class RouteHelper {
       }),
       GoRoute(path: notificationScreen, builder: (context, state) => _routeHandler(context, const NotificationScreen(), path: _getPath(state))),
 
-      GoRoute(path: checkoutScreen, builder: (context, state){
-        return _routeHandler(context, CheckoutScreen(
-            amount: double.parse(utf8.decode(base64Decode(state.uri.queryParameters['amount']!))),
-            orderType: state.uri.queryParameters['type'],
-            fromCart: state.uri.queryParameters['fr_cart']!.contains('1'),
-            discount: double.parse(utf8.decode(base64Decode(state.uri.queryParameters['discount']!))),
-            couponCode: utf8.decode(base64Decode(state.uri.queryParameters['code']!)),
-            deliveryCharge: double.parse(utf8.decode(base64Decode(state.uri.queryParameters['del_char']!)))
-        ), path: _getPath(state));
-      }),
+      GoRoute(
+        path: checkoutScreen,
+        redirect: (context, state) => '${RouteHelper.dashboardScreen}?page=cart',
+      ),
 
       GoRoute(path: paymentScreen, builder: (context, state)=> _routeHandler(context,
           PaymentScreen(
@@ -481,6 +481,8 @@ class RouteHelper {
       }),
 
       GoRoute(path: couponScreen, builder: (context, state) => _routeHandler(context, const CouponScreen(), path: _getPath(state))),
+      GoRoute(path: contactUsScreen, builder: (context, state) => _routeHandler(context, const ContactUsScreen(), path: _getPath(state))),
+      GoRoute(path: myPointsScreen, builder: (context, state) => _routeHandler(context, const MyPointsScreen(), path: _getPath(state))),
       GoRoute(path: termsScreen, builder: (context, state) => _routeHandler(context, const HtmlViewerScreen (htmlType: HtmlType.termsAndCondition), path: _getPath(state))),
       GoRoute(path: policyScreen, builder: (context, state) => _routeHandler(context, const HtmlViewerScreen (htmlType: HtmlType.privacyPolicy), path: _getPath(state))),
       GoRoute(path: aboutUsScreen, builder: (context, state) => _routeHandler(context, const HtmlViewerScreen(htmlType: HtmlType.aboutUs), path: _getPath(state))),
@@ -490,9 +492,15 @@ class RouteHelper {
       GoRoute(path: flashSaleDetailsScreen, builder: (context, state) => _routeHandler(context, const FlashSaleDetailsScreen(), path: _getPath(state))),
       GoRoute(path: orderListScreen, builder: (context, state) => _routeHandler(context, const OrderScreen(), path: _getPath(state))),
       GoRoute(path: orderSearchScreen, builder: (context, state) => _routeHandler(context, const OrderSearchScreen(), path: _getPath(state))),
-      GoRoute(path: orderSuccessScreen, builder: (context, state) => _routeHandler(context,  OrderSuccessfulScreen(
-        orderID: state.uri.queryParameters['id'], status: state.uri.queryParameters['status'] == "success" ? 0 : 1), path: _getPath(state))
-      ),
+      GoRoute(path: orderSuccessScreen, builder: (context, state) {
+        final expectedPointsParam = state.uri.queryParameters['expected_points'];
+        final expectedPoints = expectedPointsParam != null ? int.tryParse(expectedPointsParam) : null;
+        return _routeHandler(context, OrderSuccessfulScreen(
+          orderID: state.uri.queryParameters['id'],
+          status: state.uri.queryParameters['status'] == 'success' ? 0 : 1,
+          expectedPoints: expectedPoints,
+        ), path: _getPath(state));
+      }),
       GoRoute(path: sendOtp, builder: (context, state) => _routeHandler(context, SendOtpScreen(fromPage: state.uri.queryParameters['page'] ?? ''), path: _getPath(state))),
       GoRoute(path: otpRegistration, builder: (context, state) {
         return _routeHandler(context, OtpRegistrationScreen(

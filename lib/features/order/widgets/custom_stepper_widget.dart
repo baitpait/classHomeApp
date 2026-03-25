@@ -157,54 +157,97 @@ class WebStepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isWide = MediaQuery.sizeOf(context).width >= 1400;
+    final double iconSize = isWide ? 40 : 36;
+    final double titleFontSize = isWide ? 15 : 14;
+
     return SizedBox(
       width: 200,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.start, children: [
         Row(
           children: [
             Container(
-              decoration: BoxDecoration(
-                color: isComplete
-                    ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
-                    : const Color(0xFF3A4756).withValues(alpha: 0.06),
-                borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
-              ),
-              padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
               margin: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-              child: CustomAssetImageWidget(
-                statusImage!, width: 30,
-                color: isComplete
-                    ? (color ?? Theme.of(context).primaryColor)
-                    : Theme.of(context).disabledColor,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: isComplete
+                          ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
+                          : const Color(0xFF3A4756).withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
+                    ),
+                    padding: const EdgeInsets.all(Dimensions.paddingSizeSmall + 2),
+                    child: CustomAssetImageWidget(
+                      statusImage!,
+                      width: iconSize,
+                      color: isComplete
+                          ? (color ?? Theme.of(context).primaryColor)
+                          : Theme.of(context).disabledColor,
+                    ),
+                  ),
+                  if (isActive)
+                    PositionedDirectional(
+                      end: -6,
+                      top: -6,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: color ?? Theme.of(context).primaryColor,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.10),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.all(3),
+                        child: Icon(
+                          Icons.check_rounded,
+                          size: isWide ? 14 : 13,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
 
-            if(haveTopBar) CustomPaint(
-              size: const Size(120, 2),
-              painter: DashedLineVerticalPainter(
-                isActive: isComplete,
-                axis: Axis.horizontal,
-                activeColor: Theme.of(context).primaryColor,
+            if (haveTopBar)
+              Expanded(
+                child: SizedBox(
+                  height: 2,
+                  child: CustomPaint(
+                    painter: DashedLineVerticalPainter(
+                      isActive: isComplete,
+                      axis: Axis.horizontal,
+                      activeColor: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ),
               ),
-            ),
           ],
         ),
         const SizedBox(height: Dimensions.paddingSizeDefault),
 
-        Row(children: [
-          Text(
-            title!,
-            style: rubikRegular.copyWith(
-              color: color ?? (isComplete ? Theme.of(context).primaryColor : Theme.of(context).disabledColor),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                title!,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: rubikRegular.copyWith(
+                  fontSize: titleFontSize,
+                  color: color ??
+                      (isComplete ? Theme.of(context).primaryColor : Theme.of(context).disabledColor),
+                ),
+              ),
             ),
-          ),
-          const SizedBox(width: Dimensions.paddingSizeSmall),
-          if(isActive) Icon(
-            Icons.check_circle,
-            color: color ?? Theme.of(context).primaryColor,
-            size: 20,
-          ),
-        ]),
+          ],
+        ),
         const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
 

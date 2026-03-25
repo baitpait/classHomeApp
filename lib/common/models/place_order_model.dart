@@ -19,7 +19,7 @@ class PlaceOrderModel {
   String? _customerId;
   String? _paymentPlatform;
   String? _callBack;
-
+  int? _loyaltyPointsUsed;
 
   PlaceOrderModel copyWith({String? paymentMethod, String? transactionReference}) {
     _paymentMethod = paymentMethod;
@@ -46,6 +46,7 @@ class PlaceOrderModel {
         String? customerId,
         String? paymentPlatform,
         String? callBack,
+        int? loyaltyPointsUsed,
       }) {
     _cart = cart;
     _couponDiscountAmount = couponDiscountAmount;
@@ -65,6 +66,7 @@ class PlaceOrderModel {
     _customerId = customerId;
     _paymentPlatform = paymentPlatform;
     _callBack = callBack;
+    _loyaltyPointsUsed = loyaltyPointsUsed ?? 0;
   }
 
   List<Cart>? get cart => _cart;
@@ -85,7 +87,7 @@ class PlaceOrderModel {
   String? get customerId => _customerId;
   String? get paymentPlatform => _paymentPlatform;
   String? get callBack => _callBack;
-
+  int? get loyaltyPointsUsed => _loyaltyPointsUsed;
 
   PlaceOrderModel.fromJson(Map<String, dynamic> json) {
     if (json['cart'] != null) {
@@ -110,6 +112,7 @@ class PlaceOrderModel {
     _customerId = json['customer_id'];
     _paymentPlatform = json['payment_platform'];
     _callBack = json['callback'];
+    _loyaltyPointsUsed = json['loyalty_points_used'];
   }
 
   Map<String, dynamic> toJson() {
@@ -136,6 +139,9 @@ class PlaceOrderModel {
     data['is_guest'] = _isGuest;
     data['payment_platform'] = _paymentPlatform;
     data['callback'] = _callBack;
+    if (_loyaltyPointsUsed != null && _loyaltyPointsUsed! > 0) {
+      data['loyalty_points_used'] = _loyaltyPointsUsed;
+    }
     return data;
   }
 }

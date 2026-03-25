@@ -13,15 +13,6 @@ class ChatRepo {
   ChatRepo({required this.dioClient, required this.sharedPreferences});
 
 
-  Future<ApiResponseModel> getDeliveryManMessage(int? orderId,int offset) async {
-    try {
-      final response = await dioClient!.get('${AppConstants.getDeliverymanMessageUri}?offset=$offset&limit=100&order_id=$orderId');
-      return ApiResponseModel.withSuccess(response);
-    } catch (e) {
-      return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
-    }
-  }
-
   Future<ApiResponseModel> getAdminMessage(int offset) async {
     try {
       final response = await dioClient!.get('${AppConstants.getAdminMessageUrl}?offset=$offset&limit=100');
@@ -31,24 +22,6 @@ class ChatRepo {
     }
   }
 
-
-  Future<http.StreamedResponse> sendMessageToDeliveryMan(String message, List<XFile> file, int? orderId, String token) async {
-    http.MultipartRequest request = http.MultipartRequest('POST', Uri.parse('${AppConstants.baseUrl}${AppConstants.sendMessageToDeliveryManUrl}'));
-    request.headers.addAll(<String,String>{'Authorization': 'Bearer $token'});
-    for(int i=0; i<file.length;i++){
-      Uint8List list = await file[i].readAsBytes();
-      var part = http.MultipartFile('image[]', file[i].readAsBytes().asStream(), list.length, filename: file[i].path);
-      request.files.add(part);
-    }
-    Map<String, String> fields = {};
-    fields.addAll(<String, String>{
-      'message': message,
-      'order_id': orderId.toString(),
-    });
-    request.fields.addAll(fields);
-    http.StreamedResponse response = await request.send();
-    return response;
-  }
 
   Future<http.StreamedResponse> sendMessageToAdmin(String message, List<XFile> file, String token) async {
     http.MultipartRequest request = http.MultipartRequest('POST', Uri.parse('${AppConstants.baseUrl}${AppConstants.sendMessageToAdminUrl}'));

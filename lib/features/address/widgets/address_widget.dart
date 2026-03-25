@@ -121,7 +121,59 @@ class AddressWidget extends StatelessWidget {
 
               ])),
 
-              if(!fromSelectAddress) PopupMenuButton<String>(
+              if (fromSelectAddress)
+                InkWell(
+                  onTap: () {
+                    ResponsiveHelper.showDialogOrBottomSheet(
+                      context,
+                      CustomAlertDialogWidget(
+                        title: getTranslated('remove_this_address', context),
+                        subTitle: getTranslated('address_will_be_remove_from_list', context),
+                        image: Images.locationDeleteIcon,
+                        onPressRight: () {
+                          Navigator.pop(context);
+
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) => const Center(
+                              child: CustomLoaderWidget(color: _slate),
+                            ),
+                          );
+
+                          addressProvider.deleteUserAddressByID(addressModel.id, index, (bool isSuccessful, String message) {
+                            Navigator.pop(context);
+
+                            // Keep selected index stable if the list shrinks.
+                            final currentSelected = addressProvider.selectAddressIndex;
+                            if (index == currentSelected) {
+                              addressProvider.updateAddressIndex(0, true);
+                            } else if (index < currentSelected) {
+                              addressProvider.updateAddressIndex(currentSelected - 1, true);
+                            }
+
+                            showCustomSnackBar(message, context, isError: !isSuccessful);
+                          });
+                        },
+                      ),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: _slate.withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.delete_outline_rounded,
+                      color: _slate,
+                      size: 20,
+                    ),
+                  ),
+                )
+              else
+                PopupMenuButton<String>(
                 padding: const EdgeInsets.all(0),
                 icon: Container(
                   padding: const EdgeInsets.all(6),

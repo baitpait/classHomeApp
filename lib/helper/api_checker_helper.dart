@@ -12,9 +12,16 @@ import 'package:provider/provider.dart';
 
 class ApiCheckerHelper {
   static void checkApi(ApiResponseModel apiResponse) {
-    ErrorResponseModel error = getError(apiResponse);
-//config-missing
-    if( error.errors![0].code == '401' || error.errors![0].code == 'auth-001'
+    final ErrorResponseModel error = getError(apiResponse);
+    final Errors firstError = (error.errors != null && error.errors!.isNotEmpty)
+        ? error.errors!.first
+        : Errors(code: '', message: null);
+
+    final String code = firstError.code ?? '';
+    final String? message = firstError.message;
+
+    //config-missing
+    if ((code == '401' || code == 'auth-001')
         && ModalRoute.of(Get.context!)?.settings.name != RouteHelper.getLoginRoute(Get.context!, FromPage.mainRoute.name)) {
       Provider.of<SplashProvider>(Get.context!, listen: false).removeSharedData();
 
@@ -22,7 +29,11 @@ class ApiCheckerHelper {
         Navigator.pushNamedAndRemoveUntil(Get.context!, RouteHelper.getLoginRoute(Get.context!, FromPage.mainRoute.name), (route) => false);
       }
     }else {
-      showCustomSnackBar(error.errors![0].message, Get.context!);
+      final fallback = 'unavailable_to_process_data';
+      showCustomSnackBar(
+        message ?? fallback,
+        Get.context!,
+      );
     }
   }
 
@@ -30,13 +41,20 @@ class ApiCheckerHelper {
     ErrorResponseModel error;
 
     try{
-      error = ErrorResponseModel.fromJson(apiResponse);
+      final dynamic body = apiResponse.response != null
+          ? (apiResponse.response as dynamic).data
+          : apiResponse.error;
+
+      if (body is ErrorResponseModel) {
+        error = body;
+      } else {
+        error = ErrorResponseModel.fromJson(body);
+      }
     }catch(e){
       if(apiResponse.error is String){
         error = ErrorResponseModel(errors: [Errors(code: '', message: apiResponse.error.toString())]);
-
       }else{
-        error = ErrorResponseModel.fromJson(apiResponse.error);
+        error = ErrorResponseModel(errors: [Errors(code: '', message: 'unavailable_to_process_data')]);
       }
     }
     return error;

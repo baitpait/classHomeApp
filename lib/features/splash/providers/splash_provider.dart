@@ -9,6 +9,7 @@ import 'package:hexacom_user/data/datasource/local/cache_response.dart';
 import 'package:hexacom_user/features/splash/domain/models/policy_model.dart';
 import 'package:hexacom_user/features/splash/domain/reposotories/splash_repo.dart';
 import 'package:hexacom_user/helper/data_sync_provider.dart';
+import 'package:hexacom_user/helper/favicon_helper.dart';
 import 'package:hexacom_user/helper/maintenance_helper.dart';
 import 'package:hexacom_user/main.dart';
 import 'package:hexacom_user/features/auth/providers/auth_provider.dart';
@@ -112,6 +113,25 @@ class SplashProvider extends ChangeNotifier {
       // if(!kIsWeb && !Provider.of<AuthProvider>(Get.context!, listen: false).isLoggedIn()){
       //   await ;
       // }
+
+      // Update favicon on web using fav_icon from config when available,
+      // otherwise fall back to app_logo.
+      final iconName = (_configModel?.favIcon != null &&
+              _configModel!.favIcon!.trim().isNotEmpty)
+          ? _configModel!.favIcon
+          : _configModel?.appLogo;
+      final ecommerceImageBase = _baseUrls?.ecommerceImageUrl;
+      if (iconName != null && iconName.trim().isNotEmpty) {
+        final trimmed = iconName.trim();
+        final url = (trimmed.startsWith('http://') || trimmed.startsWith('https://'))
+            ? trimmed
+            : ((ecommerceImageBase != null && ecommerceImageBase.trim().isNotEmpty)
+                ? '${ecommerceImageBase.trim()}/$trimmed'
+                : null);
+        if (url != null) {
+          updateFavicon(url);
+        }
+      }
 
       notifyListeners();
 

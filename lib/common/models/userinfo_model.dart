@@ -14,6 +14,8 @@ class UserInfoModel {
   String? phone;
   String? cmFirebaseToken;
   String? loginMedium;
+  int? loyaltyPoints;
+  String? loyaltyLevel;
 
   UserInfoModel(
       {this.id,
@@ -28,7 +30,9 @@ class UserInfoModel {
         this.emailVerificationToken,
         this.phone,
         this.cmFirebaseToken,
-        this.loginMedium
+        this.loginMedium,
+        this.loyaltyPoints,
+        this.loyaltyLevel,
       });
 
   UserInfoModel.fromJson(Map<String, dynamic> json) {
@@ -45,7 +49,8 @@ class UserInfoModel {
     phone = json['phone'];
     cmFirebaseToken = json['cm_firebase_token'];
     loginMedium = '${json['login_medium']}';
-
+    loyaltyPoints = json['loyalty_points'];
+    loyaltyLevel = json['loyalty_level']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -63,6 +68,8 @@ class UserInfoModel {
     data['phone'] = phone;
     data['cm_firebase_token'] = cmFirebaseToken;
     data['login_medium'] = loginMedium;
+    data['loyalty_points'] = loyaltyPoints;
+    data['loyalty_level'] = loyaltyLevel;
 
     return data;
   }

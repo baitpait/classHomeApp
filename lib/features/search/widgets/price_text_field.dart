@@ -45,10 +45,14 @@ class _PriceTextFieldWidgetState extends State<PriceTextFieldWidget> {
           maxLengthEnforcement: MaxLengthEnforcement.enforced,
           maxLines: widget.maxLines,
           controller: widget.controller,
-          style: Theme.of(context).textTheme.displayMedium!.copyWith(color: Theme.of(context).textTheme.bodyLarge!.color, fontSize: Dimensions.fontSizeLarge),
+          style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                color: Theme.of(context).textTheme.bodyLarge!.color,
+                fontSize: Dimensions.fontSizeLarge,
+              ),
           keyboardType: widget.inputType,
           cursorColor: Theme.of(context).primaryColor,
           autofocus: false,
+          textAlign: TextAlign.start,
           inputFormatters: widget.inputFormatters ?? (widget.inputType == TextInputType.phone ? <TextInputFormatter>[FilteringTextInputFormatter.allow(RegExp('[0-9+]'))] : null),
           decoration: InputDecoration(
             counterText: '',
@@ -70,10 +74,10 @@ class _PriceTextFieldWidgetState extends State<PriceTextFieldWidget> {
             fillColor: Theme.of(context).cardColor,
             hintStyle: rubikRegular.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).hintColor.withValues(alpha: 0.6)),
             filled: true,
-            prefix: Container(
-              margin: EdgeInsets.only(right: Dimensions.paddingSizeSmall),
-              child: Text(getTranslated(widget.prefixText, context)),
-            ),
+            // Using a label avoids RTL prefix overlap hiding numbers.
+            labelText: widget.prefixText != null ? getTranslated(widget.prefixText, context) : null,
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
           ),
           onChanged: widget.onChanged as void Function(String)?,
         ),

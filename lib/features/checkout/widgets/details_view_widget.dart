@@ -4,9 +4,11 @@ import 'package:hexacom_user/common/widgets/custom_directionality_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_image_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_text_field_widget.dart';
 import 'package:hexacom_user/utill/images.dart';
+import 'package:hexacom_user/features/auth/providers/auth_provider.dart';
 import 'package:hexacom_user/features/cart/widgets/cart_item_widget.dart';
 import 'package:hexacom_user/features/checkout/providers/checkout_provider.dart';
 import 'package:hexacom_user/features/checkout/widgets/payment_info_widget.dart';
+import 'package:hexacom_user/features/profile/providers/profile_provider.dart';
 import 'package:hexacom_user/features/checkout/widgets/place_order_button_view.dart';
 import 'package:hexacom_user/features/order/providers/order_provider.dart';
 import 'package:hexacom_user/features/splash/providers/splash_provider.dart';
@@ -47,6 +49,17 @@ class DetailsViewWidget extends StatelessWidget {
     final selectedBranch = (branches.isNotEmpty && branchIndex >= 0 && branchIndex < branches.length)
         ? branches[branchIndex]
         : null;
+    final redemptionValue = configModel?.loyaltyPointRedemptionValue ?? 0.5;
+    final checkoutProvider = context.watch<CheckoutProvider>();
+    final loyaltyPoints = context.watch<ProfileProvider>().userInfoModel?.loyaltyPoints ?? 0;
+    final useLoyaltyPoints = checkoutProvider.useLoyaltyPoints && loyaltyPoints > 0;
+    final loyaltyDiscount = useLoyaltyPoints
+        ? (loyaltyPoints * redemptionValue).clamp(0.0, amount)
+        : 0.0;
+    final loyaltyPointsToUse = (redemptionValue > 0 && loyaltyDiscount > 0)
+        ? (loyaltyDiscount / redemptionValue).round()
+        : 0;
+    final finalTotal = amount + (context.watch<OrderProvider>().deliveryCharge ?? 0.0) - loyaltyDiscount;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,6 +116,13 @@ class DetailsViewWidget extends StatelessWidget {
           const SizedBox(height: Dimensions.paddingSizeSmall),
         ],
 
+        _LoyaltyPointsSwitchSection(
+          amount: amount,
+          deliveryCharge: deliveryCharge,
+          selfPickup: selfPickup,
+        ),
+        const SizedBox(height: Dimensions.paddingSizeSmall),
+
         Container(
           margin: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeExtraSmall),
           padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
@@ -143,16 +163,46 @@ class DetailsViewWidget extends StatelessWidget {
                 ),
                 Selector<OrderProvider, double?>(
                   selector: (context, orderProvider) => orderProvider.deliveryCharge,
-                  builder: (context, deliveryCharge, child) {
+                  builder: (context, orderDeliveryCharge, child) {
                     return CustomDirectionalityWidget(
                       child: Text(
-                        '(+) ${PriceConverterHelper.convertPrice(deliveryCharge ?? 0.0)}',
+                        '(+) ${PriceConverterHelper.convertPrice(orderDeliveryCharge ?? 0.0)}',
                         style: rubikSemiBold.copyWith(fontSize: Dimensions.fontSizeLarge),
                       ),
                     );
                   },
                 )
               ]),
+            ],
+
+            if (loyaltyDiscount > 0) ...[
+              const SizedBox(height: 10),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Text(
+                  getTranslated('loyalty_discount', context),
+                  style: rubikRegular.copyWith(
+                    fontSize: Dimensions.fontSizeDefault,
+                    color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.85),
+                  ),
+                ),
+                CustomDirectionalityWidget(
+                  child: Text(
+                    '(-) ${PriceConverterHelper.convertPrice(loyaltyDiscount)}',
+                    style: rubikSemiBold.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).primaryColor),
+                  ),
+                ),
+              ]),
+              const SizedBox(height: 4),
+              Padding(
+                padding: const EdgeInsets.only(left: Dimensions.paddingSizeSmall),
+                child: Text(
+                  getTranslated('loyalty_points_to_use', context).replaceAll('%s', '$loyaltyPointsToUse'),
+                  style: rubikRegular.copyWith(
+                    fontSize: Dimensions.fontSizeSmall,
+                    color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
+                  ),
+                ),
+              ),
             ],
 
             const Divider(height: 20),
@@ -166,18 +216,13 @@ class DetailsViewWidget extends StatelessWidget {
                 color: const Color(0xFF3A4756).withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Selector<OrderProvider, double?>(
-                selector: (context, orderProvider) => orderProvider.deliveryCharge,
-                builder: (context, deliveryCharge, child) {
-                  return CartItemWidget(
-                    title: getTranslated('total_amount', context),
-                    subTitle: PriceConverterHelper.convertPrice(amount + (deliveryCharge ?? 0.0)),
-                    style: rubikSemiBold.copyWith(
-                      fontSize: Dimensions.fontSizeExtraLarge,
-                      color: const Color(0xFF3A4756),
-                    ),
-                  );
-                },
+              child: CartItemWidget(
+                title: getTranslated('total_amount', context),
+                subTitle: PriceConverterHelper.convertPrice(finalTotal),
+                style: rubikSemiBold.copyWith(
+                  fontSize: Dimensions.fontSizeExtraLarge,
+                  color: const Color(0xFF3A4756),
+                ),
               ),
             ),
 
@@ -196,6 +241,64 @@ class DetailsViewWidget extends StatelessWidget {
         ),
         const SizedBox(height: Dimensions.paddingSizeDefault),
       ],
+    );
+  }
+}
+
+class _LoyaltyPointsSwitchSection extends StatelessWidget {
+  final double amount;
+  final double deliveryCharge;
+  final bool selfPickup;
+
+  const _LoyaltyPointsSwitchSection({
+    required this.amount,
+    required this.deliveryCharge,
+    required this.selfPickup,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isLoggedIn = context.watch<AuthProvider>().isLoggedIn();
+    final loyaltyPoints = context.watch<ProfileProvider>().userInfoModel?.loyaltyPoints ?? 0;
+    if (!isLoggedIn) return const SizedBox.shrink();
+
+    final checkoutProvider = context.watch<CheckoutProvider>();
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeExtraSmall),
+      padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [BoxShadow(color: Theme.of(context).shadowColor.withValues(alpha: 0.10), blurRadius: 18, spreadRadius: 0, offset: const Offset(0, 4))],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  getTranslated('loyalty_points', context),
+                  style: rubikSemiBold.copyWith(fontSize: Dimensions.fontSizeDefault),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${getTranslated('available', context)}: $loyaltyPoints ${getTranslated('points', context)}',
+                  style: rubikRegular.copyWith(
+                    fontSize: Dimensions.fontSizeSmall,
+                    color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.85),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: checkoutProvider.useLoyaltyPoints,
+            onChanged: loyaltyPoints > 0 ? (value) => checkoutProvider.setUseLoyaltyPoints(value) : null,
+          ),
+        ],
+      ),
     );
   }
 }

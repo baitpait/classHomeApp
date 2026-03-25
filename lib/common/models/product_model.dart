@@ -74,6 +74,7 @@ class Product {
   int? _wishlistCount;
   String? _unit;
   int? _totalStock;
+  int? _minimumStockAlert;
   List<Rating>? _rating;
 
   Product(
@@ -96,6 +97,7 @@ class Product {
         int? wishlistCount,
         String? unit,
         int? totalStock,
+        int? minimumStockAlert,
         List<Rating>? rating}) {
     _id = id;
     _name = name;
@@ -116,6 +118,7 @@ class Product {
     _wishlistCount = wishlistCount;
     _unit = unit;
     _totalStock = totalStock;
+    _minimumStockAlert = minimumStockAlert;
     _rating = rating;
   }
 
@@ -138,7 +141,17 @@ class Product {
   int? get wishlistCount => _wishlistCount;
   String? get unit => _unit;
   int? get totalStock => _totalStock;
+  int? get minimumStockAlert => _minimumStockAlert;
   List<Rating>? get rating => _rating;
+
+  /// Translation key for stock status: stock_run_out, limited_stock, or in_stock.
+  String get stockStatusKey {
+    final stock = totalStock ?? 0;
+    if (stock < 1) return 'stock_run_out';
+    final minAlert = minimumStockAlert;
+    if (minAlert != null && stock <= minAlert) return 'limited_stock';
+    return 'in_stock';
+  }
 
   Product copyWith(int count){
     _wishlistCount = count;
@@ -180,6 +193,7 @@ class Product {
     _wishlistCount = json['wishlist_count'];
     _unit = json['unit'];
     _totalStock = json['total_stock'];
+    _minimumStockAlert = json['minimum_stock_alert'] is int ? json['minimum_stock_alert'] : int.tryParse('${json['minimum_stock_alert']}');
     if (json['rating'] != null) {
       _rating = [];
       json['rating'].forEach((v) {
@@ -215,6 +229,7 @@ class Product {
     data['tax_type'] = _taxType;
     data['wishlist_count'] = _wishlistCount;
     data['unit'] = _unit;
+    data['minimum_stock_alert'] = _minimumStockAlert;
     data['total_stock'] = _totalStock;
     if (_rating != null) {
       data['rating'] = _rating!.map((v) => v.toJson()).toList();

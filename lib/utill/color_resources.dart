@@ -73,4 +73,14 @@ class ColorResources {
         : accentNavy.withValues(alpha: 0.05);
   }
 
+  /// New arrivals should feel distinct from featured/offer sections.
+  /// - Light: soft mint tint
+  /// - Dark: deep slate tint (not pure black)
+  static Color getNewArrivalSectionBackground(BuildContext context) {
+    final isDark = Provider.of<ThemeProvider>(context).darkTheme;
+    return isDark
+        ? const Color(0xFF1F2937) // slate-800-ish
+        : const Color(0xFF10B981).withValues(alpha: 0.07); // mint tint
+  }
+
 }

@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'package:hexacom_user/common/models/place_order_model.dart';
 import 'package:hexacom_user/helper/responsive_helper.dart';
 import 'package:hexacom_user/features/cart/providers/cart_provider.dart';
+import 'package:hexacom_user/features/auth/providers/auth_provider.dart';
 import 'package:hexacom_user/features/order/providers/order_provider.dart';
+import 'package:hexacom_user/features/splash/providers/splash_provider.dart';
 import 'package:hexacom_user/utill/routes.dart';
 import 'package:hexacom_user/common/widgets/custom_loader_widget.dart';
 import 'package:hexacom_user/helper/custom_snackbar_helper.dart';
@@ -34,6 +36,20 @@ class _OrderWebPaymentState extends State<OrderWebPayment> {
           paymentMethod: paymentMethod.replaceAll('payment_method=', ''),
           transactionReference:  transactionReference.replaceRange(0, transactionReference.indexOf('transaction_reference='), '').replaceAll('transaction_reference=', ''),
         );
+        final configModel = Provider.of<SplashProvider>(context, listen: false).configModel;
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        if (authProvider.isLoggedIn() && (configModel?.loyaltyPointsEnabled ?? false)) {
+          final amountForOne = configModel!.loyaltyAmountForOnePoint ?? 10;
+          final pointsPer = configModel.loyaltyPointsPerAmount ?? 1;
+          final orderAmt = placeOrderBody.orderAmount ?? 0;
+          if (amountForOne > 0 && orderAmt > 0) {
+            orderProvider.setLastExpectedPointsForSuccess(((orderAmt / amountForOne).floor() * pointsPer).round());
+          } else {
+            orderProvider.setLastExpectedPointsForSuccess(null);
+          }
+        } else {
+          orderProvider.setLastExpectedPointsForSuccess(null);
+        }
         orderProvider.placeOrder(context, placeOrderBody, _callback);
       }catch(e){
 
@@ -46,10 +62,12 @@ class _OrderWebPaymentState extends State<OrderWebPayment> {
   }
 
   void _callback(BuildContext context, bool isSuccess, String message, String orderID) async {
+    final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+    final expectedPoints = orderProvider.lastExpectedPointsForSuccess;
     Provider.of<CartProvider>(context, listen: false).clearCartList();
-    Provider.of<OrderProvider>(context, listen: false).clearPlaceOrderData();
+    orderProvider.clearPlaceOrderData();
     if(isSuccess) {
-      RouteHelper.getOrderSuccessScreen(context, orderID, 'success');
+      RouteHelper.getOrderSuccessScreen(context, orderID, 'success', expectedPoints: expectedPoints);
 
     }else {
       showCustomSnackBar(message, context);

@@ -11,7 +11,9 @@ import 'package:hexacom_user/features/home/domain/reposotories/banner_repo.dart'
 import 'package:hexacom_user/features/cart/domain/reposotories/cart_repo.dart';
 import 'package:hexacom_user/features/category/domain/reposotories/category_repo.dart';
 import 'package:hexacom_user/features/chat/domain/reposotories/chat_repo.dart';
+import 'package:hexacom_user/features/contact_us/domain/reposotories/contact_repo.dart';
 import 'package:hexacom_user/features/coupon/domain/reposotories/coupon_repo.dart';
+import 'package:hexacom_user/features/loyalty/domain/reposotories/loyalty_repo.dart';
 import 'package:hexacom_user/features/notification/domain/reposotories/notification_repo.dart';
 import 'package:hexacom_user/features/order/domain/reposotories/order_repo.dart';
 import 'package:hexacom_user/common/reposotories/product_repo.dart';
@@ -27,7 +29,9 @@ import 'package:hexacom_user/features/home/providers/banner_provider.dart';
 import 'package:hexacom_user/features/cart/providers/cart_provider.dart';
 import 'package:hexacom_user/features/category/providers/category_provider.dart';
 import 'package:hexacom_user/features/chat/providers/chat_provider.dart';
+import 'package:hexacom_user/features/contact_us/providers/contact_us_provider.dart';
 import 'package:hexacom_user/features/coupon/providers/coupon_provider.dart';
+import 'package:hexacom_user/features/loyalty/providers/loyalty_provider.dart';
 import 'package:hexacom_user/features/flash_sale/providers/flash_sale_provider.dart';
 import 'package:hexacom_user/provider/localization_provider.dart';
 import 'package:hexacom_user/features/notification/providers/notification_provider.dart';
@@ -61,7 +65,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => CategoryRepo(dioClient: sl(), sharedPreferences: sl()));
   sl.registerLazySingleton(() => BannerRepo(dioClient: sl(), sharedPreferences: sl()));
   sl.registerLazySingleton(() => ProductRepo(dioClient: sl(), sharedPreferences: sl()));
-  sl.registerLazySingleton(() => LanguageRepo());
+  sl.registerLazySingleton(() => LanguageRepo(dioClient: sl()));
   sl.registerLazySingleton(() => OnBoardingRepo(dioClient: sl()));
   sl.registerLazySingleton(() => CartRepo(sharedPreferences: sl()));
   sl.registerLazySingleton(() => OrderRepo(dioClient: sl(), sharedPreferences: sl()));
@@ -71,7 +75,9 @@ Future<void> init() async {
   sl.registerLazySingleton(() => ProfileRepo(dioClient: sl(), sharedPreferences: sl()));
   sl.registerLazySingleton(() => SearchRepo(dioClient: sl(), sharedPreferences: sl()));
   sl.registerLazySingleton(() => NotificationRepo(dioClient: sl()));
+  sl.registerLazySingleton(() => ContactRepo(dioClient: sl()));
   sl.registerLazySingleton(() => CouponRepo(dioClient: sl()));
+  sl.registerLazySingleton(() => LoyaltyRepo(dioClient: sl()));
   sl.registerLazySingleton(() => WishListRepo(dioClient: sl(), sharedPreferences: sl()));
 
   // Provider
@@ -96,7 +102,9 @@ Future<void> init() async {
   sl.registerFactory(() => ProfileProvider(profileRepo: sl()));
   sl.registerFactory(() => NotificationProvider(notificationRepo: sl()));
   sl.registerFactory(() => WishListProvider(wishListRepo: sl()));
+  sl.registerFactory(() => ContactUsProvider(contactRepo: sl()));
   sl.registerFactory(() => CouponProvider(couponRepo: sl()));
+  sl.registerFactory(() => LoyaltyProvider(loyaltyRepo: sl()));
   sl.registerFactory(() => SearchProvider(searchRepo: sl()));
   sl.registerFactory(() => FlashSaleProvider(productRepo: sl()));
   sl.registerFactory(() => RateReviewProvider(productRepo: sl()));

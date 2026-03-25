@@ -20,27 +20,36 @@ class LocalizationProvider extends ChangeNotifier {
 
   Future<void> setLanguage(Locale locale) async {
     _locale = locale;
-    if(_locale.languageCode == 'ar') {
-      _isLtr = false;
-    }else {
-      _isLtr = true;
-    }
+    _isLtr = !_isRtlLanguage(_locale.languageCode);
     _saveLanguage(_locale);
-    await dioClient!.updateHeader(getToken: sharedPreferences!.getString(AppConstants.token)).then((value){
-    HomeScreen.loadData(Get.context!, true);
-    });
+    // Apply locale change immediately so UI never stays on stale language.
     notifyListeners();
+
+    try {
+      await dioClient!.updateHeader(getToken: sharedPreferences!.getString(AppConstants.token));
+      final ctx = Get.context;
+      if (ctx != null) {
+        HomeScreen.loadData(ctx, true);
+      }
+    } catch (_) {
+      // Keep UI language applied even if background refresh fails.
+    }
   }
 
-  void _loadCurrentLanguage() async {
+  Future<void> _loadCurrentLanguage() async {
     _locale = Locale(sharedPreferences!.getString(AppConstants.languageCode) ?? AppConstants.languages[0].languageCode!,
         sharedPreferences!.getString(AppConstants.countryCode) ?? AppConstants.languages[0].countryCode);
-    _isLtr = _locale.languageCode != 'ar';
+    _isLtr = !_isRtlLanguage(_locale.languageCode);
     notifyListeners();
   }
 
   _saveLanguage(Locale locale) async {
     sharedPreferences!.setString(AppConstants.languageCode, locale.languageCode);
     sharedPreferences!.setString(AppConstants.countryCode, locale.countryCode!);
+  }
+
+  bool _isRtlLanguage(String languageCode) {
+    const rtlLanguages = {'ar', 'he', 'fa', 'ur'};
+    return rtlLanguages.contains(languageCode.toLowerCase());
   }
 }

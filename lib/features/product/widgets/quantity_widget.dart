@@ -5,7 +5,6 @@ import 'package:hexacom_user/features/product/providers/product_provider.dart';
 import 'package:hexacom_user/helper/custom_snackbar_helper.dart';
 import 'package:hexacom_user/helper/responsive_helper.dart';
 import 'package:hexacom_user/localization/language_constrants.dart';
-import 'package:hexacom_user/utill/color_resources.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:hexacom_user/utill/styles.dart';
 import 'package:provider/provider.dart';
@@ -21,13 +20,16 @@ class QuantityWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final CartProvider cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final isDesktop = ResponsiveHelper.isDesktop(context);
+    final pillRadius = BorderRadius.circular(isDesktop ? 40 : 25);
+    final pillBg = Theme.of(context).primaryColor.withValues(alpha: 0.08);
 
     return Consumer<ProductProvider>(
         builder: (context, productProvider, _) {
           return Container(
             decoration: BoxDecoration(
-              color: ColorResources.getBackgroundColor(context),
-              borderRadius: BorderRadius.circular(ResponsiveHelper.isDesktop(context) ? 40 : 25),
+              color: pillBg,
+              borderRadius: pillRadius,
             ),
             child: Row(children: [
               _QuantityButtonWidget(
@@ -39,13 +41,13 @@ class QuantityWidget extends StatelessWidget {
                 isExistInCart : isExistInCart,
                 cart: cartModel,
               ),
-              if(ResponsiveHelper.isDesktop(context)) const SizedBox(width: 30),
+              if(isDesktop) const SizedBox(width: 26),
 
               Text(
                 isExistInCart ? cartProvider.updatedCartList[cartProvider.getCartProductIndex(cartModel)!]!.quantity.toString() : productProvider.quantity.toString(),
                 style: rubikBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge, color: Theme.of(context).primaryColor),
               ),
-              if(ResponsiveHelper.isDesktop(context)) const SizedBox(width: 30),
+              if(isDesktop) const SizedBox(width: 26),
 
 
               _QuantityButtonWidget(
@@ -80,8 +82,16 @@ class _QuantityButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDesktop = ResponsiveHelper.isDesktop(context);
+    final radius = BorderRadius.circular(isDesktop ? 40 : 25);
+    final canDecrement = (quantity ?? 0) > 1;
+    final canIncrement = (quantity ?? 0) < (stock ?? 0);
+    final isEnabled = isIncrement ? canIncrement : canDecrement;
+    final bg = Theme.of(context).primaryColor.withValues(alpha: isEnabled ? 0.12 : 0.06);
+    final fg = isEnabled ? Theme.of(context).primaryColor : Theme.of(context).disabledColor;
+
     return InkWell(
-      radius: ResponsiveHelper.isDesktop(context) ? 40 : 25,
+      radius: isDesktop ? 40 : 25,
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
       onTap:  () {
@@ -113,16 +123,19 @@ class _QuantityButtonWidget extends StatelessWidget {
 
         }
       },
-      child: SizedBox(
-        height: 40,width: 40,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeOut,
+        height: 40,
+        width: 40,
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: radius,
+        ),
         child: Center(
           child: Icon(
             isIncrement ? Icons.add : Icons.remove,
-            color: isIncrement
-                ? Theme.of(context).primaryColor
-                : quantity! > 1
-                ? Theme.of(context).disabledColor
-                : Theme.of(context).disabledColor,
+            color: fg,
             size: 20,
           ),
         ),

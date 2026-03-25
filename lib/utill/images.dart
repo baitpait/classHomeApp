@@ -83,8 +83,8 @@ class Images {
   // static const String couponIcon = 'assets/icon/coupon_icon.png';
   // static const String userDeleteIcon = 'assets/icon/user_delete_icon.png';
 
-  static const String whatsapp = 'assets/icon/whatsapp.png';
-  static const String telegram = 'assets/icon/telegram.png';
+  static const String whatsapp = 'assets/image/whatsapp.png';
+  static const String telegram = 'assets/image/telegram.png';
   static const String messenger = 'assets/icon/messenger.png';
   static const String ratingIcon = 'assets/icon/rating_icon.png';
 
@@ -110,6 +110,10 @@ class Images {
   static const String linkedin = 'assets/image/linkedin.png';
   static const String instagram = 'assets/image/instagram.png';
   static const String pinterest = 'assets/image/pinterest.png';
+  static const String snapchat = 'assets/image/snapchat.png';
+  static const String discord = 'assets/image/discord.png';
+  static const String threads = 'assets/image/threads.png';
+  static const String tiktok = 'assets/image/tiktok.png';
   static const String locationBannerImage = 'assets/image/location_banner_image.png';
   static const String cashOnDelivery = 'assets/image/cash_on_delivery.png';
   static const String orderDelivered = 'assets/image/order_delivered.png';
@@ -143,8 +147,38 @@ class Images {
 
 
 
-
-  static String getSocialImage(String name) => 'assets/image/$name.png';
+  ///تستخدم هذه الدالة لاختيار أيقونة منصة التواصل الاجتماعي المناسبة
+  ///اعتماداً على الاسم القادم من لوحة التحكم أو الـ API لعرضها في التطبيق.
+  static String getSocialImage(String name) {
+    switch (name.toLowerCase()) {
+      case 'whatsapp':
+        return whatsapp;
+      case 'telegram':
+        return telegram;
+      case 'discord':
+        return discord;
+      case 'threads':
+        return threads;
+      case 'tiktok':
+        return tiktok;
+      case 'youtube':
+        return youtube;
+      case 'pinterest':
+        return pinterest;
+      case 'linkedin':
+        return linkedin;
+      case 'twitter':
+        return twitter;
+      case 'facebook':
+        return facebook;
+      case 'instagram':
+        return instagram;
+      case 'snapchat':
+        return snapchat;
+      default:
+        return 'assets/image/$name.png';
+    }
+  }
 
 
   ///this is [svg] section don't put other extension

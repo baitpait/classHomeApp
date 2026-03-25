@@ -7,10 +7,12 @@ import 'package:provider/provider.dart';
 
 class ProductFilterHelper{
   static bool isProductFiltered(){
-    ProductModel? productModel = Provider.of<SearchProvider>(Get.context!, listen: false).searchProductModel;
+    final SearchProvider searchProvider = Provider.of<SearchProvider>(Get.context!, listen: false);
+    ProductModel? productModel = searchProvider.searchProductModel;
 
-    if(productModel?.sortedLowestPrice == null && productModel?.sortedHighPrice == null && productModel?.rating == null &&
-        productModel?.categoryIds == null && productModel?.sortedBy == null){
+    if (productModel?.sortedLowestPrice == null && productModel?.sortedHighPrice == null && productModel?.rating == null &&
+        productModel?.categoryIds == null && productModel?.sortedBy == null && searchProvider.selectedTagIds.isEmpty &&
+        searchProvider.selectedAttributeIds.isEmpty && !searchProvider.inStockOnly) {
       return false;
     }else{
       return true;
@@ -35,12 +37,18 @@ class ProductFilterHelper{
       return true;
     }else if(!(searchProvider.selectCategoryList.containsAll(productModel?.categoryIds ?? {}) && searchProvider.selectCategoryList.length == productModel?.categoryIds?.length)){
       return true;
-    }else{
+    }else if(searchProvider.selectedTagIds.isNotEmpty){
+      return true;
+    } else if (searchProvider.inStockOnly) {
+      return true;
+    } else if (searchProvider.selectedAttributeIds.isNotEmpty) {
+      return true;
+    } else {
       return false;
     }
   }
 
-  static bool isFlashSalesFiltered(){
+  static bool isFlashSalesFiltered() {
     FlashSaleModel? flashSaleProvider = Provider.of<FlashSaleProvider>(Get.context!, listen: false).flashSaleModel;
 
     if(flashSaleProvider?.sortedLowestPrice == null && flashSaleProvider?.sortedHighPrice == null && flashSaleProvider?.rating == null &&

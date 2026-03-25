@@ -120,40 +120,57 @@ class OrderModel {
   double? get bringChangeAmount => _bringChangeAmount;
 
   OrderModel.fromJson(Map<String, dynamic> json) {
-    _id = json['id'];
-    _userId = json['user_id'];
-    _orderAmount = json['order_amount'].toDouble();
-    _couponDiscountAmount = json['coupon_discount_amount'].toDouble();
-    _couponDiscountTitle = json['coupon_discount_title'];
-    _paymentStatus = json['payment_status'];
-    _orderStatus = json['order_status'];
-    _totalTaxAmount = json['total_tax_amount'].toDouble();
-    _paymentMethod = json['payment_method'];
-    _transactionReference = json['transaction_reference'];
-    _deliveryAddressId = json['delivery_address_id'];
-    _createdAt = json['created_at'];
-    _updatedAt = json['updated_at'];
-    _deliveryManId = json['delivery_man_id'];
-    _deliveryCharge = json['delivery_charge'].toDouble();
+    _id = json['id'] is int ? json['id'] : int.tryParse('${json['id']}');
+    _userId = json['user_id'] is int ? json['user_id'] : int.tryParse('${json['user_id']}');
+    _orderAmount = _toDouble(json['order_amount']);
+    _couponDiscountAmount = _toDouble(json['coupon_discount_amount']);
+    _couponDiscountTitle = json['coupon_discount_title']?.toString();
+    _paymentStatus = json['payment_status']?.toString();
+    _orderStatus = json['order_status']?.toString();
+    _totalTaxAmount = _toDouble(json['total_tax_amount']);
+    _paymentMethod = json['payment_method']?.toString();
+    _transactionReference = json['transaction_reference']?.toString();
+    _deliveryAddressId = json['delivery_address_id'] is int ? json['delivery_address_id'] : int.tryParse('${json['delivery_address_id']}');
+    _createdAt = json['created_at']?.toString();
+    _updatedAt = json['updated_at']?.toString();
+    _deliveryManId = json['delivery_man_id'] is int ? json['delivery_man_id'] : int.tryParse('${json['delivery_man_id']}');
+    _deliveryCharge = _toDouble(json['delivery_charge']);
     _orderNote = json['order_note'];
-    _detailsCount = json['details_count'];
-    if(json['add_on_ids'] != null) {
-      _addOnIds = json['add_on_ids'].cast<int>();
+    _detailsCount = _toInt(json['details_count']);
+    if (json['add_on_ids'] != null && json['add_on_ids'] is List) {
+      _addOnIds = (json['add_on_ids'] as List)
+          .map((e) => e is int ? e : int.tryParse('$e'))
+          .whereType<int>()
+          .toList();
     }
-    if (json['details'] != null) {
+    if (json['details'] != null && json['details'] is List) {
       _details = [];
-      json['details'].forEach((v) {
-        _details!.add(Details.fromJson(v));
-      });
+      for (final v in json['details']) {
+        try {
+          if (v is Map<String, dynamic>) {
+            _details!.add(Details.fromJson(v));
+          } else if (v is Map) {
+            _details!.add(Details.fromJson(Map<String, dynamic>.from(v)));
+          }
+        } catch (_) {}
+      }
     }
-    _deliveryMan = json['delivery_man'] != null
-        ? DeliveryMan.fromJson(json['delivery_man'])
-        : null;
-    _orderType = json['order_type'];
-    _deliverymanReviewCount = json['deliveryman_review_count'];
-    _deliveryAddress = json['delivery_address'] != null
-        ? DeliveryAddress.fromJson(json['delivery_address'])
-        : null;
+    try {
+      _deliveryMan = json['delivery_man'] != null && json['delivery_man'] is Map
+          ? DeliveryMan.fromJson(Map<String, dynamic>.from(json['delivery_man']))
+          : null;
+    } catch (_) {
+      _deliveryMan = null;
+    }
+    _orderType = json['order_type']?.toString();
+    _deliverymanReviewCount = json['deliveryman_review_count'] is int ? json['deliveryman_review_count'] : int.tryParse('${json['deliveryman_review_count']}');
+    try {
+      _deliveryAddress = json['delivery_address'] != null && json['delivery_address'] is Map
+          ? DeliveryAddress.fromJson(Map<String, dynamic>.from(json['delivery_address']))
+          : null;
+    } catch (_) {
+      _deliveryAddress = null;
+    }
 
     try{
       _extraDiscount = double.parse(json['extra_discount']);
@@ -161,9 +178,20 @@ class OrderModel {
       _extraDiscount = json['extra_discount'];
     }
     _totalQuantity = int.tryParse('${json['total_quantity']}');
-    _branchId = json['branch_id'];
-    _bringChangeAmount = double.parse((json['bring_change_amount'] ?? 0).toString());
+    _branchId = _toInt(json['branch_id']);
+    _bringChangeAmount = _toDouble(json['bring_change_amount']);
+  }
 
+  static int? _toInt(dynamic v) {
+    if (v == null) return null;
+    if (v is int) return v;
+    return int.tryParse(v.toString());
+  }
+
+  static double? _toDouble(dynamic v) {
+    if (v == null) return null;
+    if (v is num) return v.toDouble();
+    return double.tryParse(v.toString());
   }
 
   Map<String, dynamic> toJson() {
@@ -264,19 +292,31 @@ class Details {
   String? get variant => _variant;
 
   Details.fromJson(Map<String, dynamic> json) {
-    _id = json['id'];
-    _productId = json['product_id'];
-    _orderId = json['order_id'];
-    _price = json['price'].toDouble();
-    _variation = json['variation'];
-    _discountOnProduct = json['discount_on_product'].toDouble();
-    _discountType = json['discount_type'];
-    _quantity = json['quantity'];
-    _taxAmount = json['tax_amount'].toDouble();
-    _createdAt = json['created_at'];
-    _updatedAt = json['updated_at'];
-    _addOnIds = json['add_on_ids'];
-    _variant = json['variant'];
+    _id = _numToInt(json['id']);
+    _productId = _numToInt(json['product_id']);
+    _orderId = _numToInt(json['order_id']);
+    _price = _numToDouble(json['price']);
+    _variation = json['variation']?.toString();
+    _discountOnProduct = _numToDouble(json['discount_on_product']) ?? 0;
+    _discountType = json['discount_type']?.toString();
+    _quantity = _numToInt(json['quantity']);
+    _taxAmount = _numToDouble(json['tax_amount']) ?? 0;
+    _createdAt = json['created_at']?.toString();
+    _updatedAt = json['updated_at']?.toString();
+    _addOnIds = json['add_on_ids']?.toString();
+    _variant = json['variant']?.toString();
+  }
+
+  static int? _numToInt(dynamic v) {
+    if (v == null) return null;
+    if (v is int) return v;
+    return int.tryParse(v.toString());
+  }
+
+  static double? _numToDouble(dynamic v) {
+    if (v == null) return null;
+    if (v is num) return v.toDouble();
+    return double.tryParse(v.toString());
   }
 
   Map<String, dynamic> toJson() {
@@ -361,7 +401,7 @@ class DeliveryMan {
   List<Rating>? get rating => _rating;
 
   DeliveryMan.fromJson(Map<String, dynamic> json) {
-    _id = json['id'];
+    _id = _deliveryManToInt(json['id']);
     _fName = json['f_name'];
     _lName = json['l_name'];
     _phone = json['phone'];
@@ -374,12 +414,20 @@ class DeliveryMan {
     _createdAt = json['created_at'];
     _updatedAt = json['updated_at'];
     _authToken = json['auth_token'];
-    if (json['rating'] != null) {
+    if (json['rating'] != null && json['rating'] is List) {
       _rating = [];
-      json['rating'].forEach((v) {
-        _rating!.add(Rating.fromJson(v));
-      });
+      for (final v in json['rating']) {
+        try {
+          _rating!.add(Rating.fromJson(Map<String, dynamic>.from(v as Map)));
+        } catch (_) {}
+      }
     }
+  }
+
+  static int? _deliveryManToInt(dynamic v) {
+    if (v == null) return null;
+    if (v is int) return v;
+    return int.tryParse(v.toString());
   }
 
   Map<String, dynamic> toJson() {
@@ -454,7 +502,7 @@ class DeliveryAddress {
   String? get contactPersonName => _contactPersonName;
 
   DeliveryAddress.fromJson(Map<String, dynamic> json) {
-    _id = json['id'];
+    _id = _addrToInt(json['id']);
     _addressType = json['address_type'];
     _contactPersonNumber = json['contact_person_number'];
     _address = json['address'];
@@ -463,8 +511,14 @@ class DeliveryAddress {
     _longitude = json['longitude'];
     _createdAt = json['created_at'];
     _updatedAt = json['updated_at'];
-    _userId = json['user_id'];
+    _userId = _addrToInt(json['user_id']);
     _contactPersonName = json['contact_person_name'];
+  }
+
+  static int? _addrToInt(dynamic v) {
+    if (v == null) return null;
+    if (v is int) return v;
+    return int.tryParse(v.toString());
   }
 
   Map<String, dynamic> toJson() {

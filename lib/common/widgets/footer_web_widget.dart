@@ -1,5 +1,6 @@
 import 'package:hexacom_user/common/enums/footer_type_enum.dart';
 import 'package:hexacom_user/common/models/config_model.dart';
+import 'package:hexacom_user/helper/app_name_helper.dart';
 import 'package:hexacom_user/helper/responsive_helper.dart';
 import 'package:hexacom_user/utill/routes.dart';
 import 'package:hexacom_user/utill/styles.dart';
@@ -12,9 +13,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../localization/language_constrants.dart';
 import '../../features/splash/providers/splash_provider.dart';
-import '../../utill/app_constants.dart';
 import '../../utill/dimensions.dart';
-import '../../utill/images.dart';
 
 class FooterWebWidget extends StatelessWidget {
   final FooterType footerType;
@@ -89,28 +88,34 @@ class FooterWebWidget extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Consumer<SplashProvider>(
-                              builder: (context, splash, child) => Row(
+                              builder: (context, splash, child) {
+                                final appLogo = splash.configModel?.appLogo ?? '';
+                                final ecommerceImageBase = splash.baseUrls?.ecommerceImageUrl ?? '';
+                                final logoUrl = appLogo.isNotEmpty && ecommerceImageBase.isNotEmpty
+                                    ? '$ecommerceImageBase/$appLogo'
+                                    : '';
+
+                                return Row(
                                 children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(
-                                        Dimensions.radiusSizeDefault),
-                                    child: SizedBox(
+                                  if (logoUrl.isNotEmpty) ...[
+                                    SizedBox(
                                       height: 44,
-                                      child: CustomImageWidget(
-                                        placeholder: Images.logo,
-                                        image: splash.baseUrls != null
-                                            ? '${splash.baseUrls!.ecommerceImageUrl}/${splash.configModel!.appLogo}'
-                                            : '',
-                                        fit: BoxFit.contain,
+                                      width: 130,
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
+                                        child: CustomImageWidget(
+                                          image: logoUrl,
+                                          fit: BoxFit.contain,
+                                          useShimmerPlaceholder: true,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(
-                                      width: Dimensions.paddingSizeDefault),
+                                    const SizedBox(width: Dimensions.paddingSizeDefault),
+                                  ],
                                   Flexible(
                                     child: Text(
                                       splash.configModel?.ecommerceName ??
-                                          AppConstants.appName,
+                                          getAppName(context),
                                       style: rubikBold.copyWith(
                                         fontSize: 22,
                                         color: _footerTextWhite,
@@ -120,7 +125,8 @@ class FooterWebWidget extends StatelessWidget {
                                     ),
                                   ),
                                 ],
-                              ),
+                              );
+                              },
                             ),
                             const SizedBox(height: Dimensions.paddingSizeLarge),
                             if (configModel.ecommerceAddress != null &&
@@ -198,7 +204,7 @@ class FooterWebWidget extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(
                                   vertical: 6, horizontal: 8),
                               child: Text(
-                                'تطوير وبرمجة بيت البرمجيات وتكنولوجيا المعلومات',
+                                getTranslated('footer_developer_credit', context),
                                 style: rubikMedium.copyWith(
                                   fontSize: Dimensions.fontSizeDefault + 2,
                                   color: _footerTextMuted,

@@ -5,6 +5,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hexacom_user/common/enums/notification_type_enum.dart';
 import 'package:hexacom_user/common/models/notification_body.dart';
+import 'package:hexacom_user/helper/app_name_helper.dart';
 import 'package:hexacom_user/helper/notification_helper.dart';
 import 'package:hexacom_user/helper/responsive_helper.dart';
 import 'package:hexacom_user/localization/language_constrants.dart';
@@ -121,7 +122,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Image.asset(Images.logo, width: 170,),
-                  Text(AppConstants.appName, style: rubikBold.copyWith(
+                  Text(getAppName(context), style: rubikBold.copyWith(
                       fontSize: 30, color: Colors.white)),
                 ],
               ),

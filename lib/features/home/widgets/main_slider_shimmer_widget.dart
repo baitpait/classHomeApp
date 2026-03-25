@@ -1,4 +1,5 @@
 import 'package:hexacom_user/features/home/providers/banner_provider.dart';
+import 'package:hexacom_user/features/home/widgets/main_slider_widget.dart';
 import 'package:hexacom_user/helper/responsive_helper.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +29,7 @@ class MainSliderShimmerWidget extends StatelessWidget {
             decoration: BoxDecoration(
               color: Theme.of(context).shadowColor.withValues(alpha: 0.25),
               borderRadius: isDesktop
-                  ? BorderRadius.circular(Dimensions.paddingSizeDefault)
+                  ? BorderRadius.circular(MainSliderWidget.webBannerRadius)
                   : BorderRadius.zero,
               boxShadow: isDesktop
                   ? [

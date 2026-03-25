@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:hexacom_user/common/enums/footer_type_enum.dart';
 import 'package:hexacom_user/common/models/category_model.dart';
 import 'package:hexacom_user/common/widgets/custom_image_widget.dart';
@@ -33,7 +35,7 @@ class StoreScreen extends StatefulWidget {
   State<StoreScreen> createState() => _StoreScreenState();
 }
 
-class _StoreScreenState extends State<StoreScreen> {
+class _StoreScreenState extends State<StoreScreen> with AutomaticKeepAliveClientMixin {
   final GlobalKey<ScaffoldState> _drawerKey = GlobalKey();
   int? _selectedCategoryId;
   int _selectedSubIndex = 0;
@@ -41,6 +43,8 @@ class _StoreScreenState extends State<StoreScreen> {
   final ScrollController _scrollController = ScrollController();
   final ScrollController _categoryScrollController = ScrollController();
   late final ValueNotifier<bool> _headerScrolled;
+  int _visibleProductCount = 20;
+  static const int _productBatchSize = 20;
 
   @override
   void initState() {
@@ -53,6 +57,20 @@ class _StoreScreenState extends State<StoreScreen> {
   void _onScroll() {
     final scrolled = _scrollController.offset > _headerScrollThreshold;
     if (_headerScrolled.value != scrolled) _headerScrolled.value = scrolled;
+
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final current = _scrollController.position.pixels;
+    if (current > maxScroll * 0.7) {
+      final products = context.read<CategoryProvider>().categoryProductList;
+      if (products != null && _visibleProductCount < products.length) {
+        setState(() {
+          _visibleProductCount = math.min(
+            _visibleProductCount + _productBatchSize,
+            products.length,
+          );
+        });
+      }
+    }
   }
 
   @override
@@ -109,6 +127,7 @@ class _StoreScreenState extends State<StoreScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final isDesktop = ResponsiveHelper.isDesktop(context);
     final isTab = ResponsiveHelper.isTab(context);
     final viewportWidth = MediaQuery.sizeOf(context).width;
@@ -294,7 +313,7 @@ class _StoreScreenState extends State<StoreScreen> {
                               ),
                               child: _selectedCategoryId == null && (categories == null || categories.isEmpty)
                                   ? const SizedBox.shrink()
-                                  : products == null
+                                      : products == null
                                       ? GridView.builder(
                                           shrinkWrap: true,
                                           itemCount: 10,
@@ -305,7 +324,10 @@ class _StoreScreenState extends State<StoreScreen> {
                                             childAspectRatio: 1 / 1.4,
                                             crossAxisCount: 5,
                                           ),
-                                          itemBuilder: (context, index) => ProductShimmerWidget(isEnabled: true, isWeb: true),
+                                          itemBuilder: (context, index) => ProductShimmerWidget.buildGridShimmers(
+                                            itemCount: 1,
+                                            isWeb: true,
+                                          ).first,
                                         )
                                       : products.isEmpty
                                           ? const NoDataScreen(showFooter: false)
@@ -316,7 +338,7 @@ class _StoreScreenState extends State<StoreScreen> {
                                                 childAspectRatio: 1 / 1.4,
                                                 crossAxisCount: 5,
                                               ),
-                                              itemCount: products.length,
+                                              itemCount: math.min(_visibleProductCount, products.length),
                                               shrinkWrap: true,
                                               physics: const NeverScrollableScrollPhysics(),
                                               padding: EdgeInsets.only(
@@ -352,10 +374,10 @@ class _StoreScreenState extends State<StoreScreen> {
                                           childAspectRatio: isTab ? (1 / 1.4) : 4,
                                           crossAxisCount: isTab ? 3 : 1,
                                         ),
-                                        itemBuilder: (context, index) => const ProductShimmerWidget(
-                                          isEnabled: true,
+                                        itemBuilder: (context, index) => ProductShimmerWidget.buildGridShimmers(
+                                          itemCount: 1,
                                           isWeb: false,
-                                        ),
+                                        ).first,
                                       )
                                     : products.isEmpty
                                         ? const NoDataScreen(showFooter: false)
@@ -370,7 +392,7 @@ class _StoreScreenState extends State<StoreScreen> {
                                                   childAspectRatio: 1 / 1.4,
                                                   crossAxisCount: 3,
                                                 ),
-                                                itemCount: products.length,
+                                                itemCount: math.min(_visibleProductCount, products.length),
                                                 itemBuilder: (context, index) => ProductCardWidget(product: products[index]),
                                               )
                                             // Mobile: masonry layout (2 columns)
@@ -380,7 +402,7 @@ class _StoreScreenState extends State<StoreScreen> {
                                                 crossAxisCount: 2,
                                                 mainAxisSpacing: Dimensions.mobileProductGridGap,
                                                 crossAxisSpacing: Dimensions.mobileProductGridCrossAxisSpacing,
-                                                itemCount: products.length,
+                                                itemCount: math.min(_visibleProductCount, products.length),
                                                 itemBuilder: (context, index) => Padding(
                                                   padding: const EdgeInsets.symmetric(
                                                     horizontal: Dimensions.mobileProductCardPaddingHorizontal,
@@ -409,6 +431,9 @@ class _StoreScreenState extends State<StoreScreen> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 /// Store category slider: same pill style as home. Selected = red (ColorResources.primary), unselected = gray.

@@ -28,6 +28,26 @@ class ProductShimmerWidget extends StatelessWidget {
     ),
   ];
 
+  /// Returns a list of [ProductShimmerWidget] items suitable for building
+  /// grid and list skeletons across home, store, and search screens.
+  static List<Widget> buildGridShimmers({
+    required int itemCount,
+    bool isWeb = false,
+    Axis direction = Axis.vertical,
+  }) {
+    if (itemCount <= 0) {
+      return const <Widget>[];
+    }
+    return List<Widget>.generate(
+      itemCount,
+      (_) => ProductShimmerWidget(
+        isEnabled: true,
+        isWeb: isWeb,
+        direction: direction,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final shadowColor = Theme.of(context).shadowColor.withValues(alpha: 0.10);

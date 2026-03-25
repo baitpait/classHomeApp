@@ -1,5 +1,6 @@
 import 'package:hexacom_user/common/models/product_model.dart';
 import 'package:hexacom_user/features/product/providers/product_provider.dart';
+import 'package:hexacom_user/localization/language_constrants.dart';
 import 'package:hexacom_user/utill/color_resources.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:hexacom_user/utill/styles.dart';
@@ -18,6 +19,13 @@ class ProductTitleWidget extends StatelessWidget {
 
     return Consumer<ProductProvider>(
         builder: (context, product, child){
+          final stockKey = productModel!.stockStatusKey;
+          final stock = productModel!.totalStock ?? 0;
+          final stockColor = stock < 1
+              ? Theme.of(context).colorScheme.error
+              : (productModel!.minimumStockAlert != null && stock <= (productModel!.minimumStockAlert ?? 0))
+                  ? Colors.orange.shade700
+                  : Theme.of(context).hintColor;
           return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(
               productModel!.name ?? '',
@@ -27,6 +35,14 @@ class ProductTitleWidget extends StatelessWidget {
               maxLines: 2, overflow: TextOverflow.ellipsis,
             ),
             SizedBox(height: ResponsiveHelper.isDesktop(context) ? Dimensions.paddingSizeLarge : Dimensions.paddingSizeSmall),
+
+            Padding(
+              padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeExtraSmall),
+              child: Text(
+                getTranslated(stockKey, context),
+                style: rubikRegular.copyWith(fontSize: Dimensions.fontSizeDefault, color: stockColor),
+              ),
+            ),
 
             if(productModel!.rating != null && productModel!.rating!.isNotEmpty) Container(
               padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeExtraSmall),

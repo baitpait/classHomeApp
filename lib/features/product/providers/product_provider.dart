@@ -207,7 +207,6 @@ class ProductProvider extends ChangeNotifier {
 
   }
 
-
   void showBottomLoader() {
     _isLoading = true;
     notifyListeners();

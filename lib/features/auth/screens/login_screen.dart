@@ -6,6 +6,7 @@ import 'package:hexacom_user/features/auth/domain/enums/verification_type_enum.d
 import 'package:hexacom_user/features/auth/domain/models/user_log_data.dart';
 import 'package:hexacom_user/features/auth/screens/only_social_login_widget.dart';
 import 'package:hexacom_user/features/auth/screens/send_otp_screen.dart';
+import 'package:hexacom_user/features/auth/widgets/code_picker_widget.dart';
 import 'package:hexacom_user/features/auth/widgets/social_login_widget.dart';
 import 'package:hexacom_user/helper/auth_helper.dart';
 import 'package:hexacom_user/utill/feature_flags.dart';
@@ -21,6 +22,7 @@ import 'package:hexacom_user/utill/routes.dart';
 import 'package:hexacom_user/utill/styles.dart';
 import 'package:hexacom_user/utill/color_resources.dart';
 import 'package:hexacom_user/common/widgets/custom_button_widget.dart';
+import 'package:hexacom_user/common/widgets/custom_image_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_shadow_widget.dart';
 import 'package:hexacom_user/helper/custom_snackbar_helper.dart';
 import 'package:hexacom_user/common/widgets/custom_text_field_widget.dart';
@@ -41,9 +43,9 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
 
-  final FocusNode _emailNumberFocus = FocusNode();
+  final FocusNode _phoneNumberFocus = FocusNode();
   final FocusNode _passwordFocus = FocusNode();
-  TextEditingController? _emailOrPhoneController;
+  TextEditingController? _phoneController;
   TextEditingController? _passwordController;
   GlobalKey<FormState>? _formKeyLogin;
   String? _countryDialCode;
@@ -54,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_){
-      FocusScope.of(context).requestFocus(_emailNumberFocus);
+      FocusScope.of(context).requestFocus(_phoneNumberFocus);
     });
 
 
@@ -66,41 +68,34 @@ class _LoginScreenState extends State<LoginScreen> {
     authProvider.setCountSocialLoginOptions(count: count, isReload: false);
 
     _formKeyLogin = GlobalKey<FormState>();
-    _emailOrPhoneController = TextEditingController();
+    _phoneController = TextEditingController();
     _passwordController = TextEditingController();
-
-    authProvider.toggleIsNumberLogin(value: false, isUpdate: false);
 
     UserLogData? userData = authProvider.getUserData();
 
-    _emailNumberFocus.addListener(() {
+    _phoneNumberFocus.addListener(() {
       setState(() {});
     });
 
     if(userData != null && userData.loginType == FromPage.login.name) {
       if(userData.phoneNumber != null){
-        _emailOrPhoneController!.text = PhoneNumberCheckerHelper.getPhoneNumber(userData.phoneNumber ?? '', userData.countryCode ?? '') ?? '';
+        _phoneController!.text = PhoneNumberCheckerHelper.getPhoneNumber(userData.phoneNumber ?? '', userData.countryCode ?? '') ?? '';
         authProvider.toggleIsNumberLogin(value: true, isUpdate: false);
         _countryDialCode ??= userData.countryCode;
-      }else if(userData.email != null){
-        _emailOrPhoneController!.text = userData.email ?? '';
       }
       _passwordController?.text = userData.password ?? '';
     }else{
       _countryCodeFromConfig = true;
-      _countryDialCode = CountryCode.fromCountryCode(Provider.of<SplashProvider>(context, listen: false).configModel!.countryCode!).dialCode;
+      // ConfigModel may still be null (especially on web/hot-restart). We'll derive the dial code in build().
+      _countryDialCode = null;
     }
-
-    _emailNumberFocus.addListener(() {
-      setState(() {});
-    });
   }
 
   @override
   void dispose() {
-    _emailOrPhoneController!.dispose();
+    _phoneController!.dispose();
     _passwordController!.dispose();
-    _emailNumberFocus.dispose();
+    _phoneNumberFocus.dispose();
     super.dispose();
   }
 
@@ -112,8 +107,14 @@ class _LoginScreenState extends State<LoginScreen> {
       selector: (ctx, splashProvider)=> splashProvider.configModel,
       builder: (context, configModel, _){
 
+        if (configModel == null) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
         if(_countryCodeFromConfig) {
-          _countryDialCode = CountryCode.fromCountryCode(configModel?.countryCode ?? '').dialCode;
+          _countryDialCode = CountryCode.fromCountryCode(configModel.countryCode ?? '').dialCode;
         }
 
 
@@ -175,11 +176,21 @@ class _LoginScreenState extends State<LoginScreen> {
                                   // SizedBox(height: 30),
                                   !ResponsiveHelper.isDesktop(context)
                                       ? Center(
-                                          child: Image.asset(
-                                            Images.logo,
-                                            height: ResponsiveHelper.isDesktop(context) ? 100.0 : 64,
-                                            fit: BoxFit.scaleDown,
-                                            matchTextDirection: false,
+                                          child: Consumer<SplashProvider>(
+                                            builder: (context, splashProvider, _) {
+                                              final logoPath = splashProvider.configModel?.appLogo ?? '';
+                                              final logoUrl = (splashProvider.baseUrls != null && logoPath.isNotEmpty)
+                                                  ? '${splashProvider.baseUrls!.ecommerceImageUrl}/$logoPath'
+                                                  : '';
+
+                                              if (logoUrl.isEmpty) return const SizedBox.shrink();
+
+                                              return CustomImageWidget(
+                                                image: logoUrl,
+                                                height: ResponsiveHelper.isDesktop(context) ? 100.0 : 64,
+                                                fit: BoxFit.contain,
+                                              );
+                                            },
                                           ),
                                         )
                                       : const SizedBox.shrink(),
@@ -210,31 +221,57 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                   SizedBox(height: ResponsiveHelper.isDesktop(context) ? size.height * 0.03 : Dimensions.paddingSizeDefault),
 
-                                  Selector<AuthProvider, bool>(
-                                    selector: (context, authProvider) => authProvider.isNumberLogin,
-                                    builder: (context, isNumberLogin, child) {
-                                      return CustomTextFieldWidget(
-                                        countryDialCode: isNumberLogin ? _countryDialCode : null,
-                                        onCountryChanged: (CountryCode value) {
+                                  RichText(text: TextSpan(children: [
+                                    TextSpan(
+                                      text: getTranslated('whatsapp_mobile_number', context),
+                                      style: rubikMedium.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color),
+                                    ),
+                                    TextSpan(
+                                      text: ' *',
+                                      style: rubikMedium.copyWith(color: Theme.of(context).colorScheme.error),
+                                    ),
+                                  ])),
+                                  const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
+                                      border: Border.all(
+                                        color: _phoneNumberFocus.hasFocus
+                                            ? Theme.of(context).primaryColor.withValues(alpha: 0.5)
+                                            : Theme.of(context).hintColor.withValues(alpha: 0.2),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Row(children: [
+                                      CodePickerWidget(
+                                        onChanged: (countryCode) {
                                           _countryCodeFromConfig = false;
-                                          _countryDialCode = value.dialCode;
-
+                                          _countryDialCode = countryCode.dialCode;
                                         },
-                                        onChanged: (String text) => AuthHelper.identifyEmailOrNumber(text, context),
-                                        hintText: getTranslated('enter_email_phone', context),
-                                        title: getTranslated('email_phone', context),
-                                        isShowBorder: true,
-                                        isRequired: true,
-                                        focusNode: _emailNumberFocus,
-                                        nextFocus: _passwordFocus,
-                                        controller: _emailOrPhoneController,
-                                        inputType: TextInputType.emailAddress,
-                                        isShowPrefixIcon: !isNumberLogin,
-                                        prefixAssetUrl: Images.emailPhoneIcon,
-                                        prefixAssetImageColor: Theme.of(context).hintColor,
-
-                                      );
-                                    },
+                                        initialSelection: _countryDialCode ?? '+970',
+                                        favorite: const ['+970', '+972'],
+                                        showDropDownButton: true,
+                                        padding: EdgeInsets.zero,
+                                        showFlagMain: true,
+                                        textStyle: TextStyle(color: Theme.of(context).textTheme.displayLarge!.color),
+                                      ),
+                                      Container(
+                                        width: 1,
+                                        height: Dimensions.paddingSizeExtraLarge,
+                                        color: Theme.of(context).dividerColor,
+                                      ),
+                                      Expanded(
+                                        child: CustomTextFieldWidget(
+                                          borderColor: Colors.transparent,
+                                          hintText: getTranslated('enter_whatsapp_mobile_number', context),
+                                          isShowBorder: true,
+                                          controller: _phoneController,
+                                          focusNode: _phoneNumberFocus,
+                                          nextFocus: _passwordFocus,
+                                          inputType: TextInputType.phone,
+                                        ),
+                                      ),
+                                    ]),
                                   ),
                                   const SizedBox(height: Dimensions.paddingSizeLarge),
 
@@ -340,24 +377,26 @@ class _LoginScreenState extends State<LoginScreen> {
                                     onTap: () async {
                                       final AuthProvider authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-                                      String userInput = _emailOrPhoneController?.text.trim() ?? '';
+                                      String userInput = _phoneController?.text.trim() ?? '';
                                       String password = _passwordController?.text.trim() ?? '';
 
 
                                       if (userInput.isEmpty) {
-                                        showCustomSnackBar(getTranslated('enter_email_or_phone', context), context);
+                                        showCustomSnackBar(getTranslated('enter_whatsapp_mobile_number', context), context);
                                       }else if (password.isEmpty) {
                                         showCustomSnackBar(getTranslated('enter_password', context), context);
                                       }else if (password.length < 6) {
                                         showCustomSnackBar(getTranslated('password_should_be', context), context);
                                       }else {
 
-                                        bool isNumber = PhoneNumberCheckerHelper.isValidPhone(userInput);
-                                        if(isNumber){
-                                          userInput = _countryDialCode! + userInput;
+                                        final dialCode = (_countryDialCode ?? '').trim();
+                                        if (dialCode.isEmpty) {
+                                          showCustomSnackBar(getTranslated('select_your_country_code', context), context);
+                                          return;
                                         }
 
-                                        String type = isNumber? VerificationType.phone.name : VerificationType.email.name;
+                                        userInput = dialCode + userInput;
+                                        String type = VerificationType.phone.name;
 
                                         await authProvider.login(context, userInput, password, type, fromPage: FromPage.login.name).then((status) async {
 
@@ -365,8 +404,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                             if (authProvider.isActiveRememberMe) {
                                               authProvider.saveUserData(UserLogData(
                                                 countryCode:  _countryDialCode,
-                                                phoneNumber: isNumber ? userInput : null,
-                                                email: isNumber ? null : userInput,
+                                                phoneNumber: userInput,
+                                                email: null,
                                                 password: password,
                                                 loginType: FromPage.login.name,
                                               ));

@@ -1,3 +1,3 @@
 enum SearchShortBy {
-  newArrivals, offerProducts, priceLowToHigh, priceHighToLow, aToz, zToa
+  newArrivals, offerProducts, priceLowToHigh, priceHighToLow, aToz, zToa, topRated, bestSelling
 }

@@ -42,20 +42,17 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   FocusNode? _firstNameFocus;
   FocusNode? _lastNameFocus;
-  FocusNode? _emailFocus;
   FocusNode? _phoneNumberFocus;
   FocusNode? _passwordFocus;
   FocusNode? _confirmPasswordFocus;
 
   TextEditingController? _firstNameController;
   TextEditingController? _lastNameController;
-  TextEditingController? _emailController;
   TextEditingController? _phoneNumberController;
   TextEditingController? _passwordController;
   TextEditingController? _confirmPasswordController;
 
   final phoneToolTipKey = GlobalKey<State<Tooltip>>();
-  final emailToolTipKey = GlobalKey<State<Tooltip>>();
 
   XFile? file;
   XFile? data;
@@ -77,13 +74,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     _firstNameFocus = FocusNode();
     _lastNameFocus = FocusNode();
-    _emailFocus = FocusNode();
     _phoneNumberFocus = FocusNode();
     _passwordFocus = FocusNode();
     _confirmPasswordFocus = FocusNode();
     _firstNameController = TextEditingController();
     _lastNameController = TextEditingController();
-    _emailController = TextEditingController();
     _phoneNumberController = TextEditingController();
     _passwordController = TextEditingController();
     _confirmPasswordController = TextEditingController();
@@ -101,7 +96,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
            _phoneNumberController?.text = PhoneNumberCheckerHelper.getPhoneNumber(profileProvider.userInfoModel?.phone ?? '', countryCode ?? '')!;
            profileProvider.setCountryCode(countryCode ?? '',  isUpdate: true);
          }
-         _emailController?.text = userInfoModel.email ?? '';
        }
      });
     }
@@ -125,12 +119,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   pickImage: _choose,
                   confirmPasswordController: _confirmPasswordController,
                   confirmPasswordFocus: _confirmPasswordFocus,
-                  emailController: _emailController,
                   firstNameController: _firstNameController,
                   firstNameFocus: _firstNameFocus,
                   lastNameController: _lastNameController,
                   lastNameFocus: _lastNameFocus,
-                  emailFocus: _emailFocus,
                   passwordController: _passwordController,
                   passwordFocus: _passwordFocus,
                   phoneNumberController: _phoneNumberController,
@@ -190,6 +182,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeExtraLarge),
                       ),
                     ),
+                    Center(
+                      child: InkWell(
+                        onTap: () => RouteHelper.getMyPointsRoute(context, action: RouteAction.push),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeSmall),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.stars, color: Theme.of(context).primaryColor, size: 20),
+                              const SizedBox(width: 8),
+                              Text(
+                                '${getTranslated('loyalty_points', context)}: ${profileProvider.userInfoModel!.loyaltyPoints ?? 0} ${getTranslated('points', context)}',
+                                style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).primaryColor),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: Dimensions.paddingSizeSmall),
                     const SizedBox(height: 28),
 
                     // for first name section
@@ -220,43 +237,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       isShowBorder: true,
                       controller: _lastNameController,
                       focusNode: _lastNameFocus,
-                      nextFocus: splashProvider.configModel!.emailVerification!
-                          ? _phoneNumberFocus : _emailFocus,
+                      nextFocus: _phoneNumberFocus,
                       inputType: TextInputType.name,
                       capitalization: TextCapitalization.words,
-                    ),
-                    const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                    // for email section
-                    Selector<VerificationProvider, bool>(
-                        selector: (context, verificationProvider) => verificationProvider.isLoading,
-                        builder: (context, isLoading, child) {
-                          return CustomTextFieldWidget(
-                            title: getTranslated('email', context),
-                            hintText: getTranslated('demo_gmail', context),
-                            isShowBorder: true,
-                            controller: _emailController,
-                            isEnabled: true ,
-                            focusNode: _emailFocus,
-                            nextFocus: _phoneNumberFocus,
-                            isShowSuffixIcon: true,
-                            isToolTipSuffix: AuthHelper.isEmailVerificationEnable(configModel) && _emailController!.text.isNotEmpty? true : false,
-                            toolTipMessage: profileProvider.userInfoModel?.emailVerifiedAt == null ? getTranslated('email_not_verified', context) : '',
-                            toolTipKey: emailToolTipKey,
-                            suffixAssetUrl: AuthHelper.isEmailVerificationEnable(configModel) && profileProvider.userInfoModel?.emailVerifiedAt == null ? Images.notVerifiedProfileIcon : Images.verifiedProfileIcon,
-                            inputType: TextInputType.emailAddress,
-                            onSuffixTap: (){
-
-                              if(profileProvider.userInfoModel?.emailVerifiedAt == null){
-                                final VerificationProvider verificationProvider = Provider.of<VerificationProvider>(context, listen: false);
-                                verificationProvider.sendVerificationCode(
-                                  context, configModel, _emailController?.text.trim() ?? '', type: VerificationType.email.name, fromPage: FromPage.profile.name,
-                                );
-                              }
-
-                            },
-                          );
-                        }
                     ),
                     const SizedBox(height: Dimensions.paddingSizeLarge),
 
@@ -360,7 +343,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       bool didNotChange = profileProvider.userInfoModel?.fName == firstName
                           && profileProvider.userInfoModel?.lName == lastName
                           && profileProvider.userInfoModel?.phone == phoneNumber
-                          && profileProvider.userInfoModel?.email == _emailController?.text
                           && file == null && password.isEmpty
                           && confirmPassword.isEmpty;
 
@@ -389,7 +371,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         updateUserInfoModel.fName = firstName;
                         updateUserInfoModel.lName = lastName;
                         updateUserInfoModel.phone = phoneNumber;
-                        updateUserInfoModel.email = _emailController?.text;
+                        updateUserInfoModel.email = profileProvider.userInfoModel?.email;
 
                         ResponseModel responseModel = await profileProvider.updateUserInfo(
                           updateUserInfoModel, password, file,

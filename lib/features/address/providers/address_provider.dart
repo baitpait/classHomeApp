@@ -5,7 +5,6 @@ import 'package:hexacom_user/features/address/domain/models/prediction_model.dar
 import 'package:hexacom_user/features/address/domain/reposotories/location_repo.dart';
 import 'package:hexacom_user/helper/api_checker_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AddressProvider with ChangeNotifier {
@@ -14,8 +13,6 @@ class AddressProvider with ChangeNotifier {
 
   AddressProvider({required this.sharedPreferences, this.locationRepo});
 
-
-  GoogleMapController? _mapController;
   List<Suggestions> _predictionList = [];
   List<AddressModel>? _addressList;
   bool _isLoading = false;
@@ -26,11 +23,6 @@ class AddressProvider with ChangeNotifier {
   int _selectAddressIndex = 0;
   String? _countryCode;
   Prediction? predictionModel;
-
-
-  final List<Marker> _markers = <Marker>[];
-  List<Marker> get markers => _markers;
-  GoogleMapController? get mapController => _mapController;
   List<AddressModel>? get addressList => _addressList;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
@@ -139,18 +131,8 @@ class AddressProvider with ChangeNotifier {
   }
 
   Future<List<Suggestions>> searchAddress(BuildContext context, String text) async {
-    if(text.isNotEmpty) {
-      ApiResponseModel response = await locationRepo!.searchLocation(text);
-      if (response.response?.statusCode == 200) {
-        _predictionList = [];
-
-        predictionModel = Prediction.fromJson(response.response.data);
-        predictionModel?.suggestions?.forEach((suggestions)=> _predictionList.add(suggestions));
-
-      } else {
-        _predictionList = [];
-      }
-    }
+    // Map search API is disabled; no remote suggestions are loaded.
+    _predictionList = [];
     return _predictionList;
   }
 

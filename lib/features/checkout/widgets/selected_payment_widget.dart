@@ -5,6 +5,7 @@ import 'package:hexacom_user/features/order/providers/order_provider.dart';
 import 'package:hexacom_user/features/splash/providers/splash_provider.dart';
 import 'package:hexacom_user/helper/price_converter_helper.dart';
 import 'package:hexacom_user/helper/responsive_helper.dart';
+import 'package:hexacom_user/localization/language_constrants.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:hexacom_user/utill/images.dart';
 import 'package:hexacom_user/utill/styles.dart';
@@ -49,9 +50,14 @@ class SelectedPaymentWidget extends StatelessWidget {
 
           const SizedBox(width: Dimensions.paddingSizeSmall),
 
-          Expanded(child: Text('${checkoutProvider.selectedPaymentMethod?.getWayTitle}',
+          Expanded(
+            child: Text(
+              checkoutProvider.selectedPaymentMethod?.getWay == 'online'
+                  ? (checkoutProvider.selectedPaymentMethod?.getWayTitle ?? '')
+                  : getTranslated('cash_on_delivery', context),
             style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: const Color(0xFF3A4756)),
-          )),
+            ),
+          ),
 
           Text(
             PriceConverterHelper.convertPrice(total + (orderProvider.deliveryCharge ?? 0.0)), textDirection: TextDirection.ltr,

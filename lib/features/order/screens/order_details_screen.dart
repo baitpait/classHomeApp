@@ -91,23 +91,21 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               double itemsPrice = 0;
               double discount = 0;
               double extraDiscount = 0;
-              double tax = 0;
-              if(order.orderDetails != null && order.orderDetails!.isNotEmpty ) {
-                if(order.trackModel?.orderType == 'delivery') {
+              if (order.orderDetails != null && order.orderDetails!.isNotEmpty) {
+                if (order.trackModel?.orderType == 'delivery') {
                   deliveryCharge = order.trackModel?.deliveryCharge;
                 }
-                for(OrderDetailsModel orderDetails in order.orderDetails!) {
+                for (OrderDetailsModel orderDetails in order.orderDetails!) {
                   itemsPrice = itemsPrice + (orderDetails.price! * orderDetails.quantity!);
                   discount = discount + (orderDetails.discountOnProduct! * orderDetails.quantity!);
-                  tax = tax + (orderDetails.taxAmount! * orderDetails.quantity!);
                 }
               }
 
-              if( order.trackModel != null &&  order.trackModel!.extraDiscount!=null) {
-                extraDiscount  = order.trackModel!.extraDiscount ?? 0.0;
+              if (order.trackModel != null && order.trackModel!.extraDiscount != null) {
+                extraDiscount = order.trackModel!.extraDiscount ?? 0.0;
               }
 
-              double subTotal = itemsPrice + tax;
+              double subTotal = itemsPrice;
               double total = subTotal - discount - extraDiscount + deliveryCharge! - (order.trackModel != null ? order.trackModel!.couponDiscountAmount! : 0);
 
               return order.orderDetails == null || order.trackModel == null ? Center(
@@ -150,9 +148,13 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                             child: Column(
                                               children: [
                                                 ItemPriceWidget(
-                                                  itemsPrice: itemsPrice, tax:  tax,subTotal: subTotal,
-                                                  discount: discount, order: order, deliveryCharge: deliveryCharge,
-                                                  total: total,extraDiscount: extraDiscount,
+                                                  itemsPrice: itemsPrice,
+                                                  subTotal: subTotal,
+                                                  discount: discount,
+                                                  order: order,
+                                                  deliveryCharge: deliveryCharge,
+                                                  total: total,
+                                                  extraDiscount: extraDiscount,
                                                 ),
 
                                                 ButtonWidget(order: order),
@@ -163,7 +165,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                       ],
                                     ),
                                     if(!ResponsiveHelper.isDesktop(context)) const OrderInfoWidget(), // Total
-                                    if(!ResponsiveHelper.isDesktop(context)) ItemPriceWidget(itemsPrice: itemsPrice, tax:  tax,subTotal: subTotal, discount: discount, order: order, deliveryCharge: deliveryCharge, total: total,extraDiscount: extraDiscount,),
+                                    if(!ResponsiveHelper.isDesktop(context)) ItemPriceWidget(itemsPrice: itemsPrice, subTotal: subTotal, discount: discount, order: order, deliveryCharge: deliveryCharge, total: total, extraDiscount: extraDiscount),
                                   ],
                                 ),
                               ),

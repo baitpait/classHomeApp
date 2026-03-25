@@ -75,7 +75,7 @@ class HomeScreen extends StatefulWidget {
 
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMixin {
   final GlobalKey<ScaffoldState> drawerGlobalKey = GlobalKey();
   ProductFilterType? filterType;
   final ScrollController scrollController = ScrollController();
@@ -106,6 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
 
     return SafeArea(
       child: Scaffold(
@@ -229,13 +230,17 @@ class _HomeScreenState extends State<HomeScreen> {
                         const NewArrivalWidget(),
 
                         if (!ResponsiveHelper.isDesktop(context))
-                          const SizedBox(height: Dimensions.mobileHomeSectionGap),
+                          const SizedBox(height: 8),
+                        const SizedBox(height: Dimensions.mobileHomeSectionGap),
                         Consumer<CategoryProvider>(builder: (context, categoryProvider, _) {
                           return categoryProvider.featureCategoryMode != null
                               ? CustomSingleChildListWidget(
                                   itemCount: categoryProvider.featureCategoryMode?.featuredData?.length ?? 0,
-                                  itemBuilder: (index) => FeatureCategoryWidget(
-                                    featuredCategory: categoryProvider.featureCategoryMode!.featuredData?[index],
+                                  itemBuilder: (index) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: FeatureCategoryWidget(
+                                      featuredCategory: categoryProvider.featureCategoryMode!.featuredData?[index],
+                                    ),
                                   ),
                                 )
                               : const SizedBox();
@@ -263,6 +268,9 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 

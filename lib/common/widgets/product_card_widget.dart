@@ -204,40 +204,21 @@ class _VerticalCard extends StatelessWidget {
             child: _buildProductImage(context, product, splashProvider),
           ),
 
-          // Out of Stock Overlay
-          if ((cartModel?.stock ?? 0) < 1 && hasNoVariations)
-            Positioned.fill(
+          // Limited stock badge (current stock at or below minimum_stock_alert)
+          if (product.totalStock != null && product.totalStock! > 0 &&
+              product.minimumStockAlert != null && product.totalStock! <= product.minimumStockAlert!)
+            Positioned(
+              top: 8,
+              left: 8,
               child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.45),
-                  borderRadius: BorderRadius.zero,
+                  color: Colors.orange.shade700,
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                alignment: Alignment.center,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).cardColor,
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.2),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Text(
-                        getTranslated('out_of_stock', context),
-                        style: rubikSemiBold.copyWith(
-                          fontSize: 13,
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  getTranslated('limited_stock', context),
+                  style: rubikMedium.copyWith(fontSize: 11, color: Colors.white),
                 ),
               ),
             ),
@@ -276,6 +257,27 @@ class _VerticalCard extends StatelessWidget {
               ProductWishListButton(product: product),
             ],
           )),
+
+          // Out of Stock Overlay — 50% black + "نفذ المخزون" (on top so always visible)
+          if ((product.totalStock ?? 0) < 1)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.zero,
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    getTranslated('stock_run_out', context),
+                    style: rubikSemiBold.copyWith(
+                      fontSize: 15,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
         ]),
       ),
 
@@ -361,15 +363,34 @@ class _HorizontalCard extends StatelessWidget {
                           Positioned.fill(
                             child: _buildProductImage(context, product, splashProvider),
                           ),
-                          if ((cartModel?.stock ?? 0) < 1 && hasNoVariations)
+                          if ((product.totalStock ?? 0) < 1)
                             Positioned.fill(
+                              child: IgnorePointer(
+                                child: Container(
+                                  color: Colors.black.withValues(alpha: 0.5),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    getTranslated('stock_run_out', context),
+                                    style: rubikSemiBold.copyWith(fontSize: 12, color: Colors.white),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          if (product.totalStock != null && product.totalStock! > 0 &&
+                              product.minimumStockAlert != null && product.totalStock! <= product.minimumStockAlert!)
+                            Positioned(
+                              bottom: 4,
+                              left: 4,
                               child: Container(
-                                color: Colors.black.withValues(alpha: 0.4),
-                                alignment: Alignment.center,
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.shade700,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
                                 child: Text(
-                                  getTranslated('out_of_stock', context),
+                                  getTranslated('limited_stock', context),
                                   style: rubikMedium.copyWith(fontSize: 10, color: Colors.white),
-                                  textAlign: TextAlign.center,
                                 ),
                               ),
                             ),

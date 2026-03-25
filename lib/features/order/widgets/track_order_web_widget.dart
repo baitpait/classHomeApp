@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hexacom_user/common/widgets/custom_directionality_widget.dart';
-import 'package:hexacom_user/features/address/providers/location_provider.dart';
 import 'package:hexacom_user/features/order/providers/order_provider.dart';
 import 'package:hexacom_user/features/splash/providers/splash_provider.dart';
 import 'package:hexacom_user/features/order/widgets/custom_stepper_widget.dart';
@@ -22,14 +21,19 @@ class TrackOrderWebWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final SplashProvider splashProvider = Provider.of<SplashProvider>(context, listen: false);
+    final viewportWidth = MediaQuery.sizeOf(context).width;
 
     return Consumer<OrderProvider>(
         builder: (context, orderProvider, _) {
           String status = orderProvider.trackModel?.orderStatus ?? '';
           bool isOrderFailed = status == OrderConstants.failed || status == OrderConstants.returned || status == OrderConstants.canceled;
 
-          return orderProvider.trackModel != null && orderProvider.trackModel?.id != null ?   Column(children: [
-            const SizedBox(height: Dimensions.paddingSizeExtraLarge),
+          return orderProvider.trackModel != null && orderProvider.trackModel?.id != null
+              ? Center(
+                  child: SizedBox(
+                    width: Dimensions.getWebContentWidth(viewportWidth),
+                    child: Column(children: [
+                      const SizedBox(height: Dimensions.paddingSizeExtraLarge),
 
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Expanded(child: Text(
@@ -116,8 +120,9 @@ class TrackOrderWebWidget extends StatelessWidget {
             ]),
             const SizedBox(height: 50),
 
-            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              CustomStepperWidget(
+            Builder(builder: (context) {
+              final steps = <Widget>[
+                CustomStepperWidget(
                 title: getTranslated('order_placed', context),
                 isComplete: true,
                 isActive: status == OrderConstants.pending,
@@ -131,17 +136,20 @@ class TrackOrderWebWidget extends StatelessWidget {
                   ),
                 ]),
               ),
+              ];
 
-              if(isOrderFailed) CustomStepperWidget(
+              if (isOrderFailed) {
+                steps.add(CustomStepperWidget(
                 height: orderProvider.trackModel?.deliveryMan == null ? 30 : 130,
                 title: getTranslated(status, context),
                 isComplete: isOrderFailed,
                 isActive: isOrderFailed,
                 statusImage: Images.orderFailed,
                 color: status == OrderConstants.failed ? Theme.of(context).colorScheme.error : null,
-              ),
+                ));
+              }
 
-              CustomStepperWidget(
+              steps.add(CustomStepperWidget(
                 title: getTranslated('order_accepted', context),
                 isComplete: status == OrderConstants.confirmed
                     || status == OrderConstants.processing
@@ -149,42 +157,69 @@ class TrackOrderWebWidget extends StatelessWidget {
                     || status == OrderConstants.delivered,
                 isActive: status == OrderConstants.confirmed,
                 statusImage: Images.orderAccepted,
-              ),
+              ));
 
-              CustomStepperWidget(
+              steps.add(CustomStepperWidget(
                 title: getTranslated('preparing_items', context),
                 isComplete: status == OrderConstants.processing
                     || status == OrderConstants.outForDelivery
                     ||status == OrderConstants.delivered,
                 statusImage: Images.preparingItems,
                 isActive: status == OrderConstants.processing,
-              ),
+              ));
 
-              if(!isOrderFailed)Consumer<LocationProvider>(builder: (context, locationProvider, _) {
-                return CustomStepperWidget(
-                  title: getTranslated('order_is_on_the_way', context),
-                  isComplete: status == OrderConstants.outForDelivery || status == OrderConstants.delivered,
-                  statusImage: Images.outForDelivery,
-                  isActive: status == OrderConstants.outForDelivery,
-                  subTitleWidget: status == OrderConstants.outForDelivery ?  Text(
-                    getTranslated('your_delivery_man_is_coming', context),
-                    style: rubikRegular.copyWith(color: Theme.of(context).disabledColor, fontSize: Dimensions.fontSizeSmall),
-                  ) : const SizedBox(),
-                );
-              }),
+              if (!isOrderFailed) {
+                steps.add(CustomStepperWidget(
+                title: getTranslated('order_is_on_the_way', context),
+                isComplete: status == OrderConstants.outForDelivery || status == OrderConstants.delivered,
+                statusImage: Images.outForDelivery,
+                isActive: status == OrderConstants.outForDelivery,
+                subTitleWidget: status == OrderConstants.outForDelivery ?  Text(
+                  getTranslated('your_delivery_man_is_coming', context),
+                  style: rubikRegular.copyWith(color: Theme.of(context).disabledColor, fontSize: Dimensions.fontSizeSmall),
+                ) : const SizedBox(),
+                ));
+              }
 
-              CustomStepperWidget(
+              steps.add(CustomStepperWidget(
                 height: orderProvider.trackModel?.deliveryMan == null ? 30 : 130,
                 title: getTranslated('order_delivered', context),
                 isComplete: status == OrderConstants.delivered,
                 isActive: status == OrderConstants.delivered,
                 statusImage: Images.orderDelivered,
                 haveTopBar: false,
-              ),
-            ]),
+              ));
+
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  // Prevent RenderFlex overflow on smaller desktop widths by allowing horizontal scroll.
+                  final row = Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: steps,
+                  );
+
+                  return constraints.maxWidth < 1100
+                      ? Scrollbar(
+                          thumbVisibility: false,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 6),
+                              child: row,
+                            ),
+                          ),
+                        )
+                      : row;
+                },
+              );
+            }),
             const SizedBox(height: 100),
 
-          ]) : const SizedBox();
+                    ]),
+                  ),
+                )
+              : const SizedBox();
         }
     );
   }

@@ -24,6 +24,8 @@ class _TabChildrenWidgetState extends State<TabChildrenWidget> {
   @override
   Widget build(BuildContext context) {
     return Consumer<ProductProvider>(builder: (context, productProvider, _){
+      final isDesktop = ResponsiveHelper.isDesktop(context);
+
       return productProvider.product == null ? const SizedBox() : productProvider.tabIndex == 0 ? (productProvider.product!.description == null || productProvider.product!.description!.isEmpty)
           ? Center(child: Text(getTranslated('no_description_found', context), style: rubikRegular.copyWith(
         fontSize: ResponsiveHelper.isDesktop(context) ? 20 : 16,
@@ -31,15 +33,21 @@ class _TabChildrenWidgetState extends State<TabChildrenWidget> {
 
 
         if(productProvider.product?.description?.isNotEmpty ?? false) Container(
-          height: (productProvider.product != null && productProvider.product!.description != null && productProvider.product!.description!.length > 300) && showSeeMoreButton ? 100 : null,
-          padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+          height: (productProvider.product != null && productProvider.product!.description != null && productProvider.product!.description!.length > 300) && showSeeMoreButton
+              ? (isDesktop ? 180 : 120)
+              : null,
+          padding: EdgeInsets.all(isDesktop ? Dimensions.paddingSizeLarge : Dimensions.paddingSizeSmall),
           width: Dimensions.webScreenWidth,
           child: SingleChildScrollView(
             physics: const NeverScrollableScrollPhysics(),
             child: HtmlWidget(
               onTapUrl: (url)=> launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication),
               productProvider.product!.description ?? '',
-              textStyle: rubikRegular.copyWith(fontSize: Dimensions.fontSizeSmall),
+              textStyle: rubikRegular.copyWith(
+                fontSize: isDesktop ? Dimensions.fontSizeLarge : Dimensions.fontSizeDefault,
+                height: 1.45,
+                color: Theme.of(context).textTheme.bodyMedium?.color,
+              ),
             ),
           ),
         ),
@@ -58,15 +66,20 @@ class _TabChildrenWidgetState extends State<TabChildrenWidget> {
         if((productProvider.product!.description?.isNotEmpty ?? false) && productProvider.product!.description!.length > 300 && showSeeMoreButton) Positioned.fill(child: Align(
           alignment: Alignment.bottomCenter, child: Container(
             margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
-            height: 35, width: 100, child: CustomButtonWidget(
-            backgroundColor: Theme.of(context).secondaryHeaderColor.withValues(alpha: 0.7),
-            style: rubikMedium.copyWith(color: Theme.of(context).textTheme.titleLarge?.color),
-            btnTxt: getTranslated('see_more', context),
-            onTap: (){
-              setState(() {
-                showSeeMoreButton = false;
-              });
-            })),
+            height: isDesktop ? 40 : 36,
+            width: isDesktop ? 140 : 120,
+            child: CustomButtonWidget(
+              backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.90),
+              radius: Dimensions.radiusSizeFifty,
+              style: rubikMedium.copyWith(color: Colors.white),
+              btnTxt: getTranslated('see_more', context),
+              onTap: (){
+                setState(() {
+                  showSeeMoreButton = false;
+                });
+              },
+            ),
+          ),
         )),
 
       ]) : ProductReviewListWidget(productId: widget.productId);

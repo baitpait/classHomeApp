@@ -3,8 +3,6 @@ import 'package:hexacom_user/common/enums/footer_type_enum.dart';
 import 'package:hexacom_user/common/models/signup_model.dart';
 import 'package:hexacom_user/features/auth/domain/enums/from_page_enum.dart';
 import 'package:hexacom_user/features/auth/providers/registration_provider.dart';
-import 'package:hexacom_user/features/auth/widgets/sign_up_logo_widget.dart';
-import 'package:hexacom_user/helper/email_checker_helper.dart';
 import 'package:hexacom_user/helper/login_route_helper.dart';
 import 'package:hexacom_user/helper/responsive_helper.dart';
 import 'package:hexacom_user/localization/language_constrants.dart';
@@ -15,6 +13,7 @@ import 'package:hexacom_user/utill/images.dart';
 import 'package:hexacom_user/utill/routes.dart';
 import 'package:hexacom_user/utill/styles.dart';
 import 'package:hexacom_user/utill/color_resources.dart';
+import 'package:hexacom_user/common/widgets/custom_image_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_button_widget.dart';
 import 'package:hexacom_user/helper/custom_snackbar_helper.dart';
 import 'package:hexacom_user/common/widgets/auth_background_widget.dart';
@@ -37,13 +36,11 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   final FocusNode _firstNameFocus = FocusNode();
   final FocusNode _lastNameFocus = FocusNode();
   final FocusNode _numberFocus = FocusNode();
-  final FocusNode _emailFocus = FocusNode();
   final FocusNode _passwordFocus = FocusNode();
   final FocusNode _confirmPasswordFocus = FocusNode();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _numberController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
   String? _countryDialCode;
@@ -154,40 +151,53 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                 ),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 
-                    if (ResponsiveHelper.isDesktop(context))
-                      const Center(child: SignUpLogoWidget())
-                    else
-                      Center(
-                        child: Column(
-                          children: [
-                            Image.asset(
-                              Images.logo,
-                              height: 64,
-                              fit: BoxFit.scaleDown,
+                    Center(
+                      child: Column(
+                        children: [
+                          Builder(
+                            builder: (context) {
+                              final logoUrl = (Provider.of<SplashProvider>(context, listen: false).baseUrls != null &&
+                                      (Provider.of<SplashProvider>(context, listen: false).configModel?.appLogo ?? '').isNotEmpty)
+                                  ? '${Provider.of<SplashProvider>(context, listen: false).baseUrls!.ecommerceImageUrl}/${Provider.of<SplashProvider>(context, listen: false).configModel!.appLogo}'
+                                  : '';
+                              if (logoUrl.isNotEmpty) {
+                                return Column(
+                                  children: [
+                                    CustomImageWidget(
+                                      image: logoUrl,
+                                      placeholder: Images.placeholder(context),
+                                      height: 64,
+                                      fit: BoxFit.scaleDown,
+                                    ),
+                                    const SizedBox(height: Dimensions.paddingSizeSmall),
+                                  ],
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
+                          ),
+                          Text(
+                            getTranslated('signup', context),
+                            style: rubikMedium.copyWith(
+                              fontSize: Dimensions.fontSizeOverLarge,
+                              color: ColorResources.getTextColor(context),
+                              fontFamily: fontFamily,
                             ),
-                            const SizedBox(height: Dimensions.paddingSizeSmall),
-                            Text(
-                              getTranslated('signup', context),
-                              style: rubikMedium.copyWith(
-                                fontSize: Dimensions.fontSizeOverLarge,
-                                color: ColorResources.getTextColor(context),
-                                fontFamily: fontFamily,
-                              ),
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeSmall),
+                          Text(
+                            getTranslated('please_login_or_signup', context),
+                            textAlign: TextAlign.center,
+                            style: rubikRegular.copyWith(
+                              fontSize: Dimensions.fontSizeDefault,
+                              color: ColorResources.getTextColor(context).withValues(alpha: 0.75),
+                              fontFamily: fontFamily,
                             ),
-                            const SizedBox(height: Dimensions.paddingSizeSmall),
-                            Text(
-                              getTranslated('please_login_or_signup', context),
-                              textAlign: TextAlign.center,
-                              style: rubikRegular.copyWith(
-                                fontSize: Dimensions.fontSizeDefault,
-                                color: ColorResources.getTextColor(context).withValues(alpha: 0.75),
-                                fontFamily: fontFamily,
-                              ),
-                            ),
-                            const SizedBox(height: Dimensions.paddingSizeLarge),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+                        ],
                       ),
+                    ),
 
                     CustomTextFieldWidget(
                       prefixAssetUrl: Images.profile,
@@ -221,11 +231,9 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                     ),
                     const SizedBox(height: Dimensions.paddingSizeDefault),
 
-                    // for email section
-
                   RichText(text: TextSpan(children: [
                     TextSpan(
-                      text: getTranslated('phone_number', context),
+                      text: getTranslated('whatsapp_mobile_number', context),
                       style: rubikMedium.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color),
                     ),
 
@@ -250,8 +258,8 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                           onChanged: (countryCode) {
                             _countryDialCode = countryCode.dialCode;
                           },
-                          initialSelection: _countryDialCode,
-                          favorite: [_countryDialCode!],
+                          initialSelection: _countryDialCode ?? '+970',
+                          favorite: const ['+970', '+972'],
                           showDropDownButton: true,
                           padding: EdgeInsets.zero,
                           showFlagMain: true,
@@ -262,32 +270,17 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
                         Expanded(child: CustomTextFieldWidget(
                           borderColor: Colors.transparent,
-                          hintText: getTranslated('enter_phone_number', context),
+                          hintText: getTranslated('enter_whatsapp_mobile_number', context),
                           isShowBorder: true,
                           controller: _numberController,
                           focusNode: _numberFocus,
-                          nextFocus: _emailFocus,
+                          nextFocus: _passwordFocus,
                           inputType: TextInputType.phone,
 
                         )),
                       ]),
                     ),
 
-                    const SizedBox(height: Dimensions.paddingSizeDefault),
-
-                    CustomTextFieldWidget(
-                      hintText: getTranslated('email', context),
-                      title: getTranslated('email', context),
-                      isShowBorder: true,
-                      prefixIconUrl: Icons.email,
-                      isRequired: true,
-                      isShowPrefixIcon: true,
-                      prefixAssetImageColor: Theme.of(context).primaryColor,
-                      controller: _emailController,
-                      focusNode: _emailFocus,
-                      nextFocus: _passwordFocus,
-                      inputType: TextInputType.emailAddress,
-                    ),
                     const SizedBox(height: Dimensions.paddingSizeDefault),
 
                     // for password section,
@@ -398,7 +391,6 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                               String firstName = _firstNameController.text.trim();
                               String lastName = _lastNameController.text.trim();
                               String number = _countryDialCode!+_numberController.text.trim();
-                              String email = _emailController.text.trim();
                               String password = _passwordController.text.trim();
                               String confirmPassword = _confirmPasswordController.text.trim();
 
@@ -408,11 +400,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                               }else if (lastName.isEmpty) {
                                 showCustomSnackBar(getTranslated('enter_last_name', context), context);
                               }else if (_numberController.text.isEmpty) {
-                                showCustomSnackBar(getTranslated('enter_phone_number', context), context);
-                              }else if (email.isEmpty) {
-                                showCustomSnackBar(getTranslated('enter_email_address', context), context);
-                              } else if (EmailCheckerHelper.isNotValid(email)) {
-                                showCustomSnackBar(getTranslated('enter_valid_email', context), context);
+                                showCustomSnackBar(getTranslated('enter_whatsapp_mobile_number', context), context);
                               }else if (password.isEmpty) {
                                 showCustomSnackBar(getTranslated('enter_password', context), context);
                               }else if (password.length < 6) {
@@ -425,7 +413,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                                 SignUpModel signUpModel = SignUpModel(
                                   fName: firstName,
                                   lName: lastName,
-                                  email: email,
+                                  email: '',
                                   password: password,
                                   phone: number,
                                 );

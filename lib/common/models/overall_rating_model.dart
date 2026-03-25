@@ -8,7 +8,7 @@ class OverallRating {
   OverallRating({this.totalReview, this.averageRating, this.ratingGroupCount});
 
   OverallRating.fromJson(Map<String, dynamic> json) {
-    totalReview = json['total_review'];
+    totalReview = _asInt(json['total_review']);
     averageRating = double.tryParse('${json['average_rating']}');
     ratingGroupCount = json['rating_group_count'] != null ? RatingGroupCount.fromJson(json['rating_group_count']) : null;
   }
@@ -22,6 +22,12 @@ class OverallRating {
     }
     return data;
   }
+
+  static int? _asInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    return int.tryParse(value.toString());
+  }
 }
 
 class RatingGroupCount {
@@ -34,11 +40,11 @@ class RatingGroupCount {
   RatingGroupCount({this.oneStar, this.twoStar, this.threeStar, this.fourStar, this.fiveStar});
 
   RatingGroupCount.fromJson(Map<String, dynamic> json) {
-    oneStar = json['1'];
-    twoStar = json['2'];
-    threeStar = json['3'];
-    fourStar = json['4'];
-    fiveStar = json['5'];
+    oneStar = _asInt(json['1']);
+    twoStar = _asInt(json['2']);
+    threeStar = _asInt(json['3']);
+    fourStar = _asInt(json['4']);
+    fiveStar = _asInt(json['5']);
   }
 
   Map<String, dynamic> toJson() {
@@ -49,5 +55,11 @@ class RatingGroupCount {
     data['4'] = fourStar;
     data['5'] = fiveStar;
     return data;
+  }
+
+  static int? _asInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    return int.tryParse(value.toString());
   }
 }

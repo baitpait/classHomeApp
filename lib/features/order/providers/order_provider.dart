@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:hexacom_user/common/models/place_order_model.dart';
 import 'package:hexacom_user/common/models/api_response_model.dart';
 import 'package:hexacom_user/common/models/cart_model.dart';
-import 'package:hexacom_user/features/order/domain/models/delivery_man_model.dart';
 import 'package:hexacom_user/common/models/order_details_model.dart';
 import 'package:hexacom_user/common/models/order_model.dart';
 import 'package:hexacom_user/common/models/reorder_details_model.dart';
@@ -27,7 +26,6 @@ class OrderProvider extends ChangeNotifier {
   ResponseModel? _responseModel;
   bool _isLoading = false;
   bool _showCancelled = false;
-  DeliveryManModel? _deliveryManModel;
   int? _reOrderIndex;
   List<CartModel> _reOrderCartList = [];
   ReOrderDetailsModel? _reOrderDetailsModel;
@@ -35,9 +33,7 @@ class OrderProvider extends ChangeNotifier {
   int? _selectedAreaID;
   Timer? _timer;
   double? _deliveryCharge;
-
-
-
+  int? _lastExpectedPointsForSuccess;
 
   List<OrderModel>? get runningOrderList => _runningOrderList;
   List<OrderModel>? get historyOrderList => _historyOrderList;
@@ -46,14 +42,17 @@ class OrderProvider extends ChangeNotifier {
   ResponseModel? get responseModel => _responseModel;
   bool get isLoading => _isLoading;
   bool get showCancelled => _showCancelled;
-  DeliveryManModel? get deliveryManModel => _deliveryManModel;
   int? get getReOrderIndex => _reOrderIndex;
   List<CartModel> get reOrderCartList => _reOrderCartList;
   ReOrderDetailsModel? get reOrderDetailsModel => _reOrderDetailsModel;
   String? get orderType => _orderType;
   int? get selectedAreaID => _selectedAreaID;
   double? get deliveryCharge => _deliveryCharge;
+  int? get lastExpectedPointsForSuccess => _lastExpectedPointsForSuccess;
 
+  void setLastExpectedPointsForSuccess(int? value) {
+    _lastExpectedPointsForSuccess = value;
+  }
 
   set setReorderIndex(int value) {
     _reOrderIndex = value;
@@ -65,20 +64,40 @@ class OrderProvider extends ChangeNotifier {
     if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
       _runningOrderList = [];
       _historyOrderList = [];
-      apiResponse.response!.data.forEach((order) {
-        OrderModel orderModel = OrderModel.fromJson(order);
-        if(orderModel.orderStatus == 'pending' ||
-            orderModel.orderStatus == 'processing' ||
-            orderModel.orderStatus == 'out_for_delivery' ||
-            orderModel.orderStatus == 'confirmed') {
-          _runningOrderList!.add(orderModel);
-        }else if(orderModel.orderStatus == 'delivered' ||
-        orderModel.orderStatus == 'returned' ||
-        orderModel.orderStatus == 'failed' ||
-        orderModel.orderStatus == 'canceled') {
-          _historyOrderList!.add(orderModel);
+      final raw = apiResponse.response!.data;
+      List<dynamic> list = <dynamic>[];
+      if (raw is List) {
+        list = raw;
+      } else if (raw is Map<String, dynamic>) {
+        if (raw['orders'] is List) {
+          list = raw['orders'] as List<dynamic>;
+        } else if (raw['data'] is List) {
+          list = raw['data'] as List<dynamic>;
         }
-      });
+      }
+      for (final item in list) {
+        try {
+          final orderMap = item is Map<String, dynamic> ? item : Map<String, dynamic>.from(item as Map);
+          final orderModel = OrderModel.fromJson(orderMap);
+          final status = orderModel.orderStatus?.toLowerCase();
+          if (status == 'pending' ||
+              status == 'processing' ||
+              status == 'out_for_delivery' ||
+              status == 'confirmed') {
+            _runningOrderList!.add(orderModel);
+          } else if (status == 'delivered' ||
+              status == 'returned' ||
+              status == 'failed' ||
+              status == 'canceled' ||
+              status == 'cancelled') {
+            _historyOrderList!.add(orderModel);
+          } else {
+            _historyOrderList!.add(orderModel);
+          }
+        } catch (_) {
+          continue;
+        }
+      }
     } else {
       ApiCheckerHelper.checkApi(apiResponse);
     }
@@ -118,7 +137,8 @@ class OrderProvider extends ChangeNotifier {
 
       ApiResponseModel apiResponse = await orderRepo!.trackOrder(orderID, phoneNumber);
       if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
-        _trackModel = OrderModel.fromJson(apiResponse.response!.data);
+        final data = _unwrapOrderResponse(apiResponse.response!.data);
+        _trackModel = OrderModel.fromJson(data);
         responseModel = ResponseModel(true, apiResponse.response!.data.toString());
       } else {
         _orderDetails = [];
@@ -135,23 +155,6 @@ class OrderProvider extends ChangeNotifier {
     return responseModel;
   }
 
-  Future<void> getDeliveryManData(String? orderID) async {
-    ApiResponseModel apiResponse = await orderRepo!.getDeliveryManData(orderID);
-
-    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
-      _deliveryManModel = DeliveryManModel.fromJson(apiResponse.response!.data);
-
-      Provider.of<OrderMapProvider>(Get.context!, listen: false).setMapMarker(deliveryManModel: deliveryManModel);
-
-    } else {
-      ApiCheckerHelper.checkApi(apiResponse);
-
-    }
-
-    notifyListeners();
-  }
-
-
   Future<ResponseModel?> getTrackOrder(String? orderID, OrderModel? orderModel, bool fromTracking) async {
     _trackModel = null;
     _responseModel = null;
@@ -163,7 +166,8 @@ class OrderProvider extends ChangeNotifier {
       _isLoading = true;
       ApiResponseModel apiResponse = await orderRepo!.trackOrder(orderID, orderModel?.deliveryAddress?.contactPersonNumber);
       if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
-        _trackModel = OrderModel.fromJson(apiResponse.response!.data);
+        final data = _unwrapOrderResponse(apiResponse.response!.data);
+        _trackModel = OrderModel.fromJson(data);
         _responseModel = ResponseModel(true, apiResponse.response!.data.toString());
       } else {
         _responseModel = ResponseModel(false, ApiCheckerHelper.getError(apiResponse).errors?.first.message);
@@ -221,28 +225,6 @@ class OrderProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updateDeliveryManData(String? orderID) async {
-
-    cancelTimer();
-    _timer = null;
-
-    bool isSetMarker = false;
-
-    _timer = Timer.periodic(const Duration(seconds: 10), (timer) async {
-       if(isSetMarker) {
-         await getDeliveryManData(orderID);
-
-
-       }
-       isSetMarker = true;
-
-    });
-  }
-
-  void cancelTimer() {
-    _timer?.cancel();
-  }
-
   Future<void> setPlaceOrderData(String placeOrder)async{
     await orderRepo?.setPlaceOrder(placeOrder);
   }
@@ -253,6 +235,7 @@ class OrderProvider extends ChangeNotifier {
 
   Future<void> clearPlaceOrderData()async{
     await orderRepo!.clearPlaceOrder();
+    _lastExpectedPointsForSuccess = null;
   }
 
   Future<List<CartModel>?> reorderProduct(String orderId) async {
@@ -305,23 +288,19 @@ class OrderProvider extends ChangeNotifier {
     }
   }
 
-  Future<String> placeDigitalOrder(BuildContext context, PlaceOrderModel placeOrderBody) async {
-    _isLoading = true;
-    notifyListeners();
-
-    String selectedUrl = '';
-    ApiResponseModel apiResponse = await orderRepo!.placeDigitalOrder(placeOrderBody);
-    if (apiResponse.response.data['redirect_link'] != null && apiResponse.response!.statusCode == 200) {
-      selectedUrl = apiResponse.response.data['redirect_link'];
-
-    } else {
-      ApiCheckerHelper.checkApi(apiResponse);
-
+  /// Unwraps track-order API response so OrderModel.fromJson gets a single order map.
+  Map<String, dynamic> _unwrapOrderResponse(dynamic data) {
+    if (data == null) return <String, dynamic>{};
+    if (data is Map<String, dynamic>) {
+      if (data['data'] is Map) return Map<String, dynamic>.from(data['data'] as Map);
+      if (data['order'] is Map) return Map<String, dynamic>.from(data['order'] as Map);
+      return data;
     }
-    _isLoading = false;
-    notifyListeners();
-
-    return selectedUrl;
+    if (data is Map) return Map<String, dynamic>.from(data);
+    if (data is List && data.isNotEmpty && data.first is Map) {
+      return Map<String, dynamic>.from(data.first as Map);
+    }
+    return <String, dynamic>{};
   }
 
 }

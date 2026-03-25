@@ -42,14 +42,11 @@ class LanguageHoverWidget extends StatelessWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Row(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
-                                    child: Image.asset(language.imageUrl!, width: 25, height: 25),
-                                  ),
-                                  Text(language.languageName!, overflow: TextOverflow.ellipsis, maxLines: 1, style: const TextStyle(fontSize: Dimensions.fontSizeSmall),),
-                                ],
+                              Text(
+                                language.languageName!,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: const TextStyle(fontSize: Dimensions.fontSizeSmall),
                               ),
                             ],
                           ),

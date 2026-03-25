@@ -1,4 +1,6 @@
 import 'package:hexacom_user/common/enums/search_short_by_enum.dart';
+import 'package:hexacom_user/common/models/attribute_model.dart';
+import 'package:hexacom_user/common/models/tag_model.dart';
 import 'package:flutter/material.dart';
 import 'package:hexacom_user/common/models/api_response_model.dart';
 import 'package:hexacom_user/common/models/product_model.dart';
@@ -22,20 +24,30 @@ class SearchProvider with ChangeNotifier {
   ProductModel? _productSuggestionModel ;
   bool _isSearch = true;
   Set<int> _selectCategoryList = {};
+  Set<int> _selectedTagIds = {};
+  Set<int> _selectedAttributeIds = {};
+  List<TagModel>? _tagList;
+  List<AttributeModel>? _attributeList;
   SearchShortBy? _selectedSearchShotBy;
   final TextEditingController _searchController = TextEditingController();
   ProductModel? _searchProductModel;
   int _rating = -1;
+  bool _inStockOnly = false;
 
   double? get lowerValue => _lowerValue;
   double? get upperValue => _upperValue;
   bool get isSearch => _isSearch;
   Set<int> get selectCategoryList => _selectCategoryList;
+  Set<int> get selectedTagIds => _selectedTagIds;
+  Set<int> get selectedAttributeIds => _selectedAttributeIds;
+  List<TagModel>? get tagList => _tagList;
+  List<AttributeModel>? get attributeList => _attributeList;
   List<String> get historyList => _historyList;
   ProductModel? get productSuggestionModel => _productSuggestionModel;
-  TextEditingController  get searchController=> _searchController;
+  TextEditingController get searchController => _searchController;
   SearchShortBy? get selectedSearchShotBy => _selectedSearchShotBy;
   int get rating => _rating;
+  bool get inStockOnly => _inStockOnly;
 
 
  void setSearchText(String stringText){
@@ -67,6 +79,8 @@ class SearchProvider with ChangeNotifier {
     required int offset,
     String? query,
     List<int>? categoryIds,
+    List<int>? tagIds,
+    List<int>? attributeIds,
     int? rating,
     double? priceLow,
     double? priceHigh,
@@ -74,20 +88,25 @@ class SearchProvider with ChangeNotifier {
     bool isUpdate = false,
   }) async {
 
-    if(offset == 1) {
+    if (offset == 1) {
       _searchProductModel = null;
 
-      if(isUpdate) {
+      if (isUpdate) {
         notifyListeners();
       }
-
     }
 
     ApiResponseModel apiResponse = await searchRepo!.getSearchProductList(
       offset: offset,
-      query: query, categoryIds: categoryIds,
-      priceHigh: priceHigh, priceLow: priceLow, rating: rating,
+      query: query,
+      categoryIds: categoryIds,
+      tagIds: tagIds,
+      attributeIds: attributeIds,
+      priceHigh: priceHigh,
+      priceLow: priceLow,
+      rating: rating,
       shortBy: getShortByValue(shortBy),
+      inStockOnly: _inStockOnly,
     );
     if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
 
@@ -104,7 +123,6 @@ class SearchProvider with ChangeNotifier {
       _searchProductModel = ProductModel(products: []);
       ApiCheckerHelper.checkApi(apiResponse);
     }
-print('=====product length==============${_searchProductModel?.products?.length}');
     notifyListeners();
   }
 
@@ -160,9 +178,71 @@ print('=====product length==============${_searchProductModel?.products?.length}
     }
   }
 
-  void resetSearchFilterData(BuildContext context, bool fromFlashSales, {bool isUpdate = false, bool fromInitState = false}) async{
+  void toggleTag(int tagId, {bool isUpdate = true}) {
+    if (tagId <= 0) return;
+    if (_selectedTagIds.contains(tagId)) {
+      _selectedTagIds.remove(tagId);
+    } else {
+      _selectedTagIds.add(tagId);
+    }
+    if (isUpdate) notifyListeners();
+  }
+
+  void clearSelectedTags({bool isUpdate = true}) {
+    _selectedTagIds = {};
+    if (isUpdate) notifyListeners();
+  }
+
+  void toggleAttribute(int attributeId, {bool isUpdate = true}) {
+    if (attributeId <= 0) return;
+    if (_selectedAttributeIds.contains(attributeId)) {
+      _selectedAttributeIds.remove(attributeId);
+    } else {
+      _selectedAttributeIds.add(attributeId);
+    }
+    if (isUpdate) notifyListeners();
+  }
+
+  void clearSelectedAttributes({bool isUpdate = true}) {
+    _selectedAttributeIds = {};
+    if (isUpdate) notifyListeners();
+  }
+
+  Future<void> loadTags() async {
+    if (_tagList != null) return;
+    final apiResponse = await searchRepo!.getTags();
+    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+      final list = apiResponse.response!.data as List?;
+      _tagList = list?.map((e) => TagModel.fromJson(e as Map<String, dynamic>)).toList() ?? [];
+    } else {
+      _tagList = [];
+    }
+    notifyListeners();
+  }
+
+  Future<void> loadAttributes() async {
+    if (_attributeList != null) return;
+    final apiResponse = await searchRepo!.getAttributes();
+    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+      final list = apiResponse.response!.data as List?;
+      _attributeList = list?.map((e) => AttributeModel.fromJson(e as Map<String, dynamic>)).toList() ?? [];
+    } else {
+      _attributeList = [];
+    }
+    notifyListeners();
+  }
+
+  void setInStockOnly(bool value, {bool isUpdate = true}) {
+    _inStockOnly = value;
+    if (isUpdate) notifyListeners();
+  }
+
+  void resetSearchFilterData(BuildContext context, bool fromFlashSales, {bool isUpdate = false, bool fromInitState = false}) async {
     setRating(-1, isUpdate: isUpdate);
     selectCategoryListAdd(-1, isClear: true, isUpdate: isUpdate);
+    clearSelectedTags(isUpdate: isUpdate);
+    clearSelectedAttributes(isUpdate: isUpdate);
+    setInStockOnly(false, isUpdate: isUpdate);
     setSelectShortBy(null, isUpdate: isUpdate);
 
     if(!fromInitState){
@@ -207,6 +287,12 @@ print('=====product length==============${_searchProductModel?.products?.length}
       case SearchShortBy.zToa:
         value = 'z_to_a';
         break;
+      case SearchShortBy.topRated:
+        value = 'top_rated';
+        break;
+      case SearchShortBy.bestSelling:
+        value = 'best_selling';
+        break;
       case null:
         break;
     }
@@ -214,12 +300,19 @@ print('=====product length==============${_searchProductModel?.products?.length}
     return value;
   }
 
-  void showProductFilter(Size size, BuildContext context, {bool fromFlashSales = false}){
+  Future<void> showProductFilter(Size size, BuildContext context, {bool fromFlashSales = false}) async {
+    if (!fromFlashSales) {
+      await loadTags();
+      await loadAttributes();
+    }
+
+    if (!context.mounted) return;
     FlashSaleProvider flashSaleProvider = Provider.of<FlashSaleProvider>(context, listen: false);
 
     double width = (size.width - Dimensions.webScreenWidth) / 2;
 
-    RenderBox renderBox = context.findRenderObject() as RenderBox;
+    RenderBox? renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
     final searchBarPosition = renderBox.localToGlobal(Offset.zero);
 
     showDialog(
@@ -253,9 +346,11 @@ print('=====product length==============${_searchProductModel?.products?.length}
                       sliderMin: fromFlashSales ? flashSaleProvider.flashSaleModel?.productLowestPrice : searchProductModel?.productLowestPrice,
                       searchMaxPrice: fromFlashSales ? flashSaleProvider.flashSaleModel?.sortedHighPrice : searchProductModel?.sortedHighPrice,
                       searchMinPrice: fromFlashSales ? flashSaleProvider.flashSaleModel?.sortedLowestPrice : searchProductModel?.sortedLowestPrice,
-                      onClearTap: ()=> resetSearchFilterData(context, fromFlashSales, isUpdate: true),
+                      onClearTap: () => resetSearchFilterData(context, fromFlashSales, isUpdate: true),
                       canFiltered: fromFlashSales ? ProductFilterHelper.canFlashSalesFilter() : ProductFilterHelper.canProductFilter(),
-                      onSubmitTap: (){
+                      tagList: fromFlashSales ? null : tagList,
+                      attributeList: fromFlashSales ? null : attributeList,
+                      onSubmitTap: () {
                         if(fromFlashSales){
                           flashSaleProvider.getFlashSaleProducts(
                               1, false,
@@ -265,7 +360,7 @@ print('=====product length==============${_searchProductModel?.products?.length}
                               categoryIds: selectCategoryList.toList(),
                               shortBy: getShortByValue(selectedSearchShotBy)
                           );
-                        }else{
+                        } else {
                           searchProduct(
                             offset: 1,
                             query: _searchController.text,
@@ -273,6 +368,8 @@ print('=====product length==============${_searchProductModel?.products?.length}
                             priceLow: lowerValue,
                             priceHigh: upperValue,
                             categoryIds: selectCategoryList.toList(),
+                            tagIds: selectedTagIds.isEmpty ? null : selectedTagIds.toList(),
+                            attributeIds: selectedAttributeIds.isEmpty ? null : selectedAttributeIds.toList(),
                             shortBy: selectedSearchShotBy,
                             isUpdate: true,
                           );

@@ -134,8 +134,20 @@ class NotificationHelper {
       body, htmlFormatBigText: true,
       contentTitle: title, htmlFormatContentTitle: true,
     );
+    final BuildContext? context = Get.context;
+    String channelName = 'Elite Vape';
+    if (context != null) {
+      final splashProvider = Provider.of<SplashProvider>(context, listen: false);
+      final name = splashProvider.configModel?.ecommerceName;
+      if (name != null && name.trim().isNotEmpty) {
+        channelName = name;
+      }
+    }
+
     AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
-      AppConstants.appName, AppConstants.appName, importance: Importance.max,
+      'hexacom',
+      channelName,
+      importance: Importance.max,
       styleInformation: bigTextStyleInformation, priority: Priority.max, playSound: true,
       sound: const RawResourceAndroidNotificationSound('notification'),
     );
@@ -152,8 +164,19 @@ class NotificationHelper {
       contentTitle: title, htmlFormatContentTitle: true,
       summaryText: body, htmlFormatSummaryText: true,
     );
+    final BuildContext? context = Get.context;
+    String channelName = 'Elite Vape';
+    if (context != null) {
+      final splashProvider = Provider.of<SplashProvider>(context, listen: false);
+      final name = splashProvider.configModel?.ecommerceName;
+      if (name != null && name.trim().isNotEmpty) {
+        channelName = name;
+      }
+    }
+
     final AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
-      AppConstants.appName, AppConstants.appName,
+      'hexacom',
+      channelName,
       largeIcon: FilePathAndroidBitmap(largeIconPath), priority: Priority.max, playSound: true,
       styleInformation: bigPictureStyleInformation, importance: Importance.max,
       sound: const RawResourceAndroidNotificationSound('notification'),

@@ -21,10 +21,16 @@ class ChooseLanguageScreen extends StatefulWidget {
 class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      Provider.of<LanguageProvider>(context, listen: false).initializeAllLanguages(context);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    Provider.of<LanguageProvider>(context, listen: false).initializeAllLanguages(context);
-
-
     return CustomPopScopeWidget(child: Scaffold(body: SafeArea(
       child: Column(
         children: [

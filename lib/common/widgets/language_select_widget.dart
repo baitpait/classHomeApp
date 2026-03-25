@@ -65,19 +65,9 @@ class _LanguageItemWidget extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.asset(languageModel.imageUrl!, width: 34, height: 34),
-                    ),
-                    const SizedBox(width: 30),
-
-                    Text(
-                      languageModel.languageName!,
-                      style: rubikMedium.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color),
-                    ),
-                  ],
+                Text(
+                  languageModel.languageName!,
+                  style: rubikMedium.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color),
                 ),
 
                 !fromMenu && languageProvider.selectIndex == index ? CustomAssetImageWidget(

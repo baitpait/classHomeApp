@@ -8,7 +8,6 @@ import 'package:hexacom_user/features/auth/domain/enums/from_page_enum.dart';
 import 'package:hexacom_user/features/auth/domain/enums/social_login_options_enum.dart';
 import 'package:hexacom_user/features/auth/domain/models/social_login_model.dart';
 import 'package:hexacom_user/common/models/api_response_model.dart';
-import 'package:hexacom_user/common/models/error_response_model.dart';
 import 'package:hexacom_user/common/models/response_model.dart';
 import 'package:hexacom_user/common/models/userinfo_model.dart';
 import 'package:hexacom_user/features/auth/domain/models/user_log_data.dart';
@@ -152,9 +151,20 @@ class AuthProvider with ChangeNotifier {
       responseModel = ResponseModel(token != null, 'verification');
 
     } else {
+      // Robust error handling for all cases (422, 500, network errors...).
+      try {
+        final error = ApiCheckerHelper.getError(apiResponse);
+        if (error.errors != null && error.errors!.isNotEmpty) {
+          _loginErrorMessage = error.errors!.first.message;
+        } else {
+          _loginErrorMessage = getTranslated('unavailable_to_process_data', buildContext);
+        }
+      } catch (_) {
+        _loginErrorMessage = apiResponse.error?.toString() ?? getTranslated('unavailable_to_process_data', buildContext);
+      }
 
-      _loginErrorMessage = ErrorResponseModel.fromJson(apiResponse.error).errors![0].message;
-      responseModel = ResponseModel(false,_loginErrorMessage);
+      showCustomSnackBar(_loginErrorMessage, buildContext, isError: true);
+      responseModel = ResponseModel(false, _loginErrorMessage);
     }
     _isLoading = false;
     notifyListeners();

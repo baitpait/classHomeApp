@@ -1,4 +1,5 @@
 import 'package:hexacom_user/common/widgets/custom_button_widget.dart';
+import 'package:hexacom_user/common/models/language_model.dart';
 import 'package:hexacom_user/features/onboarding/providers/onboarding_provider.dart';
 import 'package:hexacom_user/features/splash/providers/splash_provider.dart';
 import 'package:hexacom_user/helper/custom_snackbar_helper.dart';
@@ -32,33 +33,28 @@ class LanguageSelectButtonWidget extends StatelessWidget {
               btnTxt: getTranslated('save', context),
               onTap: () {
                 Provider.of<SplashProvider>(context, listen: false).disableLang();
+                LanguageModel? selectedLanguage = languageProvider.selectedLanguageModel;
+                final int? selectedIndex = languageProvider.selectIndex;
 
-                int index = AppConstants.languages.indexWhere((language) =>
-                language.imageUrl == languageProvider.selectedLanguageModel?.imageUrl &&
-                    language.languageName == languageProvider.selectedLanguageModel?.languageName &&
-                    language.countryCode == languageProvider.selectedLanguageModel?.countryCode &&
-                    language.languageCode == languageProvider.selectedLanguageModel?.languageCode);
+                if (selectedLanguage == null &&
+                    selectedIndex != null &&
+                    selectedIndex >= 0 &&
+                    selectedIndex < AppConstants.languages.length) {
+                  selectedLanguage = AppConstants.languages[selectedIndex];
+                }
 
+                if (selectedLanguage != null) {
+                  localizationProvider.setLanguage(Locale(
+                    selectedLanguage.languageCode!,
+                    selectedLanguage.countryCode,
+                  ));
 
-
-                
-                if(languageProvider.languages.isNotEmpty && (index != -1 || languageProvider.selectIndex != 1)) {
-
-                  if(index != -1){
-                    localizationProvider.setLanguage(Locale(
-                      AppConstants.languages[index].languageCode!,
-                      AppConstants.languages[index].countryCode,
-                    ));
+                  final int index = AppConstants.languages.indexWhere((language) =>
+                  language.languageCode == selectedLanguage!.languageCode &&
+                      language.countryCode == selectedLanguage.countryCode);
+                  if (index != -1) {
                     languageProvider.setSelectIndex(index);
-
-                  }else if(languageProvider.selectIndex != -1){
-                    localizationProvider.setLanguage(Locale(
-                      AppConstants.languages[languageProvider.selectIndex!].languageCode!,
-                      AppConstants.languages[languageProvider.selectIndex!].countryCode,
-                    ));
-                    languageProvider.setSelectIndex(languageProvider.selectIndex);
                   }
-
 
                   if (fromMenu) {
                     Navigator.pop(context);

@@ -30,6 +30,12 @@ class CategoryProductsSectionWidget extends StatelessWidget {
           return const SizedBox();
         }
 
+        final featuredIds = categoryProvider.featureCategoryMode?.featuredData
+                ?.map((f) => f.category?.id)
+                .whereType<int>()
+                .toSet() ??
+            <int>{};
+
         // Group latest products by their first category id, capped to [_maxProductsPerCategory] per group.
         final Map<int, List<Product>> byCategory = {};
         for (final product in products) {
@@ -38,6 +44,8 @@ class CategoryProductsSectionWidget extends StatelessWidget {
           final rawId = catIds.first.id;
           final int? categoryId = rawId == null ? null : int.tryParse(rawId.toString());
           if (categoryId == null) continue;
+          // Requirement: non-featured categories use the "sections" layout.
+          if (featuredIds.contains(categoryId)) continue;
 
           final list = byCategory.putIfAbsent(categoryId, () => <Product>[]);
           if (list.length < _maxProductsPerCategory) {
@@ -201,7 +209,7 @@ class _CategoryProductGrid extends StatelessWidget {
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisSpacing: 13,
           mainAxisSpacing: 13,
-          childAspectRatio: 1 / 1.4,
+          childAspectRatio: 1 / 1.485,
           crossAxisCount: crossAxisCount,
         ),
         itemCount: products.length,

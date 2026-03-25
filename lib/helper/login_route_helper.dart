@@ -14,7 +14,7 @@ class LoginRouteHelper{
     }else if(fromPage == FromPage.chat.name){
       RouteHelper.getChatRoute(Get.context!, action: RouteAction.pushNamedAndRemoveUntil);
     }else if(fromPage == FromPage.coupon.name){
-      RouteHelper.getCouponRoute(Get.context!, action: RouteAction.pushNamedAndRemoveUntil);
+      RouteHelper.getNotificationRoute(Get.context!, action: RouteAction.pushNamedAndRemoveUntil);
     }else if(fromPage == FromPage.checkOut.name){
      //RouteHelper.getCheckoutRoute(context, amount: amount, deliveryCharge: deliveryCharge)
       RouteHelper.getMainRoute(Get.context, action: RouteAction.pushNamedAndRemoveUntil);

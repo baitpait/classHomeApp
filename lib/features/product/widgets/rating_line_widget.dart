@@ -13,26 +13,37 @@ class RatingLineWidget extends StatelessWidget {
 
     return Consumer<ProductProvider>(
       builder: (context, productProvider, child) {
-        double five = ((productProvider.productDetailsModel?.overallRating?.ratingGroupCount?.fiveStar ?? 0) * 100) / (productProvider.productDetailsModel?.overallRating?.totalReview ?? 0);
-        double four = ((productProvider.productDetailsModel?.overallRating?.ratingGroupCount?.fourStar ?? 0) * 100) / (productProvider.productDetailsModel?.overallRating?.totalReview ?? 0);
-        double three = ((productProvider.productDetailsModel?.overallRating?.ratingGroupCount?.threeStar ?? 0) * 100) / (productProvider.productDetailsModel?.overallRating?.totalReview ?? 0);
-        double two = ((productProvider.productDetailsModel?.overallRating?.ratingGroupCount?.twoStar ?? 0) * 100) / (productProvider.productDetailsModel?.overallRating?.totalReview ?? 0);
-        double one = ((productProvider.productDetailsModel?.overallRating?.ratingGroupCount?.oneStar ?? 0) * 100) / (productProvider.productDetailsModel?.overallRating?.totalReview ?? 0);
+        final total = productProvider.productDetailsModel?.overallRating?.totalReview ?? 0;
+        final counts = productProvider.productDetailsModel?.overallRating?.ratingGroupCount;
+
+        double pct(int count) => total <= 0 ? 0 : (count * 100) / total;
+
+        final fiveCount = counts?.fiveStar ?? 0;
+        final fourCount = counts?.fourStar ?? 0;
+        final threeCount = counts?.threeStar ?? 0;
+        final twoCount = counts?.twoStar ?? 0;
+        final oneCount = counts?.oneStar ?? 0;
+
+        final five = pct(fiveCount);
+        final four = pct(fourCount);
+        final three = pct(threeCount);
+        final two = pct(twoCount);
+        final one = pct(oneCount);
 
         return Column(children: [
-          _RatingLineWidget(rating: five, title: 'excellent'),
+          _RatingLineWidget(rating: five, title: 'excellent', count: fiveCount),
           const SizedBox(height: Dimensions.paddingSizeSmall),
 
-          _RatingLineWidget(rating: four, title: 'good'),
+          _RatingLineWidget(rating: four, title: 'good', count: fourCount),
           const SizedBox(height: Dimensions.paddingSizeSmall),
 
-          _RatingLineWidget(rating: three, title: 'average'),
+          _RatingLineWidget(rating: three, title: 'average', count: threeCount),
           const SizedBox(height: Dimensions.paddingSizeSmall),
 
-          _RatingLineWidget(rating: two, title: 'below_average'),
+          _RatingLineWidget(rating: two, title: 'below_average', count: twoCount),
           const SizedBox(height: Dimensions.paddingSizeSmall),
 
-          _RatingLineWidget(rating: one, title: 'poor'),
+          _RatingLineWidget(rating: one, title: 'poor', count: oneCount),
 
         ]);
       }
@@ -45,7 +56,8 @@ class RatingLineWidget extends StatelessWidget {
 class _RatingLineWidget extends StatelessWidget {
   final double rating;
   final String title;
-  const _RatingLineWidget({ required this.rating, required this.title});
+  final int count;
+  const _RatingLineWidget({ required this.rating, required this.title, required this.count});
 
   @override
   Widget build(BuildContext context) {
@@ -58,15 +70,30 @@ class _RatingLineWidget extends StatelessWidget {
         )),
       ),
 
-      Expanded(flex:ResponsiveHelper.isDesktop(context) ? 8 : 9,child: LinearProgressIndicator(value: rating/100)),
+      Expanded(
+        flex: ResponsiveHelper.isDesktop(context) ? 8 : 9,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(999),
+          child: LinearProgressIndicator(
+            value: rating / 100,
+            minHeight: 8,
+            backgroundColor: Theme.of(context).hintColor.withValues(alpha: 0.12),
+            valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+          ),
+        ),
+      ),
       const SizedBox(width: Dimensions.paddingSizeExtraSmall),
 
       Expanded(
-        flex:ResponsiveHelper.isDesktop(context) ? 1 : 2,
-        child: Text('${rating.toInt()}%',style: rubikRegular.copyWith(
-          color: Theme.of(context).hintColor.withValues(alpha: 0.7),
-          fontSize: Dimensions.fontSizeDefault,
-        )),
+        flex: ResponsiveHelper.isDesktop(context) ? 2 : 3,
+        child: Text(
+          '${rating.toInt()}% ($count)',
+          textAlign: TextAlign.end,
+          style: rubikRegular.copyWith(
+            color: Theme.of(context).hintColor.withValues(alpha: 0.7),
+            fontSize: Dimensions.fontSizeDefault,
+          ),
+        ),
       ),
     ]);
   }

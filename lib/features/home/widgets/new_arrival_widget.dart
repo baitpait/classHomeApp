@@ -36,7 +36,7 @@ class _NewArrivalWidgetState extends State<NewArrivalWidget> {
         final products = productProvider.newArrivalProductsModel!.products!;
 
         final isDesktop = ResponsiveHelper.isDesktop(context);
-        final backgroundColor = ColorResources.getOfferSectionBackground(context);
+        final backgroundColor = ColorResources.getNewArrivalSectionBackground(context);
 
         return isDesktop
             ? CustomSliderListWidget(

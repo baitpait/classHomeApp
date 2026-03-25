@@ -2,8 +2,8 @@ class ReviewModel {
   String? responseCode;
   String? message;
   int? totalSize;
-  String? limit;
-  String? offset;
+  int? limit;
+  int? offset;
   List<Review>? reviews;
   List<String>? errors;
 
@@ -20,15 +20,37 @@ class ReviewModel {
     responseCode = json['response_code'];
     message = json['message'];
     totalSize = json['total_size'];
-    limit = json['limit'];
-    offset = json['offset'];
-    if (json['data'] != null) {
+    limit = _asInt(json['limit']);
+    offset = _asInt(json['offset']);
+    if (json['data'] is List) {
       reviews = <Review>[];
-      json['data'].forEach((v) {
+      (json['data'] as List).forEach((v) {
         reviews!.add(Review.fromJson(v));
       });
     }
-    errors = json['errors'].cast<String>();
+    errors = _asStringList(json['errors']);
+  }
+
+  static int? _asInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    return int.tryParse(value.toString());
+  }
+
+  static List<String> _asStringList(dynamic value) {
+    if (value == null) return <String>[];
+    if (value is List) {
+      return value
+          .map((e) {
+            if (e == null) return null;
+            if (e is String) return e;
+            if (e is Map && e['message'] != null) return e['message'].toString();
+            return e.toString();
+          })
+          .whereType<String>()
+          .toList();
+    }
+    return <String>[value.toString()];
   }
 }
 
@@ -61,7 +83,9 @@ class Review {
     productId = json['product_id'];
     userId = json['user_id'];
     comment = json['comment'];
-    attachment = json['attachment'].cast<String>();
+    attachment = (json['attachment'] is List)
+        ? (json['attachment'] as List).map((e) => e.toString()).toList()
+        : <String>[];
     rating = json['rating'];
     orderId = json['order_id'];
     customer = json['customer'] != null
@@ -113,12 +137,12 @@ class Customer {
         this.imageFullpath});
 
   Customer.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
+    id = _asInt(json['id']);
     fName = json['f_name'];
     lName = json['l_name'];
     email = json['email'];
     image = json['image'];
-    isPhoneVerified = json['is_phone_verified'];
+    isPhoneVerified = _asInt(json['is_phone_verified']);
     emailVerifiedAt = json['email_verified_at'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
@@ -126,10 +150,16 @@ class Customer {
     phone = json['phone'];
     cmFirebaseToken = json['cm_firebase_token'];
     temporaryToken = json['temporary_token'];
-    loginHitCount = json['login_hit_count'];
-    isTempBlocked = json['is_temp_blocked'];
+    loginHitCount = _asInt(json['login_hit_count']);
+    isTempBlocked = _asInt(json['is_temp_blocked']);
     tempBlockTime = json['temp_block_time'];
     loginMedium = json['login_medium'];
     imageFullpath = json['image_fullpath'];
+  }
+
+  static int? _asInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    return int.tryParse(value.toString());
   }
 }

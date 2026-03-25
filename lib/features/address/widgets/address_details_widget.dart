@@ -30,6 +30,7 @@ class AddressDetailsWidget extends StatelessWidget {
   final ValueChanged<String?> onCityChanged;
   final int? selectedAreaId;
   final ValueChanged<int?>? onAreaChanged;
+  final bool showSaveButton;
 
   const AddressDetailsWidget({
     super.key,
@@ -46,6 +47,7 @@ class AddressDetailsWidget extends StatelessWidget {
     required this.onCityChanged,
     this.selectedAreaId,
     this.onAreaChanged,
+    this.showSaveButton = true,
   });
 
   static const _slate = Color(0xFF3A4756);
@@ -211,7 +213,7 @@ class AddressDetailsWidget extends StatelessWidget {
 
           const SizedBox(height: Dimensions.paddingSizeLarge),
 
-          if (ResponsiveHelper.isDesktop(context))
+          if (showSaveButton && ResponsiveHelper.isDesktop(context))
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
               child: AddressButtonWidget(
@@ -270,6 +272,7 @@ class AddressDetailsWidget extends StatelessWidget {
 
   Widget _buildDropdownContainer(BuildContext context, {required Widget child}) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: 2),
       decoration: BoxDecoration(
         border: Border.all(color: Theme.of(context).dividerColor),

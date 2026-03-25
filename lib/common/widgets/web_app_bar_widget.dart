@@ -5,7 +5,6 @@ import 'package:hexacom_user/features/auth/domain/enums/from_page_enum.dart';
 import 'package:hexacom_user/features/search/widgets/search_overlay_widget.dart';
 import 'package:hexacom_user/helper/cart_helper.dart';
 import 'package:hexacom_user/features/profile/providers/profile_provider.dart';
-import 'package:hexacom_user/main.dart';
 import 'package:hexacom_user/provider/theme_provider.dart';
 import 'package:hexacom_user/features/wishlist/providers/wishlist_provider.dart';
 import 'package:hexacom_user/common/widgets/custom_image_widget.dart';
@@ -34,7 +33,6 @@ import 'custom_text_field_widget.dart';
 import 'text_hover_widget.dart';
 import 'language_hover_widget.dart';
 
-
 class WebAppBarWidget extends StatefulWidget implements PreferredSizeWidget {
   const WebAppBarWidget({super.key});
 
@@ -54,18 +52,20 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
 
   @override
   void initState() {
-    Future.delayed(const Duration(milliseconds: 200)).then((_){
-      _searchFocusNode.requestFocus();
-    });
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      Provider.of<LanguageProvider>(context, listen: false).initializeAllLanguages(context);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<LanguageProvider>(context, listen: false).initializeAllLanguages(context);
     final SplashProvider splashProvider = Provider.of<SplashProvider>(context, listen: false);
-    if(Provider.of<SearchProvider>(Get.context!).searchController.text.isNotEmpty){
-      Provider.of<SearchProvider>(Get.context!).getSuggestionList(Provider.of<SearchProvider>(Get.context!).searchController.text, isUpdate: false);
+    final searchProvider = Provider.of<SearchProvider>(context, listen: false);
+    if (searchProvider.searchController.text.isNotEmpty) {
+      searchProvider.getSuggestionList(searchProvider.searchController.text, isUpdate: false);
     }
 
     return Consumer<ThemeProvider>(
@@ -161,10 +161,9 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
             Expanded(child: Container(color: Theme.of(context).cardColor, child: Center(child: SizedBox(
               width: Dimensions.getWebContentWidth(MediaQuery.sizeOf(context).width),
               child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  // Left: logo + main nav
                   Row(children: [
                     InkWell(
                       onTap: () {
@@ -174,8 +173,10 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
                       child: Consumer<SplashProvider>(builder:(context, splash, child) => SizedBox(
                             height: 50, width: 50,
                             child: CustomImageWidget(
-                              placeholder: Images.logo,
-                              image: splash.baseUrls != null ? '${splash.baseUrls!.ecommerceImageUrl}/${splash.configModel!.appLogo}' : '',
+                              placeholder: Images.placeholder(context),
+                              image: (splash.baseUrls != null && (splash.configModel?.appLogo ?? '').isNotEmpty)
+                                  ? '${splash.baseUrls!.ecommerceImageUrl}/${splash.configModel!.appLogo}'
+                                  : '',
                               fit: BoxFit.contain,
                             ),
                           )),
@@ -183,15 +184,13 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
                     const SizedBox(width: 24),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           _NavIconText(
                             icon: Icons.home_filled,
                             label: getTranslated('home', context),
+                            count: 0,
                             onTap: () {
                               Provider.of<ProductProvider>(context, listen: false).offset = 1;
                               RouteHelper.getDashboardRoute(context, 'home');
@@ -201,130 +200,188 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
                           _NavIconText(
                             icon: Icons.store,
                             label: getTranslated('store', context),
+                            count: 0,
                             onTap: () => RouteHelper.getDashboardRoute(context, 'store'),
                           ),
-                          const SizedBox(width: 16),
-                          Consumer<WishListProvider>(builder: (context, wishListProvider, _) => _NavIconText(
-                            icon: Icons.favorite,
-                            label: getTranslated('favourite', context),
-                            count: wishListProvider.wishList?.length ?? 0,
-                            onTap: () => RouteHelper.getDashboardRoute(context, 'favourite'),
-                          )),
-                          const SizedBox(width: 16),
-                          Consumer<CartProvider>(builder: (context, cartProvider, _) => _NavIconText(
-                            icon: Icons.shopping_cart,
-                            label: getTranslated('cart', context),
-                            count: CartHelper.getCartItemCount(cartProvider.cartList),
-                            onTap: () => RouteHelper.getDashboardRoute(context, 'cart', action: RouteAction.push),
-                          )),
-                          const SizedBox(width: 16),
-                          Consumer<AuthProvider>(builder: (context, authProvider, _) => _NavAccountItem(
-                            splashProvider: splashProvider,
-                            onTap: () => !authProvider.isLoggedIn() ? RouteHelper.getLoginRoute(context, FromPage.mainRoute.name) : null,
-                            onHover: authProvider.isLoggedIn() ? (position) => _showPopupMenu(position, context, PopupMenuType.profile) : null,
-                          )),
                         ],
                       ),
                     ),
                   ]),
 
-                  Row(children: [
-                    TextHoverWidget(builder: (isHover)=> Container(
-                      key: _searchBarKey,
-                      width: 400, height: 41,
+                  // Center: expanded search bar (keeps it visually centered)
+                  Expanded(
+                    child: Align(
                       alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(Dimensions.paddingSizeLarge),
-                      ),
-                      child: Consumer<SearchProvider>(builder: (context, search,_)=> Container(
+                      child: TextHoverWidget(builder: (isHover)=> Container(
+                        key: _searchBarKey,
+                        width: 480,
+                        height: 41,
+                        alignment: Alignment.center,
                         decoration: BoxDecoration(
-                            border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha: 0.07), width: 1),
-                            borderRadius: BorderRadius.circular(Dimensions.paddingSizeLarge)
+                          borderRadius: BorderRadius.circular(Dimensions.paddingSizeLarge),
                         ),
-                        child: CustomTextFieldWidget(
-                          contentPadding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall, horizontal: Dimensions.paddingSizeSmall),
-                          hintText: getTranslated('search_items_here', context),
-                          hintFontSize: Dimensions.fontSizeSmall,
-                          fillColor: Colors.transparent,
-                          isShowSuffixIcon: true,
-                          isSearch: true,
-                          isIcon: true,
-                          suffixAssetUrl: search.isSearch ? Images.search : Images.close,
+                        child: Consumer<SearchProvider>(builder: (context, search,_)=> Container(
+                          decoration: BoxDecoration(
+                              border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha: 0.07), width: 1),
+                              borderRadius: BorderRadius.circular(Dimensions.paddingSizeLarge)
+                          ),
+                          child: CustomTextFieldWidget(
+                            contentPadding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall, horizontal: Dimensions.paddingSizeSmall),
+                            hintText: getTranslated('search_items_here', context),
+                            hintFontSize: Dimensions.fontSizeSmall,
+                            fillColor: Colors.transparent,
+                            isShowSuffixIcon: true,
+                            isSearch: true,
+                            isIcon: true,
+                            suffixAssetUrl: search.isSearch ? Images.search : Images.close,
 
-                          onSuffixTap: () {
-                            if(search.searchController.text.isNotEmpty && search.isSearch == true){
-                              Provider.of<SearchProvider>(context,listen: false).saveSearchAddress(search.searchController.text);
-                              RouteHelper.getSearchResultRoute(context, text: search.searchController.text);
+                            onSuffixTap: () {
+                              if(search.searchController.text.isNotEmpty && search.isSearch == true){
+                                Provider.of<SearchProvider>(context,listen: false).saveSearchAddress(search.searchController.text);
+                                RouteHelper.getSearchResultRoute(context, text: search.searchController.text);
 
-                              search.changeSearchStatus();
+                                search.changeSearchStatus();
 
-                            }
-                            else if (search.searchController.text.isNotEmpty && search.isSearch == false) {
-                              search.searchController.clear();
+                              }
+                              else if (search.searchController.text.isNotEmpty && search.isSearch == false) {
+                                search.searchController.clear();
 
-                              search.changeSearchStatus();
-                            }
-                          },
-                          controller: search.searchController,
-                          inputAction: TextInputAction.search,
-                          onSubmit: (text) {
-                            if (search.searchController.text.isNotEmpty) {
-                              Provider.of<SearchProvider>(context,listen: false).saveSearchAddress(search.searchController.text);
-                              RouteHelper.getSearchResultRoute(context, text: search.searchController.text);
+                                search.changeSearchStatus();
+                              }
+                            },
+                            controller: search.searchController,
+                            focusNode: _searchFocusNode,
+                            inputAction: TextInputAction.search,
+                            onChanged: (text) {
+                              debounceWidget.run(() {
+                                Provider.of<SearchProvider>(context, listen: false).getSuggestionList(text);
+                              });
+                            },
+                            onSubmit: (text) {
+                              if (search.searchController.text.isNotEmpty) {
+                                Provider.of<SearchProvider>(context,listen: false).saveSearchAddress(search.searchController.text);
+                                RouteHelper.getSearchResultRoute(context, text: search.searchController.text);
 
-                              search.changeSearchStatus();
-                            }
+                                search.changeSearchStatus();
+                              }
 
-                          },
-                          onTap: _showSearchDialog,
-                        ),
+                            },
+                            onTap: _showSearchDialog,
+                          ),
+                        )),
+
                       )),
+                    ),
+                  ),
 
-                    )),
+                  const SizedBox(width: Dimensions.paddingSizeLarge),
 
-                    const SizedBox(width: Dimensions.paddingSizeExtraLarge),
-
-                    OnHover(child: InkWell(
-                      onTap: () => RouteHelper.getCouponRoute(context, action: RouteAction.push),
-                      child: Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(32),
-                          color: Theme.of(context).primaryColor,
+                  // Right: icons cluster: favourite, cart, notifications, account (tight group)
+                  Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Consumer<WishListProvider>(
+                          builder: (context, wishListProvider, _) {
+                            final count = wishListProvider.wishList?.length ?? 0;
+                            return _IconBadgeButton(
+                              icon: Icons.favorite_outline_rounded,
+                              count: count,
+                              onTap: () => RouteHelper.getDashboardRoute(context, 'favourite'),
+                            );
+                          },
                         ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: Dimensions.paddingSizeDefault,
+                        const SizedBox(width: 12),
+                        Consumer<CartProvider>(
+                          builder: (context, cartProvider, _) {
+                            final count = CartHelper.getCartItemCount(cartProvider.cartList);
+                            return _IconBadgeButton(
+                              icon: Icons.shopping_cart_outlined,
+                              count: count,
+                              onTap: () => RouteHelper.getDashboardRoute(context, 'cart', action: RouteAction.push),
+                            );
+                          },
                         ),
-                        child: Row(children: [
-                          const SizedBox(width: Dimensions.paddingSizeExtraSmall),
-
-                          Image.asset(Images.coupon, height: 16),
-                          const SizedBox(width: Dimensions.paddingSizeSmall),
-
-                          Text(getTranslated('coupon', context), style: rubikMedium.copyWith(
-                            fontSize: Dimensions.fontSizeSmall,
-                            color: Colors.white,
-                          )),
-                          const SizedBox(width: Dimensions.paddingSizeExtraSmall),
-
-                        ]),
-                      ),
-                    )),
-                    const SizedBox(width: Dimensions.paddingSizeLarge),
-
-                    OnHover(child: IconButton(
-                      onPressed: () => RouteHelper.getDashboardRoute(context, 'menu', action: RouteAction.push),
-                      icon: Icon(Icons.menu, size: Dimensions.paddingSizeExtraLarge, color: Theme.of(context).primaryColor),
-                    )),
-
-
-                  ])
-
-                ],
+                        const SizedBox(width: 12),
+                        OnHover(
+                          child: InkWell(
+                            onTap: () => RouteHelper.getNotificationRoute(context, action: RouteAction.push),
+                            borderRadius: BorderRadius.circular(20),
+                            child: Container(
+                              height: 40,
+                              width: 40,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).primaryColor,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.notifications_none_rounded,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Consumer<AuthProvider>(
+                          builder: (context, authProvider, _) {
+                            final isLoggedIn = authProvider.isLoggedIn();
+                            return MouseRegion(
+                              onHover: isLoggedIn
+                                  ? (e) => _showPopupMenu(e.position, context, PopupMenuType.profile)
+                                  : null,
+                              child: InkWell(
+                                onTap: !isLoggedIn
+                                    ? () => RouteHelper.getLoginRoute(context, FromPage.mainRoute.name)
+                                    : null,
+                                borderRadius: BorderRadius.circular(20),
+                                child: Container(
+                                  height: 40,
+                                  width: 40,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Theme.of(context).primaryColor.withValues(alpha: 0.4),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: isLoggedIn
+                                      ? Consumer<ProfileProvider>(
+                                          builder: (context, profileProvider, _) => ClipRRect(
+                                            borderRadius: BorderRadius.circular(20),
+                                            child: CustomImageWidget(
+                                              image:
+                                                  '${splashProvider.baseUrls!.customerImageUrl}/${profileProvider.userInfoModel?.image ?? ''}',
+                                              placeholder: Images.profile,
+                                              placeholderColor: Theme.of(context).primaryColor,
+                                              height: 40,
+                                              width: 40,
+                                            ),
+                                          ),
+                                        )
+                                      : Icon(
+                                          Icons.person_outline_rounded,
+                                          color: Theme.of(context).primaryColor,
+                                          size: 22,
+                                        ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(width: 12),
+                        OnHover(
+                          child: IconButton(
+                            onPressed: () => RouteHelper.getDashboardRoute(context, 'menu', action: RouteAction.push),
+                            icon: Icon(Icons.menu_rounded, size: Dimensions.paddingSizeExtraLarge, color: Theme.of(context).primaryColor),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
               ),
             )))),
-
-
           ]),
         );
       }
@@ -396,99 +453,50 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
     await showDialog(
       context: context,
       barrierColor: Colors.transparent,
-      builder: (context) => Stack(children: [
-        Positioned(
-          top: searchBarPosition.dy,
-          left: searchBarPosition.dx - 50,
-          width: renderBox.size.width + 100,
-          child: Material(
-            color: Colors.transparent,
-            elevation: 0,
-            borderRadius: BorderRadius.circular(30),
-            child: Consumer<SearchProvider>(builder: (context, searchProvider,_) => Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 400, height: 41,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(Dimensions.paddingSizeLarge)
-                  ),
-                  child: Consumer<SearchProvider>(builder: (context, search,_)=> Container(
+      builder: (context) => GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => Navigator.of(context).pop(),
+        child: Stack(
+          children: [
+            Positioned(
+              top: searchBarPosition.dy + renderBox.size.height + 8,
+              left: searchBarPosition.dx,
+              width: renderBox.size.width,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {},
+                child: Material(
+                  color: Colors.transparent,
+                  elevation: 0,
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.7),
                     decoration: BoxDecoration(
-                        border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha: 0.07), width: 1),
-                        borderRadius: BorderRadius.circular(Dimensions.paddingSizeLarge)
-                    ),
-                    child: CustomTextFieldWidget(
-                      contentPadding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall, horizontal: Dimensions.paddingSizeSmall),
-                      hintText: getTranslated('search_items_here', context),
-                      hintFontSize: Dimensions.fontSizeSmall,
-                      fillColor: Colors.transparent,
-                      isShowSuffixIcon: true,
-                      isSearch: true,
-                      isIcon: true,
-                      suffixAssetUrl: search.isSearch ? Images.search : Images.close,
-
-                      onSuffixTap: () {
-                        if(search.searchController.text.isNotEmpty && search.isSearch == true){
-                          Provider.of<SearchProvider>(context,listen: false).saveSearchAddress(search.searchController.text);
-                          RouteHelper.getSearchResultRoute(context, text: search.searchController.text);
-
-                          search.changeSearchStatus();
-
-                        }
-                        else if (search.searchController.text.isNotEmpty && search.isSearch == false) {
-                          search.searchController.clear();
-
-                          search.changeSearchStatus();
-                        }
-                      },
-                      controller: search.searchController,
-                      focusNode: _searchFocusNode,
-                      inputAction: TextInputAction.search,
-                      onChanged: (text){
-                        debounceWidget.run((){
-                          searchProvider.getSuggestionList(text);
-                        });
-                      },
-                      onSubmit: (text) {
-                        if (search.searchController.text.isNotEmpty) {
-                          Provider.of<SearchProvider>(context,listen: false).saveSearchAddress(search.searchController.text);
-                          RouteHelper.getSearchResultRoute(context, text: search.searchController.text);
-
-                          search.changeSearchStatus();
-                        }
-                      },
-                    ),
-                  )),
-
-                ),
-
-                Container(
-                  width: 600,
-                  constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.7),
-
-                  decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
-                      boxShadow: [BoxShadow(
-                        color: Theme.of(context).textTheme.bodyLarge!.color!.withValues(alpha:0.05),
-                        offset: const Offset(0, 5),
-                        spreadRadius: 0,
-                        blurRadius: 15,
-                      )]
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).textTheme.bodyLarge!.color!.withValues(alpha: 0.05),
+                          offset: const Offset(0, 5),
+                          spreadRadius: 0,
+                          blurRadius: 15,
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeLarge, horizontal: 30),
+                    child: SearchOverlayWidget(),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeLarge, horizontal: 30),
-                  child: SearchOverlayWidget(),
                 ),
-              ],
-            )
+              ),
             ),
-          ),
+          ],
         ),
-
-      ]),
+      ),
     );
 
+    if (mounted) {
+      _searchFocusNode.requestFocus();
+    }
 
   }
 }
@@ -508,6 +516,9 @@ class _NavIconText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final baseColor = isDark ? Colors.white : Colors.black87;
+
     return TextHoverWidget(
       builder: (isHover) => OnHover(
         child: InkWell(
@@ -524,7 +535,7 @@ class _NavIconText extends StatelessWidget {
                     Icon(
                       icon,
                       size: Dimensions.paddingSizeExtraLarge,
-                      color: isHover ? Theme.of(context).primaryColor : Colors.black87,
+                      color: isHover ? Theme.of(context).primaryColor : baseColor,
                     ),
                   if (count > 0)
                     Positioned(
@@ -553,7 +564,7 @@ class _NavIconText extends StatelessWidget {
                   label,
                   style: rubikMedium.copyWith(
                     fontSize: Dimensions.fontSizeDefault,
-                    color: isHover ? Theme.of(context).primaryColor : Colors.black87,
+                    color: isHover ? Theme.of(context).primaryColor : baseColor,
                   ),
                 ),
               ],
@@ -565,63 +576,64 @@ class _NavIconText extends StatelessWidget {
   }
 }
 
-class _NavAccountItem extends StatelessWidget {
-  final SplashProvider splashProvider;
-  final VoidCallback? onTap;
-  final void Function(Offset position)? onHover;
+class _IconBadgeButton extends StatelessWidget {
+  final IconData icon;
+  final int count;
+  final VoidCallback onTap;
 
-  const _NavAccountItem({
-    required this.splashProvider,
-    this.onTap,
-    this.onHover,
+  const _IconBadgeButton({
+    required this.icon,
+    required this.onTap,
+    this.count = 0,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isLoggedIn = onHover != null;
-    return TextHoverWidget(
-      builder: (isHover) => OnHover(
-        child: MouseRegion(
-          onHover: onHover != null ? (e) => onHover!(e.position) : null,
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(8),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (isLoggedIn)
-                    Consumer<ProfileProvider>(
-                      builder: (context, profileProvider, _) => ClipRRect(
-                        borderRadius: BorderRadius.circular(Dimensions.radiusSizeFifty),
-                        child: CustomImageWidget(
-                          image: '${splashProvider.baseUrls!.customerImageUrl}/${profileProvider.userInfoModel?.image ?? ''}',
-                          placeholder: Images.profile,
-                          placeholderColor: Theme.of(context).primaryColor,
-                          height: 24,
-                          width: 24,
-                        ),
-                      ),
-                    )
-                  else
-                    Icon(
-                      Icons.person_outline,
-                      size: Dimensions.paddingSizeExtraLarge,
-                      color: isHover ? Theme.of(context).primaryColor : Colors.black87,
-                    ),
-                  const SizedBox(width: 8),
-                  Text(
-                    getTranslated('profile', context),
-                    style: rubikMedium.copyWith(
-                      fontSize: Dimensions.fontSizeDefault,
-                      color: isHover ? Theme.of(context).primaryColor : Colors.black87,
-                    ),
-                  ),
-                ],
+    return OnHover(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Container(
+              height: 40,
+              width: 40,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Theme.of(context).cardColor,
+                border: Border.all(
+                  color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+                  width: 1,
+                ),
+              ),
+              child: Icon(
+                icon,
+                size: 20,
+                color: Theme.of(context).primaryColor,
               ),
             ),
-          ),
+            if (count > 0)
+              Positioned(
+                top: -4,
+                right: -4,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Theme.of(context).primaryColor,
+                    border: Border.all(color: Theme.of(context).cardColor, width: 1),
+                  ),
+                  child: Text(
+                    '$count',
+                    style: rubikRegular.copyWith(
+                      color: Colors.white,
+                      fontSize: Dimensions.fontSizeExtraSmall,
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );

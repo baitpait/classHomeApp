@@ -4,12 +4,11 @@ import 'package:hexacom_user/common/enums/app_mode.dart';
 import 'package:hexacom_user/utill/images.dart';
 
 class AppConstants {
-  static const String appName = 'Mahfooz';
   static const double appVersion = 7.9;  ///Flutter version 3.38.5
-  static const AppMode appMode = AppMode.demo;
+  static const AppMode appMode = AppMode.release;
   static const String fontFamily = 'Exo';
   static const String fontFamilyArabic = 'Cairo';
-  static const String baseUrl = 'http://127.0.0.1:8000';
+  static const String baseUrl = 'https://admin.anagheemhome.com/';
   static const LocalCachesTypeEnum cachesType = LocalCachesTypeEnum.all;
   static const String categoryUri = '/api/v1/categories';
   static const String bannerUri = '/api/v1/banners';
@@ -18,9 +17,8 @@ class AppConstants {
   static const String subCategoryUri = '/api/v1/categories/childes/';
   static const String categoryProductUri = '/api/v1/categories/products/';
   static const String configUri = '/api/v1/config';
+  static const String languageUri = '/api/v1/language';
   static const String trackUri = '/api/v1/customer/order/track';
-  static const String messageUri = '/api/v1/customer/message/get';
-  static const String sendMessageUri = '/api/v1/customer/message/send';
   static const String forgetPasswordUri = '/api/v1/auth/forgot-password';
   static const String verifyTokenUri = '/api/v1/auth/verify-token';
   static const String verifyOtpUri = '/api/v1/auth/verify-otp';
@@ -53,13 +51,7 @@ class AppConstants {
   static const String searchUri = '/api/v1/products/search';
   static const String reviewUri = '/api/v1/products/reviews/submit';
   static const String productDetailsUri = '/api/v1/products/details/';
-  static const String lastLocationUri = '/api/v1/delivery-man/last-location?order_id=';
-  static const String deliverManReviewUri = '/api/v1/delivery-man/reviews/submit';
   static const String productReviewUri = '/api/v1/products/reviews/';
-  static const String distanceMatrixUri = '/api/v1/mapapi/distance-api';
-  static const String searchLocationUri = '/api/v1/mapapi/place-api-autocomplete';
-  static const String placeDetailsUri = '/api/v1/mapapi/place-api-details';
-  static const String geocodeUri = '/api/v1/mapapi/geocode-api';
   static const String customerRemove = '/api/v1/customer/remove-account';
   static const String policyPage = '/api/v1/pages';
   static const String subscribeToTopic = '/api/v1/fcm-subscribe-to-topic';
@@ -75,7 +67,8 @@ class AppConstants {
   static const String deliveryChargeByAreaUri = '/api/v1/config/delivery-charge';
   static const String firebaseAuthVerify = '/api/v1/auth/firebase-auth-verify';
   static const String popularCategory = '/api/v1/categories/popular';
-  static const String placeDigitalOrder = '/api/v1/customer/payment-mobile';
+  static const String tagsUri = '/api/v1/tags';
+  static const String attributesUri = '/api/v1/attributes';
 
   /// Social media links used in the mobile menu.
   /// Leave empty to hide a specific icon.
@@ -84,13 +77,13 @@ class AppConstants {
   static const String twitterUrl = '';
   static const String whatsappUrl = '';
   //MESSAGING
-  static const String getDeliverymanMessageUri = '/api/v1/customer/message/get-order-message';
   static const String getAdminMessageUrl = '/api/v1/customer/message/get-admin-message';
   static const String sendMessageToAdminUrl = '/api/v1/customer/message/send-admin-message';
-  static const String sendMessageToDeliveryManUrl = '/api/v1/customer/message/send/customer';
   static const String addGuest = '/api/v1/guest/add';
   static const String existingAccountCheck = '/api/v1/auth/existing-account-check';
-
+  static const String contactUsUri = '/api/v1/contact-us';
+  static const String customerLoyaltyUri = '/api/v1/customer/loyalty';
+  static const String customerLoyaltyHistoryUri = '/api/v1/customer/loyalty/history';
 
   static const int imageQuality = 80;
 
@@ -126,5 +119,6 @@ class AppConstants {
   static List<LanguageModel> languages = [
     LanguageModel(imageUrl: Images.arabic, languageName: 'Arabic', countryCode: 'SA', languageCode: 'ar'),
     LanguageModel(imageUrl: Images.unitedKingdom, languageName: 'English', countryCode: 'US', languageCode: 'en'),
+    LanguageModel(imageUrl: '', languageName: 'Hebrew', countryCode: 'IL', languageCode: 'he'),
   ];
 }

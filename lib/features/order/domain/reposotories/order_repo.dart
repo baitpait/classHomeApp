@@ -5,7 +5,6 @@ import 'package:hexacom_user/data/datasource/remote/exception/api_error_handler.
 import 'package:hexacom_user/common/models/place_order_model.dart';
 import 'package:hexacom_user/common/models/api_response_model.dart';
 import 'package:hexacom_user/utill/app_constants.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class OrderRepo {
@@ -77,25 +76,6 @@ class OrderRepo {
     }
   }
 
-  Future<ApiResponseModel> getDeliveryManData(String? orderID) async {
-    try {
-      final response = await dioClient!.get('${AppConstants.lastLocationUri}$orderID');
-      return ApiResponseModel.withSuccess(response);
-    } catch (e) {
-      return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
-    }
-  }
-
-  Future<ApiResponseModel> getDistanceInMeter(LatLng originLatLng, LatLng destinationLatLng) async {
-    try {
-      Response response = await dioClient!.get('${AppConstants.distanceMatrixUri}'
-          '?origin_lat=${originLatLng.latitude}&origin_lng=${originLatLng.longitude}'
-          '&destination_lat=${destinationLatLng.latitude}&destination_lng=${destinationLatLng.longitude}');
-      return ApiResponseModel.withSuccess(response);
-    } catch (e) {
-      return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
-    }
-  }
   Future<void> setPlaceOrder(String placeOrder)async{
     await sharedPreferences!.setString(AppConstants.placeOrderData, placeOrder);
   }
@@ -114,15 +94,5 @@ class OrderRepo {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
     }
   }
-
-  Future<ApiResponseModel> placeDigitalOrder(PlaceOrderModel orderBody) async {
-    try {
-      final response = await dioClient!.post(AppConstants.placeDigitalOrder, data: orderBody.toJson());
-      return ApiResponseModel.withSuccess(response);
-    } catch (e) {
-      return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
-    }
-  }
-
 
 }

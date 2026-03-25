@@ -1,15 +1,8 @@
-import 'dart:async';
-import 'package:hexacom_user/common/models/api_response_model.dart';
 import 'package:hexacom_user/common/models/check_out_model.dart';
 import 'package:hexacom_user/common/models/config_model.dart';
 import 'package:hexacom_user/common/models/response_model.dart';
-import 'package:hexacom_user/features/order/domain/models/distance_model.dart';
 import 'package:hexacom_user/features/order/domain/reposotories/order_repo.dart';
-import 'package:hexacom_user/localization/language_constrants.dart';
-import 'package:hexacom_user/main.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 
 class CheckoutProvider extends ChangeNotifier {
@@ -27,9 +20,7 @@ class CheckoutProvider extends ChangeNotifier {
   PaymentMethod? _selectedPaymentMethod;
   bool _showBringChangeInputOption = false;
   String? _bringChangeAmount;
-
-
-
+  bool _useLoyaltyPoints = false;
 
   int? get paymentMethodIndex => _paymentMethodIndex;
   ResponseModel? get responseModel => _responseModel;
@@ -42,6 +33,7 @@ class CheckoutProvider extends ChangeNotifier {
   PaymentMethod? get selectedPaymentMethod => _selectedPaymentMethod;
   bool get showBringChangeInputOption => _showBringChangeInputOption;
   String? get bringChangeAmount => _bringChangeAmount;
+  bool get useLoyaltyPoints => _useLoyaltyPoints;
 
 
 
@@ -66,6 +58,12 @@ class CheckoutProvider extends ChangeNotifier {
     _paymentMethod = null;
     _selectedPaymentMethod = null;
     _bringChangeAmount = null;
+    _useLoyaltyPoints = false;
+  }
+
+  void setUseLoyaltyPoints(bool value, {bool notify = true}) {
+    _useLoyaltyPoints = value;
+    if (notify) notifyListeners();
   }
 
 
@@ -83,26 +81,9 @@ class CheckoutProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> getDistanceInMeter(LatLng originLatLng, LatLng destinationLatLng) async {
-    _distance = -1;
-    bool isSuccess = false;
-    ApiResponseModel response = await orderRepo.getDistanceInMeter(originLatLng, destinationLatLng);
-    try {
-      if (response.response!.statusCode == 200) {
-        isSuccess = true;
-        _distance = (DistanceModel.fromJson(response.response!.data[0]).distanceMeters ?? 0) / 1000;
-      } else {
-        _distance = Geolocator.distanceBetween(
-          originLatLng.latitude, originLatLng.longitude, destinationLatLng.latitude, destinationLatLng.longitude,
-        ) / 1000;
-      }
-    } catch (e) {
-      _distance = Geolocator.distanceBetween(
-        originLatLng.latitude, originLatLng.longitude, destinationLatLng.latitude, destinationLatLng.longitude,
-      ) / 1000;
-    }
-    notifyListeners();
-    return isSuccess;
+  void setDistance(double value, {bool notify = true}) {
+    _distance = value;
+    if (notify) notifyListeners();
   }
 
 
@@ -121,7 +102,7 @@ class CheckoutProvider extends ChangeNotifier {
       _selectedPaymentMethod = method.copyWith('online');
     }else if(index != null && index == 0){
       _selectedPaymentMethod = PaymentMethod(
-        getWayTitle: getTranslated('cash_on_delivery', Get.context!),
+        getWayTitle: 'Cash on delivery',
         getWay: 'cash_on_delivery',
         type: 'cash_on_delivery',
       );

@@ -25,7 +25,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_html/html.dart' as html;
-import 'dart:convert'as convert;
 
 
 class PlaceOrderButtonView extends StatelessWidget {
@@ -44,27 +43,6 @@ class PlaceOrderButtonView extends StatelessWidget {
     required this.cartList, required this.orderNote, this.scrollController, this.dropdownKey
   });
 
-
-  void _openDropdown() {
-    final dropdownContext = dropdownKey?.currentContext;
-
-    if (dropdownContext != null) {
-      GestureDetector? detector;
-      void searchGestureDetector(BuildContext context) {
-        context.visitChildElements((element) {
-          if (element.widget is GestureDetector) {
-            detector = element.widget as GestureDetector?;
-          } else {
-            searchGestureDetector(element);
-          }
-        });
-      }
-      searchGestureDetector(dropdownContext);
-
-      detector?.onTap?.call();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final AddressProvider locationProvider = Provider.of<AddressProvider>(context, listen: false);
@@ -72,8 +50,6 @@ class PlaceOrderButtonView extends StatelessWidget {
     final AuthProvider authProvider = Provider.of<AuthProvider>(Get.context!, listen: false);
     bool selfPickup = orderType == 'self_pickup';
     final List<Branches> branches = Provider.of<SplashProvider>(context, listen: false).configModel!.branches ?? [];
-    final Size size = MediaQuery.sizeOf(context);
-
 
     return Consumer<CheckoutProvider>(
         builder: (context, checkoutProvider, _) {
@@ -117,8 +93,7 @@ class PlaceOrderButtonView extends StatelessWidget {
                     //   showCustomSnackBar(getTranslated('delivery_fee_not_set_yet', context), context);
                     // }
                     else if((CheckOutHelper.getDeliveryChargeType(context) == DeliveryChargeType.area.name) && (orderProvider.selectedAreaID == null) && !selfPickup){
-                      await scrollController?.animateTo(ResponsiveHelper.isDesktop(context) ? size.height * 0.08 : 0, duration: const Duration(milliseconds: 100), curve: Curves.ease);
-                      _openDropdown();
+                      showCustomSnackBar(getTranslated('select_delivery_address', context), context, isError: true);
                     }else {
 
                       String? hostname = html.window.location.hostname;
@@ -138,6 +113,10 @@ class PlaceOrderButtonView extends StatelessWidget {
                           ? 'cash_on_delivery'
                           : checkoutProvider.selectedPaymentMethod!.getWay!;
 
+                      final int loyaltyPointsToUse = (authProvider.isLoggedIn() && checkoutProvider.useLoyaltyPoints)
+                          ? (profileProvider.userInfoModel?.loyaltyPoints ?? 0)
+                          : 0;
+
                       PlaceOrderModel placeOrderBody = PlaceOrderModel(
                         cart: carts, couponDiscountAmount: Provider.of<CouponProvider>(context, listen: false).discount, couponDiscountTitle: '',
                         deliveryAddressId: !selfPickup ? locationProvider.addressList![checkoutProvider.orderAddressIndex].id : 0,
@@ -154,31 +133,30 @@ class PlaceOrderButtonView extends StatelessWidget {
                         paymentPlatform: kIsWeb ? 'web' : 'app',
                         callBack: ResponsiveHelper.isWeb() ?
                         '$protocol//$hostname${kDebugMode ? ':$port' : ''}${RouteHelper.orderWebPayment}' :
-                        '${AppConstants.baseUrl}${RouteHelper.orderSuccessScreen}'
+                        '${AppConstants.baseUrl}${RouteHelper.orderSuccessScreen}',
+                        loyaltyPointsUsed: loyaltyPointsToUse,
                       );
+                      final configModel = Provider.of<SplashProvider>(context, listen: false).configModel;
+                      if (authProvider.isLoggedIn() && (configModel?.loyaltyPointsEnabled ?? false)) {
+                        final amountForOne = configModel!.loyaltyAmountForOnePoint ?? 10;
+                        final pointsPer = configModel.loyaltyPointsPerAmount ?? 1;
+                        final orderAmt = placeOrderBody.orderAmount ?? 0;
+                        if (amountForOne > 0 && orderAmt > 0) {
+                          final pts = ((orderAmt / amountForOne).floor() * pointsPer).round();
+                          orderProvider.setLastExpectedPointsForSuccess(pts);
+                        } else {
+                          orderProvider.setLastExpectedPointsForSuccess(null);
+                        }
+                      } else {
+                        orderProvider.setLastExpectedPointsForSuccess(null);
+                      }
                       if(placeOrderBody.paymentMethod == 'cash_on_delivery'){
 
                         debugPrint('------------(PLACE ORDER MODEL)-------------${placeOrderBody.toJson().toString()}');
 
                         orderProvider.placeOrder(context, placeOrderBody, _callback);
                       }else{
-
-                        final String placeOrder =  convert.base64Url.encode(convert.utf8.encode(convert.jsonEncode(placeOrderBody.toJson())));
-                        orderProvider.placeDigitalOrder(context, placeOrderBody).then((selectedUrl){
-                          if(selectedUrl.isNotEmpty){
-                            orderProvider.clearPlaceOrderData().then((_) => orderProvider.setPlaceOrderData(placeOrder).then((value) {
-                              if(ResponsiveHelper.isWeb()){
-
-                                html.window.open(selectedUrl,"_self");
-
-                              }else{
-                                RouteHelper.getPaymentRoute(context, url: selectedUrl, action: RouteAction.push);
-                              }
-
-                            }));
-                          }
-                        });
-
+                        showCustomSnackBar(getTranslated('online_payment_disabled', context), context);
                       }
                     }
                   });
@@ -193,15 +171,13 @@ class PlaceOrderButtonView extends StatelessWidget {
   void _callback(BuildContext context, bool isSuccess, String message, String orderID) async {
 
     final CheckoutProvider checkoutProvider = Provider.of<CheckoutProvider>(Get.context!, listen: false);
+    final OrderProvider orderProvider = Provider.of<OrderProvider>(Get.context!, listen: false);
 
     if(isSuccess) {
       Provider.of<CartProvider>(Get.context!, listen: false).clearCartList();
 
       if(checkoutProvider.selectedPaymentMethod?.getWay == 'cash_on_delivery') {
-        // if(ResponsiveHelper.isWeb()) {
-        //   Navigator.pop(Get.context!);
-        // }
-        RouteHelper.getOrderSuccessScreen(context, orderID, "success", action: RouteAction.push);
+        RouteHelper.getOrderSuccessScreen(context, orderID, "success", expectedPoints: orderProvider.lastExpectedPointsForSuccess, action: RouteAction.push);
       }
 
     }else {

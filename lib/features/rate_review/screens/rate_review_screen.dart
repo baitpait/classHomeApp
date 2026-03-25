@@ -7,7 +7,6 @@ import 'package:hexacom_user/localization/language_constrants.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:hexacom_user/utill/styles.dart';
 import 'package:hexacom_user/common/widgets/custom_app_bar_widget.dart';
-import 'package:hexacom_user/features/rate_review/widgets/deliver_man_review_widget.dart';
 import 'package:hexacom_user/features/rate_review/widgets/product_review_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -27,7 +26,7 @@ class _RateReviewScreenState extends State<RateReviewScreen> with TickerProvider
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: widget.deliveryMan == null ? 1 : 2, initialIndex: 0, vsync: this);
+    _tabController = TabController(length: 1, initialIndex: 0, vsync: this);
 
     Provider.of<RateReviewProvider>(context, listen: false).initRatingData(widget.orderDetailsList!);
   }
@@ -46,26 +45,17 @@ class _RateReviewScreenState extends State<RateReviewScreen> with TickerProvider
             indicatorWeight: 3,
             unselectedLabelStyle: rubikRegular.copyWith(color: Theme.of(context).hintColor, fontSize: Dimensions.fontSizeSmall),
             labelStyle: rubikMedium.copyWith(fontSize: Dimensions.fontSizeSmall),
-            tabs: widget.deliveryMan == null ? [
+            tabs: [
               Tab(text: getTranslated((widget.orderDetailsList?.length ?? 0) > 1 ? 'items' : 'item', context)),
-            ] : [
-              Tab(text: getTranslated((widget.orderDetailsList?.length ?? 0) > 1 ? 'items' : 'item', context)),
-
-              Tab(text: getTranslated('delivery_man', context)),
-            ] ,
+            ],
           ),
         )),
 
         Expanded(child: TabBarView(
           controller: _tabController,
-          children: widget.deliveryMan == null ?
-          [
+          children: [
             ProductReviewWidget(orderDetailsList: widget.orderDetailsList),
-          ]
-              : [
-            ProductReviewWidget(orderDetailsList: widget.orderDetailsList),
-            DeliveryManReviewWidget(deliveryMan: widget.deliveryMan, orderID: widget.orderId.toString()),
-          ] ,
+          ],
         )),
 
     ]),

@@ -4,6 +4,7 @@ import 'package:hexacom_user/utill/feature_flags.dart';
 class ConfigModel {
   String? _ecommerceName;
   String? _appLogo;
+  String? _favIcon;
   String? _ecommerceAddress;
   String? _ecommercePhone;
   String? _ecommerceEmail;
@@ -48,10 +49,18 @@ class ConfigModel {
   List<String>? _cities;
   List<AreaModel>? _areas;
   List<CityModel>? _citiesStructured;
+  double? _loyaltyPointRedemptionValue;
+  bool? _loyaltyPointsEnabled;
+  double? _loyaltyAmountForOnePoint;
+  double? _loyaltyPointsPerAmount;
+  Map<String, dynamic>? _loyaltyLevels;
+  String? _storeGoogleMapsUrl;
+  String? _googleMapsLocationUrl;
 
   ConfigModel(
       {String? ecommerceName,
         String? appLogo,
+        String? favIcon,
         String? ecommerceAddress,
         String? ecommercePhone,
         String? ecommerceEmail,
@@ -97,6 +106,7 @@ class ConfigModel {
       }) {
     _ecommerceName = ecommerceName;
     _appLogo = appLogo;
+    _favIcon = favIcon;
     _ecommerceAddress = ecommerceAddress;
     _ecommercePhone = ecommercePhone;
     _ecommerceEmail = ecommerceEmail;
@@ -151,6 +161,7 @@ class ConfigModel {
 
   String? get ecommerceName => _ecommerceName;
   String? get appLogo => _appLogo;
+  String? get favIcon => _favIcon;
   String? get ecommerceAddress => _ecommerceAddress;
   String? get ecommercePhone => _ecommercePhone;
   String? get ecommerceEmail => _ecommerceEmail;
@@ -197,14 +208,22 @@ class ConfigModel {
 
   set setFetchedFromOnline(bool value) => _fetchedFromOnline = value;
   int? get maxImageUploadSize => _maxImageUploadSize;
+  double? get loyaltyPointRedemptionValue => _loyaltyPointRedemptionValue;
+  bool? get loyaltyPointsEnabled => _loyaltyPointsEnabled;
+  double? get loyaltyAmountForOnePoint => _loyaltyAmountForOnePoint;
+  double? get loyaltyPointsPerAmount => _loyaltyPointsPerAmount;
+  Map<String, dynamic>? get loyaltyLevels => _loyaltyLevels;
+  String? get storeGoogleMapsUrl => _storeGoogleMapsUrl;
+  String? get googleMapsLocationUrl => _googleMapsLocationUrl;
 
 
   ConfigModel.fromJson(Map<String, dynamic> json) {
-    _ecommerceName = json['ecommerce_name'];
-    _appLogo = json['app_logo'];
-    _ecommerceAddress = json['ecommerce_address'];
-    _ecommercePhone = json['ecommerce_phone'];
-    _ecommerceEmail = json['ecommerce_email'];
+    _ecommerceName = json['ecommerce_name']?.toString();
+    _appLogo = json['app_logo']?.toString();
+    _favIcon = json['fav_icon']?.toString();
+    _ecommerceAddress = json['ecommerce_address']?.toString();
+    _ecommercePhone = json['ecommerce_phone']?.toString();
+    _ecommerceEmail = json['ecommerce_email']?.toString();
     _ecommerceLocationCoverage = json['ecommerce_location_coverage'] != null
         ? EcommerceLocationCoverage.fromJson(
         json['ecommerce_location_coverage'])
@@ -214,7 +233,7 @@ class ConfigModel {
     _baseUrls = json['base_urls'] != null
         ? BaseUrls.fromJson(json['base_urls'])
         : null;
-    _currencySymbol = json['currency_symbol'];
+    _currencySymbol = json['currency_symbol']?.toString();
     _deliveryCharge = json['delivery_charge'].toDouble();
     _cashOnDelivery = '${json['cash_on_delivery']}'.contains('true');
     _digitalPayment = '${json['digital_payment']}'.contains('true');
@@ -224,13 +243,13 @@ class ConfigModel {
         _branches!.add(Branches.fromJson(v));
       });
     }
-    _termsAndConditions = json['terms_and_conditions'];
-    _privacyPolicy = json['privacy_policy'];
-    _aboutUs = json['about_us'];
+    _termsAndConditions = json['terms_and_conditions']?.toString();
+    _privacyPolicy = json['privacy_policy']?.toString();
+    _aboutUs = json['about_us']?.toString();
     _emailVerification = json['email_verification'];
     _phoneVerification = json['phone_verification'];
-    _currencySymbolPosition = json['currency_symbol_position'];
-    _countryCode = json['country'];
+    _currencySymbolPosition = json['currency_symbol_position']?.toString();
+    _countryCode = json['country']?.toString();
     _googleMapStatus = FeatureFlags.disableMap ? false : ('${json['google_map_status']}' == '1');
     _customerLogin = json['customer_login'] != null
         ? CustomerLogin.fromJson(json['customer_login'])
@@ -256,7 +275,7 @@ class ConfigModel {
     }
 
     if(json['software_version'] != null && json['software_version'] != ''){
-      _softwareVersion = json['software_version'];
+      _softwareVersion = json['software_version']?.toString();
     }
     _otpResendTime =  int.tryParse('${json['otp_resend_time']}');
     _cookiesManagement = json['cookies_management'] != null
@@ -301,6 +320,29 @@ class ConfigModel {
         _cities = List<String>.from(list.map((e) => e.toString()));
       }
     }
+    _loyaltyPointRedemptionValue = json['loyalty_point_redemption_value'] != null
+        ? (json['loyalty_point_redemption_value'] is num
+            ? (json['loyalty_point_redemption_value'] as num).toDouble()
+            : double.tryParse('${json['loyalty_point_redemption_value']}'))
+        : null;
+    _loyaltyPointsEnabled = json['loyalty_points_enabled'] == 1 || json['loyalty_points_enabled'] == true;
+    _loyaltyAmountForOnePoint = json['loyalty_amount_for_one_point'] != null
+        ? (json['loyalty_amount_for_one_point'] is num
+            ? (json['loyalty_amount_for_one_point'] as num).toDouble()
+            : double.tryParse('${json['loyalty_amount_for_one_point']}'))
+        : null;
+    _loyaltyPointsPerAmount = json['loyalty_points_per_amount'] != null
+        ? (json['loyalty_points_per_amount'] is num
+            ? (json['loyalty_points_per_amount'] as num).toDouble()
+            : double.tryParse('${json['loyalty_points_per_amount']}'))
+        : null;
+    if (json['loyalty_levels'] != null && json['loyalty_levels'] is Map) {
+      _loyaltyLevels = Map<String, dynamic>.from(json['loyalty_levels'] as Map);
+    }
+
+    // Back-end provides both keys; both are identical for Flutter compatibility.
+    _storeGoogleMapsUrl = json['store_google_maps_url']?.toString() ?? '';
+    _googleMapsLocationUrl = json['google_maps_location_url']?.toString() ?? _storeGoogleMapsUrl ?? '';
   }
 
 
@@ -308,6 +350,7 @@ class ConfigModel {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['ecommerce_name'] = _ecommerceName;
     data['app_logo'] = _appLogo;
+    data['fav_icon'] = _favIcon;
     data['ecommerce_address'] = _ecommerceAddress;
     data['ecommerce_phone'] = _ecommercePhone;
     data['ecommerce_email'] = _ecommerceEmail;
@@ -418,8 +461,8 @@ class EcommerceLocationCoverage {
   double? get coverage => _coverage;
 
   EcommerceLocationCoverage.fromJson(Map<String, dynamic> json) {
-    _longitude = json['longitude'];
-    _latitude = json['latitude'];
+    _longitude = json['longitude']?.toString();
+    _latitude = json['latitude']?.toString();
     _coverage = json['coverage'].toDouble();
   }
 
@@ -449,10 +492,10 @@ class PlayStoreConfig{
   PlayStoreConfig.fromJson(Map<String, dynamic> json) {
     _status = json['status'];
     if(json['link']!=null){
-      _link = json['link'];
+      _link = json['link']?.toString();
     }
     if(json['min_version']!=null && json['min_version']!='' ){
-      _minVersion = double.parse(json['min_version']);
+      _minVersion = double.tryParse('${json['min_version']}');
     }
   }
   Map<String, dynamic> toJson() {
@@ -484,10 +527,10 @@ class AppStoreConfig{
   AppStoreConfig.fromJson(Map<String, dynamic> json) {
     _status = json['status'];
     if(json['link']!=null){
-      _link = json['link'];
+      _link = json['link']?.toString();
     }
     if(json['min_version'] !=null  && json['min_version']!=''){
-      _minVersion = double.parse(json['min_version']);
+      _minVersion = double.tryParse('${json['min_version']}');
     }
 
   }
@@ -510,8 +553,8 @@ class AppleLogin {
 
   AppleLogin.fromJson(Map<String, dynamic> json) {
     status = '${json['status']}' == '1';
-    medium = json['login_medium'];
-    clientId = json['client_id'];
+    medium = json['login_medium']?.toString();
+    clientId = json['client_id']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -544,8 +587,8 @@ class SocialMediaLink{
 
   SocialMediaLink.fromJson(Map<String, dynamic> json) {
     _id = json['id'];
-    _name = json['name'];
-    _link = json['link'];
+    _name = json['name']?.toString();
+    _link = json['link']?.toString();
     _status = json['status'];
 
   }
@@ -607,15 +650,15 @@ class BaseUrls {
   String? get getWayImageUrl => _getWayImageUrl;
 
   BaseUrls.fromJson(Map<String, dynamic> json) {
-    _productImageUrl = json['product_image_url'];
-    _customerImageUrl = json['customer_image_url'];
-    _bannerImageUrl = json['banner_image_url'];
-    _reviewImageUrl = json['review_image_url'];
-    _notificationImageUrl = json['notification_image_url'];
-    _ecommerceImageUrl = json['ecommerce_image_url'];
-    _deliveryManImageUrl = json['delivery_man_image_url'];
-    _chatImageUrl = json['chat_image_url'];
-    _getWayImageUrl = json['gateway_image_url'];
+    _productImageUrl = json['product_image_url']?.toString();
+    _customerImageUrl = json['customer_image_url']?.toString();
+    _bannerImageUrl = json['banner_image_url']?.toString();
+    _reviewImageUrl = json['review_image_url']?.toString();
+    _notificationImageUrl = json['notification_image_url']?.toString();
+    _ecommerceImageUrl = json['ecommerce_image_url']?.toString();
+    _deliveryManImageUrl = json['delivery_man_image_url']?.toString();
+    _chatImageUrl = json['chat_image_url']?.toString();
+    _getWayImageUrl = json['gateway_image_url']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -668,11 +711,11 @@ class Branches {
 
   Branches.fromJson(Map<String, dynamic> json) {
     _id = json['id'];
-    _name = json['name'];
-    _email = json['email'];
-    _longitude = json['longitude'];
-    _latitude = json['latitude'];
-    _address = json['address'];
+    _name = json['name']?.toString();
+    _email = json['email']?.toString();
+    _longitude = json['longitude']?.toString();
+    _latitude = json['latitude']?.toString();
+    _address = json['address']?.toString();
     _coverage = json['coverage'].toDouble();
   }
 
@@ -766,7 +809,7 @@ class Whatsapp {
 
   Whatsapp.fromJson(Map<String, dynamic> json) {
     status = '${json['status']}'.contains('1');
-    number = json['number'];
+    number = json['number']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -785,7 +828,7 @@ class Telegram {
 
   Telegram.fromJson(Map<String, dynamic> json) {
     status = '${json['status']}'.contains('1');
-    userName = json['user_name'];
+    userName = json['user_name']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -804,7 +847,7 @@ class Messenger {
 
   Messenger.fromJson(Map<String, dynamic> json) {
     status = '${json['status']}'.contains('1');
-    userName = json['user_name'];
+    userName = json['user_name']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -951,8 +994,8 @@ class MaintenanceMessages {
   MaintenanceMessages.fromJson(Map<String, dynamic> json) {
     businessNumber = '${json['business_number']}'.contains('1');
     businessEmail = '${json['business_email']}'.contains('1');
-    maintenanceMessage = json['maintenance_message'];
-    messageBody = json['message_body'];
+    maintenanceMessage = json['maintenance_message']?.toString();
+    messageBody = json['message_body']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -992,9 +1035,9 @@ class MaintenanceTypeAndDuration {
   set endDate(String? endDate) => _endDate = endDate;
 
   MaintenanceTypeAndDuration.fromJson(Map<String, dynamic> json) {
-    _maintenanceDuration = json['maintenance_duration'];
-    _startDate = json['start_date'];
-    _endDate = json['end_date'];
+    _maintenanceDuration = json['maintenance_duration']?.toString();
+    _startDate = json['start_date']?.toString();
+    _endDate = json['end_date']?.toString();
   }
 
   Map<String, dynamic> toJson() {

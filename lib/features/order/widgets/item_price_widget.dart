@@ -9,14 +9,22 @@ import 'package:flutter/material.dart';
 
 class ItemPriceWidget extends StatelessWidget {
   final double itemsPrice;
-  final double tax;
   final double subTotal;
   final double discount;
   final double? extraDiscount;
   final OrderProvider order;
   final double? deliveryCharge;
   final double total;
-  const ItemPriceWidget({super.key, required this.itemsPrice, required this.tax, required this.subTotal, required this.discount, required this.order, required this.deliveryCharge, required this.total, this.extraDiscount});
+  const ItemPriceWidget({
+    super.key,
+    required this.itemsPrice,
+    required this.subTotal,
+    required this.discount,
+    required this.order,
+    required this.deliveryCharge,
+    required this.total,
+    this.extraDiscount,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,17 +38,11 @@ class ItemPriceWidget extends StatelessWidget {
         boxShadow: [BoxShadow(color: Theme.of(context).shadowColor.withValues(alpha: 0.10), blurRadius: 18, spreadRadius: 0, offset: const Offset(0, 4))],
       ),
       child: Column(children: [
-
         CartItemWidget(
           title: getTranslated('items_price', context),
           subTitle: PriceConverterHelper.convertPrice(itemsPrice),
         ),
         const SizedBox(height: Dimensions.paddingSizeDefault),
-
-        CartItemWidget(
-          title: getTranslated('tax', context),
-          subTitle: PriceConverterHelper.convertPrice( tax),
-        ),
 
         const Divider(height: 20),
 

@@ -32,6 +32,13 @@ class DataSyncRepo {
   Future<ApiResponseModel<T>> _fetchFromClient<T>(String uri) async {
     final response = await dioClient.get(uri);
 
+    // Guard against unexpected HTML responses (e.g. Flutter web index.html instead of JSON API)
+    final contentType = response.headers.value('content-type') ?? '';
+    final body = response.data;
+    if (contentType.contains('text/html') || (body is String && body.trimLeft().startsWith('<!DOCTYPE html'))) {
+      throw const FormatException('Unexpected HTML response from API. Please check baseUrl and endpoint.');
+    }
+
     // Prepare the cache data
     final cacheData = CacheResponseCompanion(
       endPoint: Value(uri),

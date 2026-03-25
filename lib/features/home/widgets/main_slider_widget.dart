@@ -7,7 +7,6 @@ import 'package:hexacom_user/helper/product_helper.dart';
 import 'package:hexacom_user/helper/responsive_helper.dart';
 import 'package:hexacom_user/features/splash/providers/splash_provider.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
-import 'package:hexacom_user/utill/images.dart';
 import 'package:hexacom_user/utill/styles.dart';
 import 'package:hexacom_user/common/widgets/custom_image_widget.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +17,8 @@ class MainSliderWidget extends StatefulWidget {
   final BannerType bannerType;
   final bool isMainOnly;
   const MainSliderWidget({super.key, required this.bannerList, required this.bannerType, this.isMainOnly = false});
+
+  static const double webBannerRadius = 12.0;
 
   @override
   State<MainSliderWidget> createState() => _MainSliderWidgetState();
@@ -71,94 +72,96 @@ class _MainSliderWidgetState extends State<MainSliderWidget> {
     final list = widget.bannerList!;
     final size = MediaQuery.sizeOf(context);
     const height = 420.0;
+    final radius = BorderRadius.circular(MainSliderWidget.webBannerRadius);
 
-    return SizedBox(
-      height: height,
-      width: double.infinity,
-      child: Stack(
-        alignment: Alignment.bottomCenter,
-        children: [
-          SizedBox(
-            height: height,
-            width: double.infinity,
-            child: PageView.builder(
-              controller: _pageController,
-              itemCount: list.length,
-              onPageChanged: (i) => setState(() => currentIndex = i),
-              itemBuilder: (context, index) {
-                final delta = (_pageOffset - index).abs();
-                final opacity = (1.0 - delta.clamp(0.0, 1.0)).clamp(0.0, 1.0);
-                return Opacity(
-                  opacity: opacity,
-                  child: InkWell(
-                    onTap: () => ProductHelper.onTapBannerForRoute(list[index], context),
-                    child: ClipRect(
+    return ClipRRect(
+      borderRadius: radius,
+      child: SizedBox(
+        height: height,
+        width: double.infinity,
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            SizedBox(
+              height: height,
+              width: double.infinity,
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: list.length,
+                onPageChanged: (i) => setState(() => currentIndex = i),
+                itemBuilder: (context, index) {
+                  final delta = (_pageOffset - index).abs();
+                  final opacity = (1.0 - delta.clamp(0.0, 1.0)).clamp(0.0, 1.0);
+                  return Opacity(
+                    opacity: opacity,
+                    child: InkWell(
+                      onTap: () => ProductHelper.onTapBannerForRoute(list[index], context),
                       child: CustomImageWidget(
-                        placeholder: Images.placeHolderOneToOne,
                         image: '${Provider.of<SplashProvider>(context, listen: false).baseUrls!.bannerImageUrl}/${list[index].image}',
                         width: size.width,
                         height: height,
                         fit: BoxFit.cover,
+                        useShimmerPlaceholder: true,
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
-          // Gradient overlay at bottom for dot visibility
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Container(
-              height: 80,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, Colors.black.withValues(alpha: 0.25)],
+            // Gradient overlay at bottom for dot visibility
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                height: 80,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Colors.transparent, Colors.black.withValues(alpha: 0.25)],
+                  ),
                 ),
               ),
             ),
-          ),
-          // Dot indicators
-          Positioned(
-            bottom: 20,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: List.generate(list.length, (i) {
-                final isActive = i == currentIndex;
-                return GestureDetector(
-                  onTap: () {
-                    _pageController.animateToPage(
-                      i,
-                      duration: const Duration(milliseconds: 400),
-                      curve: Curves.easeOutCubic,
-                    );
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 250),
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    height: 8,
-                    width: isActive ? 24 : 8,
-                    decoration: BoxDecoration(
-                      color: isActive ? Colors.white : Colors.white.withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(4),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.2),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
+            // Dot indicators
+            Positioned(
+              bottom: 20,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: List.generate(list.length, (i) {
+                  final isActive = i == currentIndex;
+                  return GestureDetector(
+                    onTap: () {
+                      _pageController.animateToPage(
+                        i,
+                        duration: const Duration(milliseconds: 400),
+                        curve: Curves.easeOutCubic,
+                      );
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      height: 8,
+                      width: isActive ? 24 : 8,
+                      decoration: BoxDecoration(
+                        color: isActive ? Colors.white : Colors.white.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(4),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              }),
+                  );
+                }),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -238,9 +241,6 @@ class _MainSliderWidgetState extends State<MainSliderWidget> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(mobileRadius),
                             child: CustomImageWidget(
-                              placeholder: widget.isMainOnly
-                                  ? Images.placeHolderOneToOne
-                                  : Images.placeholder(context),
                               image:
                                   '${Provider.of<SplashProvider>(context, listen: false).baseUrls!.bannerImageUrl}/${widget.bannerList![index].image}',
                               width: widget.bannerType == BannerType.primary
@@ -254,6 +254,7 @@ class _MainSliderWidgetState extends State<MainSliderWidget> {
                                       ? 420
                                       : mobileHeight),
                               fit: BoxFit.cover,
+                              useShimmerPlaceholder: true,
                             ),
                           ),
                         ),

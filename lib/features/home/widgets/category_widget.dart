@@ -57,6 +57,20 @@ class _CategoryWidgetState extends State<CategoryWidget> {
         }
 
         final theme = Theme.of(context);
+        final featuredIds = category.featureCategoryMode?.featuredData
+                ?.map((f) => f.category?.id)
+                .whereType<int>()
+                .toSet() ??
+            <int>{};
+
+        // Requirement: show this slider only for featured categories.
+        final featuredCategories = category.categoryList!
+            .where((c) => c.id != null && featuredIds.contains(c.id))
+            .toList();
+
+        if (featuredCategories.isEmpty) {
+          return const SizedBox.shrink();
+        }
 
         return Container(
           width: double.infinity,
@@ -85,15 +99,15 @@ class _CategoryWidgetState extends State<CategoryWidget> {
                   controller: _scrollController,
                   verticalPosition: cardHeight * 0.5 - 20,
                   horizontalPosition: 0,
-                  isShowForwardButton: category.categoryList!.length > 4,
+                  isShowForwardButton: featuredCategories.length > 4,
                   child: ListView.builder(
                     controller: _scrollController,
-                    itemCount: category.categoryList!.length,
+                    itemCount: featuredCategories.length,
                     padding: const EdgeInsetsDirectional.only(top: 12, start: 4),
                     physics: const BouncingScrollPhysics(),
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (context, index) {
-                      final item = category.categoryList![index];
+                      final item = featuredCategories[index];
                       return Padding(
                         padding: EdgeInsetsDirectional.only(end: itemSpacing),
                         child: _CategoryCircleCard(

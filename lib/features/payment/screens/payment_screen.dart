@@ -6,7 +6,9 @@ import 'package:hexacom_user/common/models/place_order_model.dart';
 import 'package:hexacom_user/common/widgets/custom_alert_dialog_widget.dart';
 import 'package:hexacom_user/features/checkout/widgets/order_cancel_dialog_widget.dart';
 import 'package:hexacom_user/features/cart/providers/cart_provider.dart';
+import 'package:hexacom_user/features/auth/providers/auth_provider.dart';
 import 'package:hexacom_user/features/order/providers/order_provider.dart';
+import 'package:hexacom_user/features/splash/providers/splash_provider.dart';
 import 'package:hexacom_user/helper/responsive_helper.dart';
 import 'package:hexacom_user/localization/language_constrants.dart';
 import 'package:hexacom_user/main.dart';
@@ -243,7 +245,21 @@ class MyInAppBrowser extends InAppBrowser {
             transactionReference:  transactionReference.replaceRange(0, transactionReference.indexOf('transaction_reference='), '').replaceAll('transaction_reference=', ''),
           );
 
-          Provider.of<OrderProvider>(context, listen: false).placeOrder(context, placeOrderBody, _callback);
+          final configModel = Provider.of<SplashProvider>(context, listen: false).configModel;
+          final authProvider = Provider.of<AuthProvider>(context, listen: false);
+          if (authProvider.isLoggedIn() && (configModel?.loyaltyPointsEnabled ?? false)) {
+            final amountForOne = configModel!.loyaltyAmountForOnePoint ?? 10;
+            final pointsPer = configModel.loyaltyPointsPerAmount ?? 1;
+            final orderAmt = placeOrderBody.orderAmount ?? 0;
+            if (amountForOne > 0 && orderAmt > 0) {
+              orderProvider.setLastExpectedPointsForSuccess(((orderAmt / amountForOne).floor() * pointsPer).round());
+            } else {
+              orderProvider.setLastExpectedPointsForSuccess(null);
+            }
+          } else {
+            orderProvider.setLastExpectedPointsForSuccess(null);
+          }
+          orderProvider.placeOrder(context, placeOrderBody, _callback);
 
         }else{
           RouteHelper.getOrderSuccessScreen(context, '$orderId', 'payment-fail', action: RouteAction.pushReplacement);
@@ -264,9 +280,10 @@ class MyInAppBrowser extends InAppBrowser {
   void _callback(BuildContext context, bool isSuccess, String message, String orderID) async {
 
     Provider.of<CartProvider>(context, listen: false).clearCartList();
+    final orderProvider = Provider.of<OrderProvider>(context, listen: false);
 
     if(isSuccess) {
-      RouteHelper.getOrderSuccessScreen(context, orderID, 'success', action: RouteAction.pushReplacement);
+      RouteHelper.getOrderSuccessScreen(context, orderID, 'success', expectedPoints: orderProvider.lastExpectedPointsForSuccess, action: RouteAction.pushReplacement);
 
     }else {
       showCustomSnackBar(message, context);

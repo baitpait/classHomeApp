@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:hexacom_user/common/widgets/custom_image_widget.dart';
+import 'package:hexacom_user/features/splash/providers/splash_provider.dart';
 import 'package:hexacom_user/helper/responsive_helper.dart';
 import 'package:hexacom_user/utill/color_resources.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:hexacom_user/utill/images.dart';
 import 'package:hexacom_user/utill/styles.dart';
+import 'package:provider/provider.dart';
 
 class AuthLayoutWidget extends StatelessWidget {
   final String? title;
@@ -62,10 +65,21 @@ class AuthLayoutWidget extends StatelessWidget {
                   if (showLogo) ...[
                     Align(
                       alignment: Alignment.center,
-                      child: Image.asset(
-                        Images.logo,
-                        height: isDesktop ? 100 : 80,
-                        fit: BoxFit.contain,
+                      child: Consumer<SplashProvider>(
+                        builder: (context, splashProvider, _) {
+                          final logoUrl = (splashProvider.baseUrls != null && (splashProvider.configModel?.appLogo ?? '').isNotEmpty)
+                              ? '${splashProvider.baseUrls!.ecommerceImageUrl}/${splashProvider.configModel!.appLogo}'
+                              : '';
+                          if (logoUrl.isEmpty) {
+                            return const SizedBox.shrink();
+                          }
+                          return CustomImageWidget(
+                            image: logoUrl,
+                            placeholder: Images.placeholder(context),
+                            height: isDesktop ? 100 : 80,
+                            fit: BoxFit.contain,
+                          );
+                        },
                       ),
                     ),
                     const SizedBox(height: Dimensions.paddingSizeLarge),

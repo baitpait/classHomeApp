@@ -28,7 +28,7 @@
   <meta property="og:title" content="Online Shopping Marketplace | Fashion, Electronics, Accessories & More">
   <meta property="og:description" content="Shop the latest fashion, footwear, electronics, mobile phones, accessories, and home appliances all in one place. Enjoy fast delivery, secure checkout, top deals, and exclusive discounts across every category.">
   <meta property="og:url" content="https://yourdomain.com">
-  <meta property="og:site_name" content="6amTech">
+  <meta property="og:site_name" content="Baitpait">
   <meta property="og:image" content="https://yourdomain.com/assets/meta_banner.png">
   <meta property="og:image:secure_url" content="https://yourdomain.com/assets/meta_banner.png">
   <meta property="og:image:width" content="1200">
@@ -55,15 +55,14 @@
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="eMarket">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <meta name="apple-mobile-web-app-title" content="store">
 
 
-  <title>Mahfooz</title>
+  <title>store</title>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" type="text/css" href="style.css">
 
-  <link rel="shortcut icon" type="image/png" href="favicon.png"/>
+  <!-- favicon is set dynamically from app config (fav_icon) -->
 
   <!-- Preload critical resources -->
   <link rel="preload" href="style.css" as="style">
@@ -95,10 +94,159 @@
     };
   </script>
 
+  <style>
+    /* Initial HTML shimmer (before Flutter bootstraps) */
+    #app-loader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #ffffff;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .skeleton {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 18px 16px 28px;
+    }
+
+    .sk-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .sk-spacer {
+      flex: 1;
+    }
+
+    .sk {
+      position: relative;
+      overflow: hidden;
+      background: #eef0f4;
+      border-radius: 12px;
+    }
+
+    .sk::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      transform: translateX(-100%);
+      background: linear-gradient(
+        110deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.75) 45%,
+        rgba(255,255,255,0) 80%
+      );
+      animation: shimmer 1.25s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .sk::before { animation: none; }
+    }
+
+    /* Layout blocks */
+    .sk-appbar {
+      height: 56px;
+      border-radius: 16px;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      padding: 10px 10px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.04);
+      margin-bottom: 14px;
+    }
+
+    .sk-pill { border-radius: 999px; }
+    .sk-icon { width: 36px; height: 36px; border-radius: 12px; }
+    .sk-search { height: 36px; width: min(560px, 65vw); }
+
+    .sk-banner {
+      height: 240px;
+      border-radius: 20px;
+      margin: 14px 0 18px;
+    }
+
+    .sk-cats {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .sk-cat {
+      height: 78px;
+      border-radius: 16px;
+    }
+
+    .sk-section-title {
+      height: 16px;
+      width: 180px;
+      border-radius: 8px;
+      margin: 10px 0 12px;
+    }
+
+    .sk-products {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .sk-product {
+      height: 190px;
+      border-radius: 18px;
+    }
+
+    @media (max-width: 900px) {
+      .sk-cats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .sk-products { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .sk-banner { height: 200px; }
+    }
+
+    @media (max-width: 520px) {
+      .skeleton { padding: 14px 12px 22px; }
+      .sk-cats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .sk-banner { height: 170px; border-radius: 16px; }
+      .sk-product { height: 170px; border-radius: 16px; }
+      .sk-appbar { height: 52px; border-radius: 14px; }
+      .sk-search { width: 58vw; }
+    }
+  </style>
 </head>
 <body>
 
+<div id="app-loader" dir="rtl">
+  <div class="skeleton">
+    <div class="sk-appbar">
+      <div class="sk sk-icon"></div>
+      <div class="sk-spacer"></div>
+      <div class="sk sk-pill sk-search"></div>
+      <div class="sk-spacer"></div>
+      <div class="sk sk-icon"></div>
+    </div>
 
+    <div class="sk sk-banner"></div>
+
+    <div class="sk sk-section-title"></div>
+    <div class="sk-cats">
+      <div class="sk sk-cat"></div><div class="sk sk-cat"></div><div class="sk sk-cat"></div>
+      <div class="sk sk-cat"></div><div class="sk sk-cat"></div><div class="sk sk-cat"></div>
+    </div>
+
+    <div class="sk sk-section-title" style="width: 140px;"></div>
+    <div class="sk-products">
+      <div class="sk sk-product"></div><div class="sk sk-product"></div>
+      <div class="sk sk-product"></div><div class="sk sk-product"></div>
+      <div class="sk sk-product"></div><div class="sk sk-product"></div>
+      <div class="sk sk-product"></div><div class="sk sk-product"></div>
+    </div>
+  </div>
+</div>
 
 <script>
   // Check if localStorage is supported in the browser
@@ -135,6 +283,17 @@
         var config = { renderer: isMobile ? 'html' : 'canvaskit' };
         engineInitializer.initializeEngine(config).then(function(appRunner) {
           appRunner.runApp();
+          // Hide initial HTML loader shortly after Flutter attaches
+          setTimeout(function () {
+            var loader = document.getElementById('app-loader');
+            if (loader) {
+              loader.style.opacity = '0';
+              loader.style.transition = 'opacity 0.25s ease-out';
+              setTimeout(function() {
+                loader.parentNode && loader.parentNode.removeChild(loader);
+              }, 260);
+            }
+          }, 400);
         });
       }
     });

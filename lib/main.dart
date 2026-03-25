@@ -7,6 +7,7 @@ import 'package:hexacom_user/features/address/providers/location_provider.dart';
 import 'package:hexacom_user/features/auth/providers/registration_provider.dart';
 import 'package:hexacom_user/features/auth/providers/verification_provider.dart';
 import 'package:hexacom_user/features/checkout/providers/checkout_provider.dart';
+import 'package:hexacom_user/features/contact_us/providers/contact_us_provider.dart';
 import 'package:hexacom_user/features/rate_review/providers/rate_review_provider.dart';
 import 'package:hexacom_user/features/track/providers/order_map_provider.dart';
 import 'package:hexacom_user/helper/notification_helper.dart';
@@ -26,6 +27,7 @@ import 'package:hexacom_user/features/cart/providers/cart_provider.dart';
 import 'package:hexacom_user/features/category/providers/category_provider.dart';
 import 'package:hexacom_user/features/chat/providers/chat_provider.dart';
 import 'package:hexacom_user/features/coupon/providers/coupon_provider.dart';
+import 'package:hexacom_user/features/loyalty/providers/loyalty_provider.dart';
 import 'package:hexacom_user/provider/localization_provider.dart';
 import 'package:hexacom_user/features/notification/providers/notification_provider.dart';
 import 'package:hexacom_user/features/order/providers/order_provider.dart';
@@ -46,7 +48,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:url_strategy/url_strategy.dart';
 import 'di_container.dart' as di;
 
-
 late AndroidNotificationChannel channel;
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -55,7 +56,6 @@ Future<void> main() async {
   GoRouter.optionURLReflectsImperativeAPIs = true;
   setPathUrlStrategy();
   WidgetsFlutterBinding.ensureInitialized();
-
 
   final List<Future> initFutures = [di.init()];
 
@@ -121,7 +121,9 @@ Future<void> main() async {
       ChangeNotifierProvider(create: (context) => di.sl<ChatProvider>()),
       ChangeNotifierProvider(create: (context) => di.sl<ProfileProvider>()),
       ChangeNotifierProvider(create: (context) => di.sl<NotificationProvider>()),
+      ChangeNotifierProvider(create: (context) => di.sl<ContactUsProvider>()),
       ChangeNotifierProvider(create: (context) => di.sl<CouponProvider>()),
+      ChangeNotifierProvider(create: (context) => di.sl<LoyaltyProvider>()),
       ChangeNotifierProvider(create: (context) => di.sl<WishListProvider>()),
       ChangeNotifierProvider(create: (context) => di.sl<SearchProvider>()),
       ChangeNotifierProvider(create: (context) => di.sl<FlashSaleProvider>()),
@@ -141,7 +143,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
   @override
   void initState() {
     super.initState();
@@ -157,6 +158,7 @@ class _MyAppState extends State<MyApp> {
   }
   Future<void> _route() async {
    await Provider.of<SplashProvider>(context, listen: false).initConfig();
+   await Provider.of<LanguageProvider>(context, listen: false).syncLanguagesFromServer();
   }
   @override
   Widget build(BuildContext context) {
@@ -164,10 +166,12 @@ class _MyAppState extends State<MyApp> {
     for (var language in AppConstants.languages) {
       locals.add(Locale(language.languageCode!, language.countryCode));
     }
-    return Consumer3<SplashProvider, ThemeProvider, LocalizationProvider>(
-      builder: (context, splashProvider, themeProvider, localizationProvider, child){
+    return Consumer4<SplashProvider, ThemeProvider, LocalizationProvider, LanguageProvider>(
+      builder: (context, splashProvider, themeProvider, localizationProvider, _, child){
         final locale = localizationProvider.locale;
-        final fontFamily = locale.languageCode == 'ar' ? AppConstants.fontFamilyArabic : AppConstants.fontFamily;
+        final fontFamily = (locale.languageCode == 'ar' || locale.languageCode == 'he')
+            ? AppConstants.fontFamilyArabic
+            : AppConstants.fontFamily;
         final baseTheme = themeProvider.darkTheme ? dark : light;
         final theme = baseTheme.copyWith(
           textTheme: baseTheme.textTheme.apply(fontFamily: fontFamily),
@@ -179,12 +183,48 @@ class _MyAppState extends State<MyApp> {
             errorStyle: baseTheme.inputDecorationTheme.errorStyle?.apply(fontFamily: fontFamily),
           ),
         );
-        return (kIsWeb && splashProvider.configModel == null) ? const SizedBox() : MaterialApp.router(
+        if (kIsWeb && splashProvider.configModel == null) {
+          final themeData = theme;
+          return Directionality(
+            textDirection: TextDirection.rtl,
+            child: Scaffold(
+              backgroundColor: themeData.scaffoldBackgroundColor,
+              body: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 360),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          width: 220,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(999),
+                            child: LinearProgressIndicator(
+                              minHeight: 6,
+                              backgroundColor: themeData.dividerColor.withValues(alpha: 0.25),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                themeData.primaryColor.withValues(alpha: 0.85),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+
+        return MaterialApp.router(
           //routerConfig: RouteHelper.goRoutes,
           routerDelegate: RouteHelper.goRoutes.routerDelegate,
           routeInformationParser: RouteHelper.goRoutes.routeInformationParser,
           routeInformationProvider: RouteHelper.goRoutes.routeInformationProvider,
-          title: splashProvider.configModel != null ? splashProvider.configModel!.ecommerceName ?? '' : AppConstants.appName,
+          title: splashProvider.configModel != null ? splashProvider.configModel!.ecommerceName ?? '' : 'Elite Vape',
           debugShowCheckedModeBanner: false,
           theme: theme,
           locale: locale,

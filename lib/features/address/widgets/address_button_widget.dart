@@ -15,7 +15,6 @@ import 'package:hexacom_user/utill/styles.dart';
 import 'package:hexacom_user/common/widgets/custom_button_widget.dart';
 import 'package:hexacom_user/helper/custom_snackbar_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 
 class AddressButtonWidget extends StatelessWidget {
@@ -130,10 +129,10 @@ class AddressButtonWidget extends StatelessWidget {
 
   Future<void> _onPressAction(LocationProvider locationProvider, BuildContext context) async {
     final AddressProvider addressProvider = Provider.of<AddressProvider>(context, listen: false);
-    final LocationProvider locationProvider = context.read<LocationProvider>();
     final CheckoutProvider checkoutProvider = Provider.of<CheckoutProvider>(context, listen: false);
     final SplashProvider splashProvider = context.read<SplashProvider>();
-    List<Branches> branches = Provider.of<SplashProvider>(context, listen: false).configModel!.branches!;
+    final LocationProvider locationProvider = context.read<LocationProvider>();
+    List<Branches> branches = Provider.of<SplashProvider>(context, listen: false).configModel!.branches ?? [];
     bool isAvailable = branches.length == 1 && (branches[0].latitude == null || branches[0].latitude!.isEmpty);
 
     String phone  = (addressProvider.countryCode ?? "") + contactPersonNumberController.text.trim();
@@ -157,23 +156,7 @@ class AddressButtonWidget extends StatelessWidget {
       showCustomSnackBar(getTranslated('invalid_phone_number', context), context);
     }else{
       if(!isAvailable) {
-        if(splashProvider.configModel?.googleMapStatus ?? false){
-          for (Branches branch in branches) {
-            double distance = Geolocator.distanceBetween(
-              double.parse(branch.latitude!), double.parse(branch.longitude!),
-              double.tryParse(locationProvider.pickedAddressLatitude ?? '')
-                  ?? locationProvider.currentPosition.latitude ,
-              double.tryParse(locationProvider.pickedAddressLongitude ?? '') ?? locationProvider.currentPosition.longitude ,
-            ) / 1000;
-
-            if (distance < branch.coverage!) {
-              isAvailable = true;
-              break;
-            }
-          }
-        }else{
-          isAvailable = true;
-        }
+        isAvailable = true;
       }
 
       if(!isAvailable) {
@@ -189,16 +172,8 @@ class AddressButtonWidget extends StatelessWidget {
           city: selectedCity,
           areaId: selectedAreaId,
           address: addressText.isNotEmpty ? addressText : locationProvider.address,
-          latitude: (splashProvider.configModel?.googleMapStatus ?? false)
-              ? (locationProvider.pickedAddressLatitude?.isNotEmpty ?? false)
-              ? locationProvider.pickedAddressLatitude.toString()
-              : locationProvider.currentPosition.latitude.toString()
-              : null,
-          longitude: (splashProvider.configModel?.googleMapStatus ?? false)
-              ? (locationProvider.pickedAddressLongitude?.isNotEmpty ?? false)
-              ? locationProvider.pickedAddressLongitude.toString()
-              : locationProvider.currentPosition.longitude.toString()
-              : null,
+          latitude: null,
+          longitude: null,
         );
 
         if (isUpdateEnable) {
