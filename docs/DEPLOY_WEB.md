@@ -83,16 +83,54 @@ chmod +x scripts/serve_build_web.sh
 
 ## 8) السيرفر: جلب المشروع من GitHub وبناء الويب ونشره
 
-الفكرة: تُستنسخ **المستودع** في مجلد **خارج** جذر الموقع العام (لتبقى `lib/` و`android/` غير معروضة للزوار)، ثم يُبنى `build/web/` ويُنسخ **محتواه** إلى مجلد الدومين (مثال الإنتاج: **`/home/baitpait/anagheemhome`** لـ `anagheemhome.com`).
+### مرجع الإنتاج (مثال مُطبَّق)
+
+| البند | القيمة |
+|--------|--------|
+| الدومين | `anagheemhome.com` |
+| جذر الموقع (Document root) | `/home/baitpait/anagheemhome` |
+| المستودع على القرص | `/home/baitpait/src/-StorAnagheem` |
+| رابط الاستنساخ | `https://github.com/baitpait/-StorAnagheem.git` |
+| الفرع | `main` |
+
+**مهم:** اسم المجلد بعد الاستنساخ يبدأ بشرطة: **`-StorAnagheem`**. استخدم `cd -- -StorAnagheem` أو `cd -- /home/baitpait/src/-StorAnagheem` حتى لا يفسّر `cd` الاسم كخيارات.
+
+**الفكرة:** تُستنسخ **المستودع** في مجلد **خارج** جذر الموقع العام (لا تُعرَض `lib/` و`android/` للزوار)، ثم يُبنى `build/web/` ويُنسخ **محتواه فقط** إلى مجلد الدومين.
+
+---
 
 ### أ) متطلبات على السيرفر (Linux)
 
 - `git`
-- أدوات أساسية لبناء Flutter على Linux: عادة `curl`، `unzip`، `xz-utils`، وأحياناً `clang` و`cmake` و`ninja-build` و`pkg-config` و`libgtk-3-dev` — راجع [تثبيت Flutter على Linux](https://docs.flutter.dev/get-started/install/linux) لإصدارك.
+- لبناء Flutter على Linux: إما **حزمة snap** (سريعة على Ubuntu) أو **أرشيف رسمي** — راجع [تثبيت Flutter على Linux](https://docs.flutter.dev/get-started/install/linux).
+- `rsync` (للنشر؛ غالباً مثبت مسبقاً)
 
-### ب) تثبيت Flutter SDK (مرة واحدة)
+### ب) تثبيت Flutter (مرة واحدة)
 
-مثال (مسار ثابت للمستخدم `baitpait`): نزّل أحدث أرشيف **Linux stable** من [صفحة تثبيت Flutter](https://docs.flutter.dev/get-started/install/linux) ثم:
+#### خيار 1 — Snap (Ubuntu / عندما يقترح النظام `snap install flutter`)
+
+```bash
+snap install flutter --classic
+```
+
+بعدها يجب أن يكون **`/snap/bin`** في **`PATH`**، وإلا يظهر `flutter: command not found`:
+
+```bash
+export PATH="/snap/bin:$PATH"
+flutter --version
+```
+
+للديمومة (مثال لـ root):
+
+```bash
+grep -q '/snap/bin' /root/.bashrc || echo 'export PATH="/snap/bin:$PATH"' >> /root/.bashrc
+```
+
+**تشغيل Flutter كـ root:** يظهر تحذير *«We strongly recommend running without superuser»*؛ البناء يعمل. الأفضل مستقبلاً مستخدم عادي بصلاحيات كتابة على مجلدات `src` و`anagheemhome`.
+
+#### خيار 2 — أرشيف tarball رسمي
+
+نزّل أحدث **Linux stable** من صفحة Flutter، ثم مثلاً:
 
 ```bash
 cd ~
@@ -102,49 +140,139 @@ source ~/.bashrc
 flutter doctor
 ```
 
-تأكد أن `flutter --version` يعمل في الجلسة التي تبني منها، وأن `flutter doctor` لا يُظهر مشاكل تمنع `flutter build web`.
+تأكد أن `flutter build web` يعمل (`flutter doctor` بدون عوائق حرجة).
 
-### ج) استنساخ المستودع (أول مرة)
+### ج) إعداد مجلد الموقع (مرة واحدة)
+
+المجلد الذي يشير إليه الدومين يجب أن يكون **مساراً مطلقاً** يبدأ بـ `/`:
 
 ```bash
-mkdir -p ~/src
-cd ~/src
+mkdir -p /home/baitpait/anagheemhome
+ls -la /home/baitpait/anagheemhome
+```
+
+**خطأ شائع:** كتابة `cd home/baitpait/anagheemhome` بدون `/` في البداية — يبحث النظام عن مسار نسبي من مجلدك الحالي (مثل `/root/home/...`) ويفشل. الصحيح: `cd /home/baitpait/anagheemhome`.
+
+ربط الدومين بهذا المسار يتم من **Nginx / Apache / لوحة الاستضافة** (راجع القسم 4 و`deploy/nginx.site.example.conf`).
+
+### د) استنساخ المستودع (أول مرة)
+
+كمستخدم **root** أو **baitpait** (حسب سياسة السيرفر):
+
+```bash
+mkdir -p /home/baitpait/src
+cd /home/baitpait/src
 git clone https://github.com/baitpait/-StorAnagheem.git
-cd -- -StorAnagheem
+chown -R baitpait:baitpait /home/baitpait/src/-StorAnagheem
+cd -- /home/baitpait/src/-StorAnagheem
 git checkout main
 ```
 
-إذا كان المستودع **خاصاً**، استخدم **Deploy key** على GitHub أو **PAT** مع `git clone https://TOKEN@github.com/...` (لا تخزّن التوكن في سجل الأوامر إن أمكن).
+إذا كان المستودع **خاصاً**: **Deploy key** على GitHub أو **PAT** في رابط الاستنساخ (تجنّب تسريب التوكن في السجلات).
 
-### د) البناء
+### هـ) جلب الحزم والبناء
 
 ```bash
-cd -- ~/src/-StorAnagheem
+export PATH="/snap/bin:$PATH"   # إن كنت تستخدم snap
+cd -- /home/baitpait/src/-StorAnagheem
+flutter pub get
+flutter build web --release
+```
+
+أو السكربت الجاهز (ينفّذ `pub get` ثم البناء):
+
+```bash
 chmod +x scripts/build_web_release.sh
 ./scripts/build_web_release.sh
 ```
 
-### هـ) نشر الملفات إلى جذر الموقع
+**مخرجات البناء الناجحة:** تظهر `✓ Built build/web`.
 
-ينسخ **محتويات** `build/web/` إلى مجلد الدومين (يستبدل القديم؛ `--delete` يزيل ملفات أُزيلت من البناء):
+**تحذيرات Wasm dry run** (`dart:html unsupported`، إلخ): معلومات عن توافق **WebAssembly** مستقبلاً؛ **لا تمنع** بناء الويب الاعتيادي (JavaScript). يمكن تجاهلها أو استخدام `--no-wasm-dry-run` لتقليل الضجيج.
+
+### و) نشر الملفات إلى جذر الموقع
+
+ينسخ **محتويات** `build/web/` إلى مجلد الدومين (`--delete` يزيل من الوجهة ما لم يعد موجوداً في البناء):
 
 ```bash
-rsync -av --delete build/web/ /home/baitpait/anagheemhome/
+rsync -av --delete /home/baitpait/src/-StorAnagheem/build/web/ /home/baitpait/anagheemhome/
 ```
 
-**Apache:** انسخ محتوى `deploy/htaccess.apache.example` إلى `/home/baitpait/anagheemhome/.htaccess` إن لم يكن موجوداً.
+**Apache:** انسخ قواعد إعادة الكتابة إلى `.htaccess` بجانب `index.html`:
 
-إن رفعت كـ `root` ثم احتجت توحيد المالك:
+```bash
+cp /home/baitpait/src/-StorAnagheem/deploy/htaccess.apache.example /home/baitpait/anagheemhome/.htaccess
+```
+
+**Nginx:** لا يُستخدم `.htaccess`؛ اضبط `try_files` كما في `deploy/nginx.site.example.conf`.
+
+توحيد المالك بعد النسخ (إن لزم):
 
 ```bash
 chown -R baitpait:baitpait /home/baitpait/anagheemhome
 ```
 
-### و) التحديثات لاحقاً
+**التحقق:** افتح `https://anagheemhome.com/` وجرب تحديث صفحة على مسار داخلي (مثل صفحة اتصل بنا) — يجب ألا تُرجع 404 من السيرفر.
+
+### ز) التحديثات لاحقاً
 
 ```bash
-cd -- ~/src/-StorAnagheem
+export PATH="/snap/bin:$PATH"
+cd -- /home/baitpait/src/-StorAnagheem
 git pull origin main
 ./scripts/build_web_release.sh
-rsync -av --delete build/web/ /home/baitpait/anagheemhome/
+rsync -av --delete /home/baitpait/src/-StorAnagheem/build/web/ /home/baitpait/anagheemhome/
 ```
+
+---
+
+### ح) قائمة تحقق سريعة (خطوة بخطوة)
+
+1. `git --version` يعمل على السيرفر.
+2. مجلد `/home/baitpait/anagheemhome` موجود؛ الدومين يشير إليه في إعداد الويب سيرفر.
+3. Flutter مثبت؛ `export PATH="/snap/bin:$PATH"` (snap) أو مسار tarball في `PATH`.
+4. `git clone` داخل `/home/baitpait/src/` والمجلد `.../src/-StorAnagheem` موجود.
+5. `flutter pub get` بدون أخطاء حرجة (تنبيهات «discontinued» أو إصدارات أحدث **عادية**).
+6. `flutter build web --release` → `✓ Built build/web`.
+7. `rsync` إلى `/home/baitpait/anagheemhome/`.
+8. Apache: `.htaccess` من `deploy/htaccess.apache.example`.
+9. `chown` إن احتجت.
+10. اختبار الموقع في المتصفح.
+
+## 9) أخطاء ومفاجآت شائعة
+
+### المسار النسبي بدل المطلق
+
+- **خطأ:** `cd home/baitpait/anagheemhome`
+- **صواب:** `cd /home/baitpait/anagheemhome`
+
+بدون `/` في البداية يُفسَّر المسار من مجلد العمل الحالي.
+
+### لصق مخرجات `curl` في الطرفية
+
+أسطر مثل `% Total` و`Dload` و`100 1444M` هي **مخرجات تحميل** وليست أوامر. لصقها في bash يسبب أخطاء مثل `command not found`. انسخ الأوامر فقط.
+
+### `flutter: command not found` بعد تثبيت snap
+
+أضف `/snap/bin` إلى `PATH` (انظر القسم 8 ب)، أو استخدم `/snap/bin/flutter` مباشرة.
+
+### `su - baitpait` → «This account is currently not available»
+
+غالباً صدفة المستخدم `nologin`. يمكن:
+
+- المتابعة كـ **root** للبناء (مع تحذير Flutter)، أو
+- تفعيل دخول تفاعلي لمستخدم الاستضافة عبر لوحة التحكم أو `chsh` (بحذر وبما يتوافق مع سياسة الأمان).
+
+### رفع ملفات GitHub Actions ورفض الـ push
+
+إذا رفض GitHub الدفع بسبب ملف `.github/workflows/*.yml`، فالـ **Personal Access Token** يحتاج صلاحية **`workflow`**. بديل: إضافة الملف من واجهة GitHub أو استخدام PAT محدّث.
+
+## 10) الملفات المرجعية في المستودع
+
+| الملف | الغرض |
+|--------|--------|
+| `scripts/build_web_release.sh` | `pub get` + `flutter build web --release` |
+| `scripts/serve_build_web.sh` | معاينة محليّة لـ `build/web` |
+| `deploy/nginx.site.example.conf` | مثال Nginx + `try_files` لـ SPA |
+| `deploy/htaccess.apache.example` | قواعد Apache لإرجاع `index.html` |
+| `.github/workflows/build-web.yml` | بناء على GitHub Actions (يتطلّب PAT بصلاحية workflow عند الدفع) |
