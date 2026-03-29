@@ -28,7 +28,7 @@ class LocalizationProvider extends ChangeNotifier {
     try {
       await dioClient!.updateHeader(getToken: sharedPreferences!.getString(AppConstants.token));
       final ctx = Get.context;
-      if (ctx != null) {
+      if (ctx != null && ctx.mounted) {
         HomeScreen.loadData(ctx, true);
       }
     } catch (_) {

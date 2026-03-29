@@ -296,9 +296,9 @@ String? _fallbackFor(String? key, String languageCode) {
     case 'enter_whatsapp_mobile_number':
       return _localeTriple(
           languageCode,
-          'أدخل رقم الجوال (واتساب)',
-          'Enter WhatsApp mobile number',
-          'הזן מספר טלפון (וואטסאפ)');
+          'أدخل رقم الهاتف بدون الصفر',
+          'Enter phone number without the leading 0',
+          'הזן מספר טלפון בלי אפס מוביל');
     case 'social_follow_us_title':
       return _localeTriple(
           languageCode,
@@ -383,12 +383,36 @@ String? _fallbackFor(String? key, String languageCode) {
           'لا توجد إحداثيات للمتجر لعرض الخريطة.',
           'No store coordinates available to display the map.',
           'אין קואורדינטות חנות להצגת המפה.');
+    case 'open_in_google_maps':
+      return _localeTriple(
+          languageCode,
+          'فتح في خرائط Google',
+          'Open in Google Maps',
+          'פתיחה ב-Google Maps');
+    case 'map_open_in_google_maps_hint':
+      return _localeTriple(
+          languageCode,
+          'معاينة الخريطة المضمّنة غير متاحة لهذا الرابط. افتح الموقع في خرائط Google.',
+          'Embedded preview isn’t available for this link. Open the location in Google Maps.',
+          'תצוגה מוטמעת אינה זמינה לקישור זה. פתחו את המיקום ב-Google Maps.');
     case 'footer_developer_credit':
       return _localeTriple(
           languageCode,
           'تطوير وبرمجة بيت البرمجيات وتكنولوجيا المعلومات',
           'Development by Bait Al Software & IT',
           'פיתוח ותכנות: בית התוכנה וטכנולוגיית המידע');
+    case 'page_not_found':
+      return _localeTriple(languageCode, 'الصفحة غير موجودة', 'Page Not Found',
+          'העמוד לא נמצא');
+    case 'give_a_rating':
+      return _localeTriple(languageCode, 'يرجى إعطاء تقييم', 'Give a rating',
+          'נא לתת דירוג');
+    case 'write_a_review':
+      return _localeTriple(languageCode, 'يرجى كتابة مراجعة', 'Write a review',
+          'נא לכתוב ביקורת');
+    case 'address_deleted_successfully':
+      return _localeTriple(languageCode, 'تم حذف العنوان بنجاح',
+          'Address deleted successfully', 'הכתובת נמחקה בהצלחה');
     default:
       return null;
   }

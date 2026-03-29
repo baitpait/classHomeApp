@@ -14,6 +14,7 @@ import 'package:hexacom_user/common/widgets/pill_bottom_nav_bar.dart';
 import 'package:hexacom_user/features/cart/screens/cart_screen.dart';
 import 'package:hexacom_user/features/menu/screens/menu_screen.dart';
 import 'package:hexacom_user/features/wishlist/screens/wishlist_screen.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -43,7 +44,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if(splashProvider.policyModel == null) {
       Provider.of<SplashProvider>(context, listen: false).getPolicyPage();
     }
-    HomeScreen.loadData(Get.context!,  false);
+    // Defer until navigator context exists (avoids null on web during first frame).
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      final ctx = Get.context;
+      if (ctx != null && ctx.mounted) {
+        HomeScreen.loadData(ctx, false);
+      }
+    });
 
     _pageIndex = widget.pageIndex;
 
@@ -60,6 +67,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if(ResponsiveHelper.isMobilePhone()) {
       NetworkInfoHelper.checkConnectivity(_scaffoldKey);
     }
+  }
+
+  @override
+  void dispose() {
+    _pageController?.dispose();
+    super.dispose();
   }
 
   @override
@@ -117,9 +130,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void _setPage(int pageIndex) {
-    setState(() {
-      _pageController!.jumpToPage(pageIndex);
-      _pageIndex = pageIndex;
+    final c = _pageController;
+    if (c == null) return;
+    setState(() => _pageIndex = pageIndex);
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _pageController != c) return;
+      if (c.hasClients) {
+        c.jumpToPage(pageIndex);
+      }
     });
   }
 }

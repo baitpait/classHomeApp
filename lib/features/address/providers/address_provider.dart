@@ -44,7 +44,7 @@ class AddressProvider with ChangeNotifier {
     ApiResponseModel apiResponse = await locationRepo!.removeAddressByID(id);
     if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
       _addressList!.removeAt(index);
-      callback(true, 'Deleted address successfully');
+      callback(true, '');
       notifyListeners();
     } else {
       callback(false, ApiCheckerHelper.getError(apiResponse).errors![0].message);

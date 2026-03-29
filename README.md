@@ -2,6 +2,12 @@
 
 A new Flutter restaurant application.
 
+## Web deployment (عرض على السيرفر فقط)
+
+- دليل النشر: [docs/DEPLOY_WEB.md](docs/DEPLOY_WEB.md)
+- بناء محلي للإنتاج: `./scripts/build_web_release.sh`
+- على GitHub: بعد `git push` يبني **Actions** مجلد الويب ويُرفع كـ **Artifact** (`web-build`).
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.

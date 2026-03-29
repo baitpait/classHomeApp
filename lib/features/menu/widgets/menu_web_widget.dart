@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 import 'package:hexacom_user/common/enums/footer_type_enum.dart';
 import 'package:hexacom_user/common/widgets/custom_alert_dialog_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_image_widget.dart';
@@ -27,23 +26,6 @@ class MenuWebWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final splashProvider =  Provider.of<SplashProvider>(context, listen: false);
-    final configModel = splashProvider.configModel;
-
-    String? whatsappUrl() {
-      final whatsapp = configModel?.whatsapp;
-      if (!(whatsapp?.status ?? false)) return null;
-      final raw = (whatsapp?.number ?? '').trim();
-      if (raw.isEmpty) return null;
-      final normalizedNumber = raw.replaceAll(RegExp(r'[^0-9]'), '');
-      if (normalizedNumber.isEmpty) return null;
-      return 'https://wa.me/$normalizedNumber';
-    }
-
-    void openExternal(String url) async {
-      if (await canLaunchUrlString(url)) {
-        await launchUrlString(url);
-      }
-    }
 
     final List<MenuModel> menuList = [
       MenuModel(icon: Images.couponMenuIcon, iconData: Icons.receipt_long_rounded, title: getTranslated('my_order', context), route: ()=>  RouteHelper.getOrderListScreen(context)),
@@ -118,67 +100,46 @@ class MenuWebWidget extends StatelessWidget {
 
     ];
 
-    return Stack(
-      children: [
-        SingleChildScrollView(
-          child: Column(
-            children: [
-              Center(
-                child: Consumer<ProfileProvider>(
-                  builder: (context, profileProvider, child) {
-                    return SizedBox(
-                      width: Dimensions.webScreenWidth,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          _MenuWebHeader(
-                            isLoggedIn: isLoggedIn!,
-                            profileProvider: profileProvider,
-                            splashProvider: splashProvider,
-                          ),
-                          const SizedBox(height: Dimensions.paddingSizeSection),
-                          GridView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 6,
-                              crossAxisSpacing: Dimensions.paddingSizeExtraLarge,
-                              mainAxisSpacing: Dimensions.paddingSizeExtraLarge,
-                            ),
-                            itemCount: menuList.length,
-                            itemBuilder: (context, index) {
-                              return MenuItemWebWidget(menu: menuList[index]);
-                            },
-                          ),
-                          const SizedBox(height: 50),
-                        ],
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Center(
+            child: Consumer<ProfileProvider>(
+              builder: (context, profileProvider, child) {
+                return SizedBox(
+                  width: Dimensions.webScreenWidth,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _MenuWebHeader(
+                        isLoggedIn: isLoggedIn!,
+                        profileProvider: profileProvider,
+                        splashProvider: splashProvider,
                       ),
-                    );
-                  },
-                ),
-              ),
-              const FooterWebWidget(footerType: FooterType.nonSliver),
-            ],
-          ),
-        ),
-        if (whatsappUrl() != null)
-          Positioned(
-            right: 24,
-            bottom: 24,
-            child: FloatingActionButton(
-              heroTag: 'menu-whatsapp-fab',
-              onPressed: () => openExternal(whatsappUrl()!),
-              backgroundColor: const Color(0xFF25D366),
-              shape: const CircleBorder(),
-              child: Image.asset(
-                Images.whatsapp,
-                width: 32,
-                height: 32,
-                color: Colors.white,
-              ),
+                      const SizedBox(height: Dimensions.paddingSizeSection),
+                      GridView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 6,
+                          crossAxisSpacing: Dimensions.paddingSizeExtraLarge,
+                          mainAxisSpacing: Dimensions.paddingSizeExtraLarge,
+                        ),
+                        itemCount: menuList.length,
+                        itemBuilder: (context, index) {
+                          return MenuItemWebWidget(menu: menuList[index]);
+                        },
+                      ),
+                      const SizedBox(height: 50),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
-      ],
+          const FooterWebWidget(footerType: FooterType.nonSliver),
+        ],
+      ),
     );
   }
 }

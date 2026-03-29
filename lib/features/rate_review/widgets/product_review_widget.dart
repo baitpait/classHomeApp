@@ -227,9 +227,9 @@ class _ProductReviewWidgetState extends State<ProductReviewWidget> {
                                       onTap: () {
                                         if(!rateReviewProvider.submitList[index]) {
                                           if (rateReviewProvider.ratingList[index] == 0) {
-                                            showCustomSnackBar('Give a rating', context);
+                                            showCustomSnackBar(getTranslated('give_a_rating', context), context);
                                           } else if (rateReviewProvider.reviewList[index].isEmpty) {
-                                            showCustomSnackBar('Write a review', context);
+                                            showCustomSnackBar(getTranslated('write_a_review', context), context);
                                           } else {
                                             FocusScopeNode currentFocus = FocusScope.of(context);
                                             if (!currentFocus.hasPrimaryFocus) {

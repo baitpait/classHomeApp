@@ -9,6 +9,7 @@ import '../models/language_model.dart';
 import '../../features/category/providers/category_provider.dart';
 import '../../provider/language_provider.dart';
 import '../../features/product/providers/product_provider.dart';
+import '../../utill/app_constants.dart';
 import '../../helper/custom_snackbar_helper.dart';
 import 'text_hover_widget.dart';
 
@@ -29,8 +30,13 @@ class LanguageHoverWidget extends StatelessWidget {
                     if(languageProvider.languages.isNotEmpty && languageProvider.selectIndex != -1) {
                       Provider.of<LocalizationProvider>(context, listen: false).setLanguage(Locale(
                           language.languageCode!, language.countryCode));
-                      Provider.of<ProductProvider>(context, listen: false).getLatestProductList(1);
-                      Provider.of<CategoryProvider>(context, listen: false).getCategoryList(true);
+                      Provider.of<ProductProvider>(context, listen: false).getLatestProductList(
+                        1,
+                        limit: AppConstants.homeLatestProductsLimit,
+                      );
+                      final cat = Provider.of<CategoryProvider>(context, listen: false);
+                      await cat.getCategoryList(true);
+                      await cat.preloadHomeNonFeaturedProductPreviews();
                     }else {
                       showCustomSnackBar(getTranslated('select_a_language', context), context);
                     }},

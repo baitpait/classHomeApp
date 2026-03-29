@@ -4,6 +4,7 @@ import 'package:hexacom_user/helper/responsive_helper.dart';
 import 'package:hexacom_user/localization/language_constrants.dart';
 import 'package:hexacom_user/features/order/providers/order_provider.dart';
 import 'package:hexacom_user/features/product/providers/product_provider.dart';
+import 'package:hexacom_user/utill/app_constants.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:hexacom_user/utill/routes.dart';
 import 'package:hexacom_user/utill/styles.dart';
@@ -50,9 +51,13 @@ class ButtonWidget extends StatelessWidget {
                               Navigator.pop(context);
 
                               if (isSuccess) {
-                                productProvider.getLatestProductList(1, isUpdate: true);
+                                productProvider.getLatestProductList(
+                                  1,
+                                  isUpdate: true,
+                                  limit: AppConstants.homeLatestProductsLimit,
+                                );
                                 orderProvider.getOrderList(context);
-                                showCustomSnackBar('$message. Order ID: $orderID', context, isError: false);
+                                showCustomSnackBar('$message. ${getTranslated('order_id', context)}: $orderID', context, isError: false);
                               } else {
                                 showCustomSnackBar(message, context);
                               }

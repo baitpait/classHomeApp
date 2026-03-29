@@ -24,7 +24,7 @@ class ChatRepo {
 
 
   Future<http.StreamedResponse> sendMessageToAdmin(String message, List<XFile> file, String token) async {
-    http.MultipartRequest request = http.MultipartRequest('POST', Uri.parse('${AppConstants.baseUrl}${AppConstants.sendMessageToAdminUrl}'));
+    http.MultipartRequest request = http.MultipartRequest('POST', AppConstants.resolveApiUri(AppConstants.sendMessageToAdminUrl));
     request.headers.addAll(<String,String>{'Authorization': 'Bearer $token'});
     for(int i=0; i<file.length;i++){
       Uint8List list = await file[i].readAsBytes();

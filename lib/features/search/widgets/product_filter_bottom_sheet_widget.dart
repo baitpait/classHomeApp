@@ -253,8 +253,8 @@ class _ProductFilterBottomSheetWidgetState extends State<ProductFilterBottomShee
                         borderColor: Theme.of(context).hintColor.withValues(alpha: .5),
                         inputType: TextInputType.number,
                         isShowBorder: true,
-                        hintText: 'enter_min_price',
-                        prefixText: 'min_price',
+                        hintText: getTranslated('enter_min_price', context),
+                        prefixText: getTranslated('min_price', context),
                         maxLines: 1,
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*$')), // Allow only digits
@@ -286,8 +286,8 @@ class _ProductFilterBottomSheetWidgetState extends State<ProductFilterBottomShee
                         inputType: TextInputType.number,
                         isShowBorder: true,
                         maxLines: 1,
-                        hintText: 'enter_max_price',
-                        prefixText: 'max_price',
+                        hintText: getTranslated('enter_max_price', context),
+                        prefixText: getTranslated('max_price', context),
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*$')), // Allow only digits
                         ],

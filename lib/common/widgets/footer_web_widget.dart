@@ -2,14 +2,15 @@ import 'package:hexacom_user/common/enums/footer_type_enum.dart';
 import 'package:hexacom_user/common/models/config_model.dart';
 import 'package:hexacom_user/helper/app_name_helper.dart';
 import 'package:hexacom_user/helper/responsive_helper.dart';
+import 'package:hexacom_user/utill/color_resources.dart';
 import 'package:hexacom_user/utill/routes.dart';
 import 'package:hexacom_user/utill/styles.dart';
+import 'package:hexacom_user/common/widgets/developer_credit_bar_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_image_widget.dart';
 import 'package:hexacom_user/common/widgets/on_hover.dart';
 import 'package:hexacom_user/common/widgets/text_hover_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../localization/language_constrants.dart';
 import '../../features/splash/providers/splash_provider.dart';
@@ -19,7 +20,10 @@ class FooterWebWidget extends StatelessWidget {
   final FooterType footerType;
   const FooterWebWidget({super.key, required this.footerType});
 
-  static const Color _footerBackground = Color(0xFF3A4756);
+  /// `app_logo` from config API is the square (1:1) web app asset; not `ecommerce_logo` (3:1 admin banner).
+  static const double _footerLogoSize = 96;
+
+  static const Color _footerBackground = ColorResources.footerWebBackground;
   static const Color _footerTextWhite = Colors.white;
   static Color get _footerTextMuted => Colors.white.withValues(alpha: 0.85);
 
@@ -49,17 +53,20 @@ class FooterWebWidget extends StatelessWidget {
       QuickLinkModel(
           title: getTranslated('about_us', context),
           route: () => RouteHelper.getAboutUsRoute(context)),
+      QuickLinkModel(
+          title: getTranslated('contact_us', context),
+          route: () => RouteHelper.getContactUsRoute(context)),
     ];
 
     return _FooterFormatter(
       footerType: footerType,
       child: Container(
         width: double.maxFinite,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: _footerBackground,
           border: Border(
             top: BorderSide(
-              color: Color(0x1AFFFFFF),
+              color: ColorResources.brandTeal.withValues(alpha: 0.35),
               width: 1,
             ),
           ),
@@ -96,15 +103,18 @@ class FooterWebWidget extends StatelessWidget {
                                     : '';
 
                                 return Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   if (logoUrl.isNotEmpty) ...[
                                     SizedBox(
-                                      height: 44,
-                                      width: 130,
+                                      width: _footerLogoSize,
+                                      height: _footerLogoSize,
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
                                         child: CustomImageWidget(
                                           image: logoUrl,
+                                          width: _footerLogoSize,
+                                          height: _footerLogoSize,
                                           fit: BoxFit.contain,
                                           useShimmerPlaceholder: true,
                                         ),
@@ -187,38 +197,10 @@ class FooterWebWidget extends StatelessWidget {
                     color: Colors.white.withValues(alpha: 0.15),
                   ),
                   const SizedBox(height: Dimensions.paddingSizeLarge),
-                  // Bottom row: copyright / credit
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                  // Bottom row: developer credit (shared strip with web menu)
+                  const Row(
                     children: [
-                      // Developer credit
-                      Expanded(
-                        child: Center(
-                          child: InkWell(
-                            onTap: () => _launchURL(
-                                'http://baitpait.com/'),
-                            borderRadius: BorderRadius.circular(
-                                Dimensions.radiusSizeSmall),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 6, horizontal: 8),
-                              child: Text(
-                                getTranslated('footer_developer_credit', context),
-                                style: rubikMedium.copyWith(
-                                  fontSize: Dimensions.fontSizeDefault + 2,
-                                  color: _footerTextMuted,
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: _footerTextMuted,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                      Expanded(child: DeveloperCreditBarWidget()),
                     ],
                   ),
                 ],
@@ -304,14 +286,6 @@ class _FooterColumn extends StatelessWidget {
         ),
       ],
     );
-  }
-}
-
-void _launchURL(String url) async {
-  if (await canLaunchUrlString(url)) {
-    await launchUrlString(url);
-  } else {
-    throw 'Could not launch $url';
   }
 }
 

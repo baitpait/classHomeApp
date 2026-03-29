@@ -9,10 +9,29 @@ class AppConstants {
   static const String fontFamily = 'Exo';
   static const String fontFamilyArabic = 'Cairo';
   static const String baseUrl = 'https://admin.anagheemhome.com/';
+
+  /// Resolves [path] (e.g. `/api/v1/...`) against [baseUrl] without `//` in the path.
+  static Uri resolveApiUri(String path) {
+    final relative = path.startsWith('/') ? path.substring(1) : path;
+    return Uri.parse(baseUrl).resolve(relative);
+  }
+
   static const LocalCachesTypeEnum cachesType = LocalCachesTypeEnum.all;
   static const String categoryUri = '/api/v1/categories';
   static const String bannerUri = '/api/v1/banners';
   static const String latestProductUri = '/api/v1/products/latest';
+
+  /// Home "latest" feed page size (other widgets).
+  static const int homeLatestProductsLimit = 200;
+
+  /// Home non-featured category sections: max products per category (from category products API).
+  static const int homeNonFeaturedCategoryProductMax = 5;
+
+  /// Home featured category slider: max products per strip.
+  static const int homeFeaturedCategoryProductMax = 10;
+
+  /// Parallel category product requests during home preload (avoid flooding the server).
+  static const int homeCategoryProductFetchConcurrency = 4;
   static const String searchProductUri = '/api/v1/products/details/';
   static const String subCategoryUri = '/api/v1/categories/childes/';
   static const String categoryProductUri = '/api/v1/categories/products/';

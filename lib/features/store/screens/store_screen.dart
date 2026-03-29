@@ -454,7 +454,15 @@ class _StoreCategorySlider extends StatelessWidget {
 
   static const double _cardWidth = 112.0;
   static const double _imageSize = 100.0; // Larger image, less border
-  static const double _cardHeight = 8 + _imageSize + 4 + 30;
+  /// Vertical padding (4+4) + image + gap + label area for two lines at 12px / height 1.2.
+  static const double _labelAreaHeight = 40.0;
+  /// Inner pill height (image + label). ListView [padding] top reduces child max height — include it in viewport.
+  static const double _listTopPadding = 12.0;
+  /// Inset around image: top = start = end; same value used for label horizontal + bottom (see [_StoreCategoryCard]).
+  static const double _pillImageInset = 6.0;
+  static const double _cardInnerHeight =
+      _pillImageInset + _imageSize + 4 + _labelAreaHeight + _pillImageInset;
+  static const double _cardHeight = _listTopPadding + _cardInnerHeight;
   static const double _itemSpacing = 8.0;
 
   @override
@@ -487,7 +495,7 @@ class _StoreCategorySlider extends StatelessWidget {
           child: ListView.builder(
             controller: scrollController,
             itemCount: categories.length,
-            padding: const EdgeInsetsDirectional.only(top: 12, start: 4),
+            padding: EdgeInsetsDirectional.only(top: _listTopPadding, start: 4),
             physics: const BouncingScrollPhysics(),
             scrollDirection: Axis.horizontal,
             itemBuilder: (context, index) {
@@ -549,7 +557,6 @@ class _StoreCategoryCard extends StatelessWidget {
       child: SizedBox(
         width: cardWidth,
         child: Container(
-          padding: const EdgeInsetsDirectional.symmetric(horizontal: 6, vertical: 4),
           decoration: BoxDecoration(
             color: pillColor,
             borderRadius: pillRadius,
@@ -562,41 +569,58 @@ class _StoreCategoryCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(
-                width: imageSize,
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: theme.cardColor,
-                      borderRadius: BorderRadius.circular(imageRadiusValue),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(imageRadiusValue - 2),
-                      child: CustomImageWidget(
-                        image: imageUrl,
-                        placeholder: Images.placeholder(context),
-                        width: imageSize,
-                        height: imageSize,
-                        fit: BoxFit.cover,
+              Padding(
+                padding: const EdgeInsetsDirectional.only(
+                  start: _StoreCategorySlider._pillImageInset,
+                  end: _StoreCategorySlider._pillImageInset,
+                  top: _StoreCategorySlider._pillImageInset,
+                ),
+                child: SizedBox(
+                  width: imageSize,
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: theme.cardColor,
+                        borderRadius: BorderRadius.circular(imageRadiusValue),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(imageRadiusValue - 2),
+                        child: CustomImageWidget(
+                          image: imageUrl,
+                          placeholder: Images.placeholder(context),
+                          width: imageSize,
+                          height: imageSize,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
               const SizedBox(height: 4),
-              SizedBox(
-                width: double.infinity,
-                child: Text(
-                  name,
-                  style: rubikMedium.copyWith(
-                    fontSize: fontSize,
-                    color: textColor,
-                    height: 1.2,
+              Padding(
+                padding: const EdgeInsetsDirectional.only(
+                  start: _StoreCategorySlider._pillImageInset,
+                  end: _StoreCategorySlider._pillImageInset,
+                  bottom: _StoreCategorySlider._pillImageInset,
+                ),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: _StoreCategorySlider._labelAreaHeight,
+                  child: Center(
+                    child: Text(
+                      name,
+                      style: rubikMedium.copyWith(
+                        fontSize: fontSize,
+                        color: textColor,
+                        height: 1.2,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
                 ),
               ),
             ],

@@ -24,7 +24,9 @@ class CustomButtonWidget extends StatelessWidget {
     final double resolvedHeight = height ?? 56;
 
     final ButtonStyle flatButtonStyle = TextButton.styleFrom(
-      backgroundColor: onTap == null ? ColorResources.getGreyColor(context) : backgroundColor ?? Theme.of(context).primaryColor,
+      backgroundColor: onTap == null
+          ? ColorResources.getGreyColor(context)
+          : backgroundColor ?? Theme.of(context).colorScheme.secondary,
       minimumSize: Size(0, resolvedHeight),
       maximumSize: Size(double.infinity, resolvedHeight),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -38,26 +40,34 @@ class CustomButtonWidget extends StatelessWidget {
       style: flatButtonStyle,
       child: isLoading ?
       Center(child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        const SizedBox(
-          height: 15, width: 15,
+        SizedBox(
+          height: 15,
+          width: 15,
           child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.onSecondary),
             strokeWidth: 2,
           ),
         ),
         const SizedBox(width: Dimensions.paddingSizeSmall),
 
-        Text(getTranslated('loading', context), style: rubikBold.copyWith(color: Colors.white)),
+        Text(
+          getTranslated('loading', context),
+          style: rubikBold.copyWith(color: Theme.of(context).colorScheme.onSecondary),
+        ),
       ]),
       ) : Row(mainAxisAlignment: MainAxisAlignment.center, children: [
 
-        Icon(iconData, color: Colors.white, size: iconData != null ? 20 : 0),
+        Icon(iconData, color: Theme.of(context).colorScheme.onSecondary, size: iconData != null ? 20 : 0),
         SizedBox(width: iconData != null ?  Dimensions.paddingSizeSmall : 0),
 
         Flexible(
           child: Text(
             btnTxt ?? "",
-            style: style ?? rubikMedium.copyWith(color: Colors.white, fontSize: Dimensions.fontSizeLarge),
+            style: style ??
+                rubikMedium.copyWith(
+                  color: Theme.of(context).colorScheme.onSecondary,
+                  fontSize: Dimensions.fontSizeLarge,
+                ),
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
           ),

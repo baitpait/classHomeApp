@@ -14,13 +14,16 @@ class OsmIframeMapWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Theme.of(context).dividerColor.withValues(alpha: 0.08),
-      alignment: Alignment.center,
-      child: Text(
-        'Map preview is available on Web only.',
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).hintColor),
-        textAlign: TextAlign.center,
+    return SizedBox.expand(
+      child: Container(
+        color: Theme.of(context).dividerColor.withValues(alpha: 0.08),
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(16),
+        child: Text(
+          'Map preview is available on Web only.',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).hintColor),
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }

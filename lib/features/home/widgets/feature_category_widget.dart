@@ -1,5 +1,6 @@
 import 'package:hexacom_user/common/models/category_model.dart';
 import 'package:hexacom_user/common/models/feature_category_model.dart';
+import 'package:hexacom_user/utill/app_constants.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:hexacom_user/utill/routes.dart';
 import 'package:hexacom_user/utill/styles.dart';
@@ -51,9 +52,11 @@ class _FeatureCategoryWidgetState extends State<FeatureCategoryWidget> {
     if (widget.featuredCategory == null) return const SizedBox();
 
     final products = widget.featuredCategory!.products
-        ?.where((p) => p.status == true)
-        .toList();
-    if (products == null || products.isEmpty) return const SizedBox();
+            ?.where((p) => p.status == true)
+            .take(AppConstants.homeFeaturedCategoryProductMax)
+            .toList() ??
+        [];
+    if (products.isEmpty) return const SizedBox();
 
     final isDesktop = ResponsiveHelper.isDesktop(context);
     final backgroundColor = ColorResources.getOfferSectionBackground(context);
@@ -169,7 +172,7 @@ class _FeatureCategoryWidgetState extends State<FeatureCategoryWidget> {
                     child: ListView.builder(
                       physics: const BouncingScrollPhysics(),
                       scrollDirection: Axis.horizontal,
-                      itemCount: products.length > 5 ? 5 : products.length,
+                      itemCount: products.length,
                       itemBuilder: (ctx, index) => Padding(
                         padding: const EdgeInsets.only(right: 14),
                         child: SizedBox(

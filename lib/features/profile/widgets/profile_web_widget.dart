@@ -18,6 +18,7 @@ import 'package:hexacom_user/features/menu/widgets/menu_loyalty_points_card_widg
 import 'package:hexacom_user/features/profile/providers/profile_provider.dart';
 import 'package:hexacom_user/features/splash/providers/splash_provider.dart';
 import 'package:hexacom_user/helper/auth_helper.dart';
+import 'package:hexacom_user/helper/user_avatar_image_url.dart';
 import 'package:hexacom_user/helper/custom_snackbar_helper.dart';
 import 'package:hexacom_user/helper/phone_number_checker_helper.dart';
 import 'package:hexacom_user/localization/language_constrants.dart';
@@ -125,7 +126,7 @@ class _ProfileWebWidgetState extends State<ProfileWebWidget> {
                                       Expanded(
                                         child: CustomTextFieldWidget(
                                           title: getTranslated('first_name', context),
-                                          hintText: 'John',
+                                          hintText: getTranslated('enter_first_name', context),
                                           isShowBorder: true,
                                           controller: widget.firstNameController,
                                           focusNode: widget.firstNameFocus,
@@ -138,7 +139,7 @@ class _ProfileWebWidgetState extends State<ProfileWebWidget> {
                                       Expanded(
                                         child: CustomTextFieldWidget(
                                           title: getTranslated('last_name', context),
-                                          hintText: 'Doe',
+                                          hintText: getTranslated('enter_last_name', context),
                                           isShowBorder: true,
                                           controller: widget.lastNameController,
                                           focusNode: widget.lastNameFocus,
@@ -161,7 +162,7 @@ class _ProfileWebWidgetState extends State<ProfileWebWidget> {
                                             onCountryChanged: (CountryCode value) => profileProvider.setCountryCode(value.dialCode!),
                                             onChanged: (String text) => AuthHelper.identifyEmailOrNumber(text, context),
                                             title: getTranslated('whatsapp_mobile_number', context),
-                                            hintText: getTranslated('enter_whatsapp_mobile_number', context),
+                                            hintText: getTranslated('enter_phone_number_with_country_code', context),
                                             isShowBorder: true,
                                             isEnabled: profileProvider.userInfoModel?.isPhoneVerified == 0,
                                             controller: widget.phoneNumberController,
@@ -367,10 +368,37 @@ class _ProfileWebHeader extends StatelessWidget {
     required this.pickImage,
   });
 
+  Widget _avatarBody(BuildContext context) {
+    if (file != null) {
+      return Image.network(file!.path, fit: BoxFit.cover, height: 100, width: 100);
+    }
+    final baseUrls = splashProvider.baseUrls;
+    final user = profileProvider.userInfoModel;
+    final resolved = UserAvatarImageUrl.resolve(
+      isLoggedIn: user != null,
+      userImage: user?.image,
+      customerImageUrl: baseUrls?.customerImageUrl,
+      appLogo: splashProvider.configModel?.appLogo,
+      ecommerceImageUrl: baseUrls?.ecommerceImageUrl,
+    );
+    if (resolved != null && resolved.isNotEmpty) {
+      return CustomImageWidget(
+        image: resolved,
+        placeholder: Images.placeholder(context),
+        fit: BoxFit.cover,
+        height: 100,
+        width: 100,
+      );
+    }
+    return Image.asset(
+      Images.placeholder(context),
+      fit: BoxFit.cover,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).primaryColor;
-    final baseUrls = splashProvider.baseUrls;
     final user = profileProvider.userInfoModel;
     final showLoyalty = user != null && (splashProvider.configModel?.loyaltyPointsEnabled ?? false);
     final points = user?.loyaltyPoints ?? 0;
@@ -413,17 +441,7 @@ class _ProfileWebHeader extends StatelessWidget {
                   ],
                 ),
                 child: ClipOval(
-                  child: file != null
-                      ? Image.network(file!.path, fit: BoxFit.cover, height: 100, width: 100)
-                      : (user != null && (user.image ?? '').isNotEmpty && baseUrls != null)
-                          ? CustomImageWidget(
-                              image: '${baseUrls.customerImageUrl}/${user.image}',
-                              fit: BoxFit.cover,
-                            )
-                          : Image.asset(
-                              Images.placeholder(context),
-                              fit: BoxFit.cover,
-                            ),
+                  child: _avatarBody(context),
                 ),
               ),
               Positioned(

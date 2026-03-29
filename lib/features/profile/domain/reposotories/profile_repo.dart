@@ -37,7 +37,7 @@ class ProfileRepo extends DataSyncRepo{
   }
 
   Future<http.StreamedResponse> updateProfile(UserInfoModel userInfoModel, String password, XFile?  file, String token) async {
-    http.MultipartRequest request = http.MultipartRequest('POST', Uri.parse('${AppConstants.baseUrl}${AppConstants.updateProfileUri}'));
+    http.MultipartRequest request = http.MultipartRequest('POST', AppConstants.resolveApiUri(AppConstants.updateProfileUri));
     request.headers.addAll(<String,String>{'Authorization': 'Bearer $token'});
     if(file != null && ResponsiveHelper.isMobilePhone()) {
       File file0 = File(file.path);

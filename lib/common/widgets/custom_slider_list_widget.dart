@@ -1,6 +1,5 @@
 import 'package:hexacom_user/features/home/widgets/arrow_icon_button_widget.dart';
 import 'package:hexacom_user/helper/responsive_helper.dart';
-import 'package:hexacom_user/main.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:flutter/material.dart';
 
@@ -37,9 +36,7 @@ class _CustomSliderListWidgetState extends State<CustomSliderListWidget> {
 
   @override
   void dispose() {
-    if(ResponsiveHelper.isDesktop(Get.context!)) {
-      widget.controller.dispose();
-    }
+    widget.controller.removeListener(_checkScrollPosition);
     super.dispose();
   }
 

@@ -10,6 +10,7 @@ import 'package:hexacom_user/common/widgets/web_app_bar_widget.dart';
 import 'package:hexacom_user/features/contact_us/providers/contact_us_provider.dart';
 import 'package:hexacom_user/features/profile/providers/profile_provider.dart';
 import 'package:hexacom_user/features/splash/providers/splash_provider.dart';
+import 'package:hexacom_user/helper/google_maps_location_helper.dart';
 import 'package:hexacom_user/helper/responsive_helper.dart';
 import 'package:hexacom_user/helper/custom_snackbar_helper.dart';
 import 'package:hexacom_user/localization/language_constrants.dart';
@@ -17,6 +18,7 @@ import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:hexacom_user/utill/routes.dart';
 import 'package:hexacom_user/utill/styles.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Subject options sent as text in the API subject field.
 enum ContactSubject {
@@ -103,13 +105,112 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
     return null;
   }
 
+  Future<void> _openStoreMapUrl(String rawUrl) async {
+    final trimmed = rawUrl.trim();
+    if (trimmed.isEmpty) return;
+    final uri = Uri.tryParse(trimmed) ?? Uri.tryParse('https://$trimmed');
+    if (uri == null || !mounted) return;
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
+  BoxDecoration _contactMapCardDecoration(BuildContext context) {
+    return BoxDecoration(
+      color: Theme.of(context).cardColor,
+      borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
+      border: Border.all(
+        color: Theme.of(context).primaryColor.withValues(alpha: 0.16),
+        width: 1,
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: Theme.of(context).shadowColor.withValues(alpha: 0.06),
+          blurRadius: 20,
+          offset: const Offset(0, 8),
+        ),
+      ],
+    );
+  }
+
+  /// OSM embed when lat/lng exist; otherwise external maps CTA or empty hint.
+  Widget _buildContactMapInterior(
+    BuildContext context, {
+    required double? mapLat,
+    required double? mapLng,
+    required double mapZoom,
+    required String? storeMapsUrl,
+  }) {
+    if (mapLat != null && mapLng != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
+        child: OsmIframeMapWidget(
+          latitude: mapLat,
+          longitude: mapLng,
+          zoom: mapZoom,
+        ),
+      );
+    }
+    if (storeMapsUrl != null && storeMapsUrl.isNotEmpty) {
+      return Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.map_outlined, size: 34, color: Theme.of(context).hintColor),
+                const SizedBox(height: Dimensions.paddingSizeSmall),
+                Text(
+                  getTranslated('map_open_in_google_maps_hint', context),
+                  style: rubikRegular.copyWith(color: Theme.of(context).hintColor),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: Dimensions.paddingSizeDefault),
+                SizedBox(
+                  width: double.infinity,
+                  child: CustomButtonWidget(
+                    btnTxt: getTranslated('open_in_google_maps', context),
+                    iconData: Icons.open_in_new,
+                    height: 48,
+                    onTap: () => _openStoreMapUrl(storeMapsUrl),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(Dimensions.paddingSizeLarge),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.map_outlined, size: 34, color: Theme.of(context).hintColor),
+            const SizedBox(height: 8),
+            Text(
+              getTranslated('map_no_store_coordinates', context),
+              style: rubikRegular.copyWith(color: Theme.of(context).hintColor),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDesktop = ResponsiveHelper.isDesktop(context);
     final config = context.read<SplashProvider>().configModel;
     final branch = (config?.branches != null && config!.branches!.isNotEmpty) ? config.branches!.first : null;
-    final lat = _tryParseDouble(branch?.latitude) ?? _tryParseDouble(config?.ecommerceLocationCoverage?.latitude);
-    final lng = _tryParseDouble(branch?.longitude) ?? _tryParseDouble(config?.ecommerceLocationCoverage?.longitude);
+    final branchLat = _tryParseDouble(branch?.latitude) ?? _tryParseDouble(config?.ecommerceLocationCoverage?.latitude);
+    final branchLng = _tryParseDouble(branch?.longitude) ?? _tryParseDouble(config?.ecommerceLocationCoverage?.longitude);
+    final storeMapsUrl = pickStoreGoogleMapsUrl(config?.storeGoogleMapsUrl, config?.googleMapsLocationUrl);
+    final parsedFromMapsUrl = parseGoogleMapsUrlToPoint(storeMapsUrl);
+    final mapLat = branchLat ?? parsedFromMapsUrl?.latitude;
+    final mapLng = branchLng ?? parsedFromMapsUrl?.longitude;
+    final mapZoom = parsedFromMapsUrl?.zoom ?? 15.0;
 
     return Scaffold(
       appBar: isDesktop
@@ -136,8 +237,9 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                 child: SizedBox(
                   width: Dimensions.webScreenWidth,
                   child: isDesktop
-                      ? Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      ? IntrinsicHeight(
+                          child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Expanded(
                               flex: 5,
@@ -368,44 +470,21 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                             Expanded(
                               flex: 4,
                               child: Container(
-                                height: 520,
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).cardColor,
-                                  borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
-                                  border: Border.all(
-                                    color: Theme.of(context).dividerColor.withValues(alpha: 0.25),
-                                    width: 1,
+                                decoration: _contactMapCardDecoration(context),
+                                clipBehavior: Clip.antiAlias,
+                                child: SizedBox.expand(
+                                  child: _buildContactMapInterior(
+                                    context,
+                                    mapLat: mapLat,
+                                    mapLng: mapLng,
+                                    mapZoom: mapZoom,
+                                    storeMapsUrl: storeMapsUrl,
                                   ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Theme.of(context).shadowColor.withValues(alpha: 0.06),
-                                      blurRadius: 20,
-                                      offset: const Offset(0, 8),
-                                    ),
-                                  ],
-                                ),
-                                child: Center(
-                                  child: (lat != null && lng != null)
-                                      ? ClipRRect(
-                                          borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
-                                          child: OsmIframeMapWidget(latitude: lat, longitude: lng),
-                                        )
-                                      : Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(Icons.map_outlined, size: 34, color: Theme.of(context).hintColor),
-                                            const SizedBox(height: 8),
-                                            Text(
-                                              getTranslated('map_no_store_coordinates', context),
-                                              style: rubikRegular.copyWith(color: Theme.of(context).hintColor),
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          ],
-                                        ),
                                 ),
                               ),
                             ),
                           ],
+                        ),
                         )
                       : Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -437,6 +516,35 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                                   textAlign: TextAlign.center,
                                 ),
                               ),
+                            ),
+                            const SizedBox(height: Dimensions.paddingSizeDefault),
+                            Container(
+                              width: double.infinity,
+                              decoration: _contactMapCardDecoration(context),
+                              clipBehavior: Clip.antiAlias,
+                              child: mapLat != null && mapLng != null
+                                  ? AspectRatio(
+                                      aspectRatio: 16 / 10,
+                                      child: _buildContactMapInterior(
+                                        context,
+                                        mapLat: mapLat,
+                                        mapLng: mapLng,
+                                        mapZoom: mapZoom,
+                                        storeMapsUrl: storeMapsUrl,
+                                      ),
+                                    )
+                                  : Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: Dimensions.paddingSizeLarge,
+                                      ),
+                                      child: _buildContactMapInterior(
+                                        context,
+                                        mapLat: mapLat,
+                                        mapLng: mapLng,
+                                        mapZoom: mapZoom,
+                                        storeMapsUrl: storeMapsUrl,
+                                      ),
+                                    ),
                             ),
                             const SizedBox(height: Dimensions.paddingSizeDefault),
                             Consumer<ContactUsProvider>(

@@ -4,6 +4,7 @@ import 'package:hexacom_user/common/widgets/custom_debounce_widget.dart';
 import 'package:hexacom_user/features/auth/domain/enums/from_page_enum.dart';
 import 'package:hexacom_user/features/search/widgets/search_overlay_widget.dart';
 import 'package:hexacom_user/helper/cart_helper.dart';
+import 'package:hexacom_user/helper/user_avatar_image_url.dart';
 import 'package:hexacom_user/features/profile/providers/profile_provider.dart';
 import 'package:hexacom_user/provider/theme_provider.dart';
 import 'package:hexacom_user/features/wishlist/providers/wishlist_provider.dart';
@@ -25,6 +26,7 @@ import '../../features/product/providers/product_provider.dart';
 import '../../features/search/providers/search_provider.dart';
 import '../../features/splash/providers/splash_provider.dart';
 import '../../utill/app_constants.dart';
+import '../../utill/color_resources.dart';
 import '../../utill/dimensions.dart';
 import '../../utill/images.dart';
 import '../../utill/routes.dart';
@@ -83,7 +85,7 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
           child: Column(children: [
 
             Container(
-              color: const Color(0xFF3A4756),
+              color: ColorResources.navBarNavy,
               height: 34,
               child: Center(
                 child: DefaultTextStyle(
@@ -310,13 +312,13 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
                               height: 40,
                               width: 40,
                               decoration: BoxDecoration(
-                                color: Theme.of(context).primaryColor,
+                                color: Theme.of(context).colorScheme.secondary,
                                 shape: BoxShape.circle,
                               ),
-                              child: const Center(
+                              child: Center(
                                 child: Icon(
                                   Icons.notifications_none_rounded,
-                                  color: Colors.white,
+                                  color: Theme.of(context).colorScheme.onSecondary,
                                   size: 20,
                                 ),
                               ),
@@ -324,9 +326,21 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        Consumer<AuthProvider>(
-                          builder: (context, authProvider, _) {
+                        Consumer2<AuthProvider, ProfileProvider>(
+                          builder: (context, authProvider, profileProvider, _) {
                             final isLoggedIn = authProvider.isLoggedIn();
+                            final resolved = UserAvatarImageUrl.resolve(
+                              isLoggedIn: isLoggedIn,
+                              userImage: profileProvider.userInfoModel?.image,
+                              customerImageUrl: splashProvider.baseUrls?.customerImageUrl,
+                              appLogo: splashProvider.configModel?.appLogo,
+                              ecommerceImageUrl: splashProvider.baseUrls?.ecommerceImageUrl,
+                            );
+                            final imageStr = resolved ??
+                                (isLoggedIn
+                                    ? '${splashProvider.baseUrls?.customerImageUrl ?? ''}/${profileProvider.userInfoModel?.image ?? ''}'
+                                    : '');
+                            final showAvatar = imageStr.isNotEmpty;
                             return MouseRegion(
                               onHover: isLoggedIn
                                   ? (e) => _showPopupMenu(e.position, context, PopupMenuType.profile)
@@ -346,18 +360,15 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
                                       width: 1,
                                     ),
                                   ),
-                                  child: isLoggedIn
-                                      ? Consumer<ProfileProvider>(
-                                          builder: (context, profileProvider, _) => ClipRRect(
-                                            borderRadius: BorderRadius.circular(20),
-                                            child: CustomImageWidget(
-                                              image:
-                                                  '${splashProvider.baseUrls!.customerImageUrl}/${profileProvider.userInfoModel?.image ?? ''}',
-                                              placeholder: Images.profile,
-                                              placeholderColor: Theme.of(context).primaryColor,
-                                              height: 40,
-                                              width: 40,
-                                            ),
+                                  child: showAvatar
+                                      ? ClipRRect(
+                                          borderRadius: BorderRadius.circular(20),
+                                          child: CustomImageWidget(
+                                            image: imageStr,
+                                            placeholder: Images.profile,
+                                            placeholderColor: Theme.of(context).primaryColor,
+                                            height: 40,
+                                            width: 40,
                                           ),
                                         )
                                       : Icon(
@@ -537,7 +548,7 @@ class _NavIconText extends StatelessWidget {
                       size: Dimensions.paddingSizeExtraLarge,
                       color: isHover ? Theme.of(context).primaryColor : baseColor,
                     ),
-                  if (count > 0)
+                    if (count > 0)
                     Positioned(
                       top: -8,
                       right: -8,
@@ -545,13 +556,13 @@ class _NavIconText extends StatelessWidget {
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Theme.of(context).primaryColor,
+                          color: Theme.of(context).colorScheme.secondary,
                           border: Border.all(color: Theme.of(context).cardColor, width: 1),
                         ),
                         child: Text(
                           '$count',
                           style: rubikRegular.copyWith(
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.onSecondary,
                             fontSize: Dimensions.fontSizeExtraSmall,
                           ),
                         ),
@@ -621,13 +632,13 @@ class _IconBadgeButton extends StatelessWidget {
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Theme.of(context).primaryColor,
+                    color: Theme.of(context).colorScheme.secondary,
                     border: Border.all(color: Theme.of(context).cardColor, width: 1),
                   ),
                   child: Text(
                     '$count',
                     style: rubikRegular.copyWith(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onSecondary,
                       fontSize: Dimensions.fontSizeExtraSmall,
                     ),
                   ),

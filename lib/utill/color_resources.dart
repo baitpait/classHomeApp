@@ -2,27 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:hexacom_user/provider/theme_provider.dart';
 import 'package:provider/provider.dart';
 
-/// App color palette:
-/// #EC2227 - Primary (red)
-/// #8B1A1A - Secondary (dark red)
-/// #d2d3d4 - Light gray (borders, disabled)
-/// #ffffff - White
-/// #000000 - Black
+/// Anagheem Home logo identity: teal + peach + cream (pastel ecommerce).
+/// Primary = brand teal; secondary = peach (CTAs); errors stay red via Theme [ColorScheme.error].
 class ColorResources {
-  static const Color primary = Color(0xFFEC2227);
-  static const Color secondary = Color(0xFF8B1A1A);
+  static const Color brandTeal = Color(0xFF88C0B7);
+  static const Color brandTealDark = Color(0xFF5A948B);
+  static const Color brandPeach = Color(0xFFF9A891);
+  static const Color brandPeachDark = Color(0xFFE07865);
+  static const Color brandCream = Color(0xFFFDE3C9);
+
+  /// Brand / links / accents (teal from logo).
+  static const Color primary = brandTeal;
+  /// Main action buttons — warm peach (logo “E‑COMMERCE” tone).
+  static const Color secondary = brandPeach;
   static const Color lightGray = Color(0xFFD2D3D4);
   static const Color white = Color(0xFFFFFFFF);
   static const Color black = Color(0xFF000000);
 
-  /// Navy used for bottom nav bar and mobile top app bar (footer/header).
-  static const Color navBarNavy = Color(0xFF2C2C2E);
+  /// Bottom nav / mobile header / web header strip & main footer — deep teal (Anagheem).
+  static const Color navBarNavy = Color(0xFF2A3836);
+
+  /// Same as [navBarNavy]; use for web footer background.
+  static const Color footerWebBackground = navBarNavy;
 
   static Color getGreyColor(BuildContext context) {
     return Provider.of<ThemeProvider>(context).darkTheme ? const Color(0xFF6f7275) : lightGray;
   }
   static Color getGrayColor(BuildContext context) {
-    return Provider.of<ThemeProvider>(context).darkTheme ? const Color(0xFF919191) : const Color(0xFF8B1A1A);
+    return Provider.of<ThemeProvider>(context).darkTheme ? const Color(0xFF919191) : const Color(0xFF5C6A68);
   }
   static Color getSearchBg(BuildContext context) {
     return Provider.of<ThemeProvider>(context).darkTheme ? const Color(0xFF585a5c) : white;
@@ -48,22 +55,20 @@ class ColorResources {
   }
 
   static const Color colorGrey = Color(0xFFD2D3D4);
-  static const Color colorGreen = Color(0xFF8B1A1A);
-  static const Color colorBlue = Color(0xFFEC2227);
+  static const Color colorGreen = Color(0xFF5A948B);
+  static const Color colorBlue = Color(0xFF88C0B7);
   static const Color snackBarBackgroundColor = Color(0xFF1D2D2B);
 
-  /// Shared accent used for text/icons (dark navy #3A4756)
-  static const Color accentNavy = Color(0xFF3A4756);
+  /// Muted teal-gray for section labels / icons (replaces old #3A4756 slate).
+  static const Color accentNavy = Color(0xFF4A6562);
 
-  /// Same as flash sale: red #E53935 at 50% opacity
-  static final Color offerSectionBackground = Color(0x80E53935).withValues(alpha: 0.12);
+  /// Soft peach tint for offer strips (matches logo secondary).
+  static final Color offerSectionBackground = brandPeach.withValues(alpha: 0.14);
   static const Color offerSectionBackgroundDark = Color(0xFF2D3238);
 
-  /// Section backgrounds
-  /// - Flash sale: low-opacity primary red
-  /// - New arrival & offers: shared low-opacity navy
+  /// Section backgrounds — flash sale: soft peach; offers: navy tint.
   static Color getFlashSaleSectionBackground(BuildContext context) {
-    return primary.withValues(alpha: 0.06);
+    return brandPeach.withValues(alpha: 0.08);
   }
 
   static Color getOfferSectionBackground(BuildContext context) {
@@ -79,8 +84,8 @@ class ColorResources {
   static Color getNewArrivalSectionBackground(BuildContext context) {
     final isDark = Provider.of<ThemeProvider>(context).darkTheme;
     return isDark
-        ? const Color(0xFF1F2937) // slate-800-ish
-        : const Color(0xFF10B981).withValues(alpha: 0.07); // mint tint
+        ? const Color(0xFF1F2B2A)
+        : brandTeal.withValues(alpha: 0.10);
   }
 
 }

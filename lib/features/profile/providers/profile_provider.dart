@@ -47,20 +47,46 @@ class ProfileProvider with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    ResponseModel responseModel;
-    http.StreamedResponse response = await profileRepo!.updateProfile(updateUserModel, password, file, token);
+    late ResponseModel responseModel;
+    try {
+      final http.StreamedResponse response =
+          await profileRepo!.updateProfile(updateUserModel, password, file, token);
+      final body = await response.stream.bytesToString();
+      dynamic decoded;
+      try {
+        decoded = body.isNotEmpty ? jsonDecode(body) : null;
+      } catch (_) {
+        decoded = null;
+      }
 
-    Map map = jsonDecode(await response.stream.bytesToString());
-
-    if (response.statusCode == 200) {
-      String? message = map["message"];
-      _userInfoModel = updateUserModel;
-      responseModel = ResponseModel(true, message);
-
-    }
-    else {
-      responseModel = ResponseModel(false, '${map['errors'][0]['message']}');
-
+      if (response.statusCode == 200) {
+        if (decoded is Map) {
+          final map = Map<String, dynamic>.from(decoded);
+          final message = map['message']?.toString();
+          _userInfoModel = updateUserModel;
+          responseModel = ResponseModel(true, message);
+        } else {
+          _userInfoModel = updateUserModel;
+          responseModel = ResponseModel(true, null);
+        }
+      } else {
+        var err = 'Request failed (${response.statusCode})';
+        if (decoded is Map) {
+          final map = Map<String, dynamic>.from(decoded);
+          final errors = map['errors'];
+          if (errors is List &&
+              errors.isNotEmpty &&
+              errors.first is Map &&
+              (errors.first as Map)['message'] != null) {
+            err = (errors.first as Map)['message'].toString();
+          } else if (map['message'] != null) {
+            err = map['message'].toString();
+          }
+        }
+        responseModel = ResponseModel(false, err);
+      }
+    } catch (e) {
+      responseModel = ResponseModel(false, e.toString());
     }
 
     _isLoading = false;

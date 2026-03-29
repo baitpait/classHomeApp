@@ -1,7 +1,6 @@
 import 'package:hexacom_user/common/enums/footer_type_enum.dart';
 import 'package:hexacom_user/common/enums/product_filter_type_enum.dart';
 import 'package:hexacom_user/common/widgets/custom_app_bar_widget.dart';
-import 'package:hexacom_user/common/widgets/custom_single_child_list_widget.dart';
 import 'package:hexacom_user/common/widgets/footer_web_widget.dart';
 import 'package:hexacom_user/common/widgets/home_app_bar_widget.dart';
 import 'package:hexacom_user/features/auth/providers/auth_provider.dart';
@@ -11,19 +10,19 @@ import 'package:hexacom_user/features/home/providers/banner_provider.dart';
 import 'package:hexacom_user/features/flash_sale/providers/flash_sale_provider.dart';
 import 'package:hexacom_user/features/home/widgets/banner_widget.dart';
 import 'package:hexacom_user/features/home/widgets/category_widget.dart';
-import 'package:hexacom_user/features/home/widgets/feature_category_widget.dart';
+import 'package:hexacom_user/features/home/widgets/home_category_sections_widget.dart';
 import 'package:hexacom_user/features/home/widgets/flash_sale_widget.dart';
 import 'package:hexacom_user/features/home/widgets/main_slider_shimmer_widget.dart';
 import 'package:hexacom_user/features/home/widgets/main_slider_widget.dart';
 import 'package:hexacom_user/features/home/widgets/new_arrival_widget.dart';
 import 'package:hexacom_user/features/home/widgets/offer_product_widget.dart';
-import 'package:hexacom_user/features/home/widgets/category_products_section_widget.dart';
 import 'package:hexacom_user/features/menu/widgets/options_widget.dart';
 import 'package:hexacom_user/features/product/providers/product_provider.dart';
 import 'package:hexacom_user/features/profile/providers/profile_provider.dart';
 import 'package:hexacom_user/features/splash/providers/splash_provider.dart';
 import 'package:hexacom_user/features/wishlist/providers/wishlist_provider.dart';
 import 'package:hexacom_user/helper/responsive_helper.dart';
+import 'package:hexacom_user/utill/app_constants.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -44,7 +43,11 @@ class HomeScreen extends StatefulWidget {
     final profileProvider = Provider.of<ProfileProvider>(context, listen: false);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    productProvider.getLatestProductList(1, isUpdate: reload);
+    productProvider.getLatestProductList(
+      1,
+      isUpdate: reload,
+      limit: AppConstants.homeLatestProductsLimit,
+    );
 
     final futures = <Future>[
       categoryProvider.getFeatureCategories(reload, isUpdate: reload),
@@ -70,6 +73,7 @@ class HomeScreen extends StatefulWidget {
     }
 
     await Future.wait(futures);
+    await categoryProvider.preloadHomeNonFeaturedProductPreviews();
   }
 
 
@@ -121,6 +125,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
             filterType = null;
             Provider.of<ProductProvider>(context, listen: false).offset = 1;
             await HomeScreen.loadData(context, true);
+            if (!context.mounted) return;
           },
           backgroundColor: const Color(0xFF3A4756),
           child: CustomScrollView(
@@ -232,21 +237,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                         if (!ResponsiveHelper.isDesktop(context))
                           const SizedBox(height: 8),
                         const SizedBox(height: Dimensions.mobileHomeSectionGap),
-                        Consumer<CategoryProvider>(builder: (context, categoryProvider, _) {
-                          return categoryProvider.featureCategoryMode != null
-                              ? CustomSingleChildListWidget(
-                                  itemCount: categoryProvider.featureCategoryMode?.featuredData?.length ?? 0,
-                                  itemBuilder: (index) => Padding(
-                                    padding: const EdgeInsets.only(bottom: 8),
-                                    child: FeatureCategoryWidget(
-                                      featuredCategory: categoryProvider.featureCategoryMode!.featuredData?[index],
-                                    ),
-                                  ),
-                                )
-                              : const SizedBox();
-                        }),
-
-                        const CategoryProductsSectionWidget(),
+                        const HomeCategorySectionsWidget(),
 
                       ]),
                     )),

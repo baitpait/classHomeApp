@@ -152,7 +152,11 @@ class AddressWidget extends StatelessWidget {
                               addressProvider.updateAddressIndex(currentSelected - 1, true);
                             }
 
-                            showCustomSnackBar(message, context, isError: !isSuccessful);
+                            showCustomSnackBar(
+                              isSuccessful ? getTranslated('address_deleted_successfully', context) : message,
+                              context,
+                              isError: !isSuccessful,
+                            );
                           });
                         },
                       ),
@@ -198,7 +202,11 @@ class AddressWidget extends StatelessWidget {
 
                         addressProvider.deleteUserAddressByID(addressModel.id, index, (bool isSuccessful, String message) {
                           Navigator.pop(context);
-                          showCustomSnackBar(message, context, isError: isSuccessful);
+                          showCustomSnackBar(
+                            isSuccessful ? getTranslated('address_deleted_successfully', context) : message,
+                            context,
+                            isError: !isSuccessful,
+                          );
                         });
                       },
 

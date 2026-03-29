@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:hexacom_user/common/enums/data_source_enum.dart';
 import 'package:hexacom_user/common/models/api_response_model.dart';
@@ -10,6 +11,7 @@ import 'package:hexacom_user/features/category/domain/reposotories/category_repo
 import 'package:hexacom_user/helper/api_checker_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:hexacom_user/helper/data_sync_provider.dart';
+import 'package:hexacom_user/utill/app_constants.dart';
 
 class CategoryProvider extends ChangeNotifier {
   final CategoryRepo categoryRepo;
@@ -27,9 +29,14 @@ class CategoryProvider extends ChangeNotifier {
   List<CategoryModel>? _popularCategoryModel;
   List<CategoryModel>? get  popularCategoryModel => _popularCategoryModel;
 
+  Map<int, List<Product>>? _homeNonFeaturedPreviews;
+  bool _homeNonFeaturedPreloadInFlight = false;
+
 
 
   List<CategoryModel>? get categoryList => _categoryList;
+  Map<int, List<Product>>? get homeNonFeaturedPreviews => _homeNonFeaturedPreviews;
+  bool get isHomeNonFeaturedPreloadInFlight => _homeNonFeaturedPreloadInFlight;
   List<CategoryModel>? get subCategoryList => _subCategoryList;
   List<Product>? get categoryProductList => _categoryProductList;
   bool get pageFirstIndex => _pageFirstIndex;
@@ -40,24 +47,67 @@ class CategoryProvider extends ChangeNotifier {
 
 
 
-  Future<ApiResponseModel?> getCategoryList(bool reload) async {
-    ApiResponseModel? apiResponse;
+  Future<void> getCategoryList(bool reload) async {
     _subCategoryList = null;
 
-    if(_categoryList == null || reload) {
-
-      DataSyncProvider.fetchAndSyncData(
-        fetchFromLocal: ()=> categoryRepo.getCategoryList<CacheResponseData>(source: DataSourceEnum.local),
-        fetchFromClient: ()=> categoryRepo.getCategoryList(source: DataSourceEnum.client),
-        onResponse: (data, _){
+    if (_categoryList == null || reload) {
+      _homeNonFeaturedPreviews = null;
+      await DataSyncProvider.fetchAndSyncData(
+        fetchFromLocal: () => categoryRepo.getCategoryList<CacheResponseData>(source: DataSourceEnum.local),
+        fetchFromClient: () => categoryRepo.getCategoryList(source: DataSourceEnum.client),
+        onResponse: (data, _) {
           _categoryList = [];
           data.forEach((category) => _categoryList!.add(CategoryModel.fromJson(category)));
           notifyListeners();
         },
       );
     }
+  }
 
-    return apiResponse;
+  /// Fetches up to [AppConstants.homeNonFeaturedCategoryProductMax] products per non-featured category for home sections.
+  Future<void> preloadHomeNonFeaturedProductPreviews() async {
+    if (_homeNonFeaturedPreloadInFlight) return;
+    if (_categoryList == null || _categoryList!.isEmpty) {
+      _homeNonFeaturedPreviews = {};
+      notifyListeners();
+      return;
+    }
+
+    _homeNonFeaturedPreloadInFlight = true;
+    final featuredIds = _featureCategoryModel?.featuredData
+            ?.map((f) => f.category?.id)
+            .whereType<int>()
+            .toSet() ??
+        <int>{};
+    final ids = _categoryList!
+        .map((c) => c.id)
+        .whereType<int>()
+        .where((id) => !featuredIds.contains(id))
+        .toList();
+
+    final previews = <int, List<Product>>{};
+    final chunk = AppConstants.homeCategoryProductFetchConcurrency;
+    final limit = AppConstants.homeNonFeaturedCategoryProductMax;
+
+    try {
+      for (var i = 0; i < ids.length; i += chunk) {
+        final end = math.min(i + chunk, ids.length);
+        final slice = ids.sublist(i, end);
+        final partial = await Future.wait(
+          slice.map((id) async {
+            final list = await categoryRepo.getCategoryProductsPreview(id.toString(), limit);
+            return MapEntry(id, list);
+          }),
+        );
+        for (final e in partial) {
+          previews[e.key] = e.value;
+        }
+      }
+      _homeNonFeaturedPreviews = previews;
+      notifyListeners();
+    } finally {
+      _homeNonFeaturedPreloadInFlight = false;
+    }
   }
 
   Future<void> getSubCategoryList(int categoryID, {int? subCategoryId}) async {
@@ -126,26 +176,24 @@ class CategoryProvider extends ChangeNotifier {
 
 
   Future<void> getFeatureCategories(bool reload, {bool isUpdate = true}) async {
-    if(reload) {
+    if (reload) {
       _featureCategoryModel = null;
-
-      if(isUpdate) {
+      _homeNonFeaturedPreviews = null;
+      if (isUpdate) {
         notifyListeners();
       }
     }
 
-    if(_featureCategoryModel == null) {
-
-      DataSyncProvider.fetchAndSyncData(
-        fetchFromLocal: ()=> categoryRepo.getFeatureCategories<CacheResponseData>(source: DataSourceEnum.local),
-        fetchFromClient: ()=> categoryRepo.getFeatureCategories(source: DataSourceEnum.client),
-        onResponse: (data, type){
+    if (_featureCategoryModel == null) {
+      await DataSyncProvider.fetchAndSyncData(
+        fetchFromLocal: () => categoryRepo.getFeatureCategories<CacheResponseData>(source: DataSourceEnum.local),
+        fetchFromClient: () => categoryRepo.getFeatureCategories(source: DataSourceEnum.client),
+        onResponse: (data, type) {
           _featureCategoryModel = FeatureCategoryModel.fromJson(jsonEncode(data));
           notifyListeners();
         },
       );
     }
-
   }
 
   void selectCategoryById(int? id, {bool isUpdate = false}) {

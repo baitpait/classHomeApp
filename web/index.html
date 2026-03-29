@@ -49,7 +49,7 @@
   <meta name="author" content="6amTech">
 
   <!-- Browser header / address bar color on mobile -->
-  <meta name="theme-color" content="#2C2C2E">
+  <meta name="theme-color" content="#88C0B7">
 
 
   <!-- iOS meta tags & icons -->
@@ -66,10 +66,8 @@
 
   <!-- Preload critical resources -->
   <link rel="preload" href="style.css" as="style">
-  <link rel="preload" href="assets/preloader.svg" as="image">
 
-  <!-- Resource hints for faster external connections -->
-  <link rel="dns-prefetch" href="https://maps.googleapis.com">
+  <!-- Resource hints for faster external connections (maps omitted: app uses FeatureFlags.disableMap). -->
   <link rel="dns-prefetch" href="https://www.gstatic.com">
   <link rel="dns-prefetch" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
@@ -257,20 +255,28 @@
 </script>
 
 <script>
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", function () {
-      // navigator.serviceWorker.register("/flutter_service_worker.js");
-      navigator.serviceWorker.register("/firebase-messaging-sw.js");
-    });
+  // When true: do not register firebase-messaging-sw.js (display-only web; mirrors Dart FeatureFlags.disableFirebaseAndPushOnWeb).
+  var DISABLE_FIREBASE_WEB_PUSH = true;
+  // Defer FCM worker so it does not compete with Flutter / main bundle on first load.
+  function registerFirebaseMessagingSwDeferred() {
+    if (DISABLE_FIREBASE_WEB_PUSH) return;
+    if (!("serviceWorker" in navigator)) return;
+    var run = function () {
+      navigator.serviceWorker.register("/firebase-messaging-sw.js").catch(function () {});
+    };
+    if ("requestIdleCallback" in window) {
+      requestIdleCallback(run, { timeout: 8000 });
+    } else {
+      setTimeout(run, 2500);
+    }
   }
+  registerFirebaseMessagingSwDeferred();
 </script>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js" defer></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js" defer></script>
-
-
 <script>
-  window.addEventListener('load', function(ev) {
+  // Start Flutter on DOMContentLoaded instead of window.load so deferred third-party
+  // scripts do not block the first frame (Firebase is initialized from Dart; SW loads its own SDK).
+  function startFlutterApp() {
     {{flutter_js}}
     {{flutter_build_config}}
 
@@ -279,11 +285,27 @@
         serviceWorkerVersion: {{flutter_service_worker_version}},
       },
       onEntrypointLoaded: function(engineInitializer) {
-        var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
-        var config = { renderer: isMobile ? 'html' : 'canvaskit' };
+        // Renderer tradeoff (Flutter web):
+        // - html: DOM + Canvas 2D. Smaller initial download, faster time-to-interactive on phones
+        //   and narrow layouts; some widgets/shaders may look slightly different vs mobile apps.
+        // - canvaskit: Skia compiled to WASM. Heavier first load (~MB-scale) but text, clips, and
+        //   visual parity are closer to Flutter on iOS/Android — best default for desktop monitors.
+        //
+        // We use html on small viewports / typical mobile UAs, and canvaskit on wide desktop.
+        var chosenRenderer = 'canvaskit';
+        (function () {
+          var ua = navigator.userAgent || '';
+          var mobileUa = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+          // iPadOS 13+ may report as Mac; treat touch Mac as tablet → prefer lighter html renderer.
+          var touchMacTablet = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+          var narrow = window.innerWidth < 768;
+          var coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+          var preferHtml = mobileUa || touchMacTablet || narrow || (coarse && window.innerWidth < 1024);
+          chosenRenderer = preferHtml ? 'html' : 'canvaskit';
+        })();
+        var config = { renderer: chosenRenderer };
         engineInitializer.initializeEngine(config).then(function(appRunner) {
           appRunner.runApp();
-          // Hide initial HTML loader shortly after Flutter attaches
           setTimeout(function () {
             var loader = document.getElementById('app-loader');
             if (loader) {
@@ -293,36 +315,16 @@
                 loader.parentNode && loader.parentNode.removeChild(loader);
               }, 260);
             }
-          }, 400);
+          }, 80);
         });
       }
     });
-  });
-</script>
-
-
-<script>
-  // Firebase init runs after SDK (defer) has loaded to avoid "firebase is not defined"
-  (function() {
-    var firebaseConfig = {
-      apiKey: "AIzaSyBCtDfdfPqxXDO6rDNlmQC1VJSHOtuyo3w",
-      authDomain: "gem-b5006.firebaseapp.com",
-      projectId: "gem-b5006",
-      storageBucket: "gem-b5006.firebasestorage.app",
-      messagingSenderId: "384321080318",
-      appId: "1:384321080318:web:9cf2ec90f41dfb8a2c0eaf",
-    };
-    function initFirebase() {
-      if (typeof firebase !== 'undefined' && firebase.initializeApp) {
-        firebase.initializeApp(firebaseConfig);
-      }
-    }
-    if (document.readyState === 'complete') {
-      initFirebase();
-    } else {
-      window.addEventListener('load', initFirebase);
-    }
-  })();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startFlutterApp);
+  } else {
+    startFlutterApp();
+  }
 </script>
 </body>
 </html>

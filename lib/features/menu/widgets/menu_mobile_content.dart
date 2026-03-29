@@ -1,4 +1,5 @@
 import 'package:hexacom_user/common/models/config_model.dart';
+import 'package:hexacom_user/common/widgets/developer_credit_bar_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_alert_dialog_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_asset_image_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_image_widget.dart';
@@ -10,6 +11,7 @@ import 'package:hexacom_user/features/language/widgets/language_select_button_wi
 import 'package:hexacom_user/features/profile/providers/profile_provider.dart';
 import 'package:hexacom_user/features/splash/providers/splash_provider.dart';
 import 'package:hexacom_user/helper/responsive_helper.dart';
+import 'package:hexacom_user/helper/user_avatar_image_url.dart';
 import 'package:hexacom_user/localization/language_constrants.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:hexacom_user/utill/images.dart';
@@ -190,6 +192,8 @@ class MenuMobileContent extends StatelessWidget {
                       const SizedBox(height: Dimensions.paddingSizeLarge),
                       _LogoutButton(isLoggedIn: isLoggedIn),
                       const SizedBox(height: Dimensions.paddingSizeLarge),
+                      const DeveloperCreditBarWidget(),
+                      const SizedBox(height: Dimensions.paddingSizeSmall),
                     ],
                   ),
                 ),
@@ -290,6 +294,17 @@ class _MenuHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final primary = Theme.of(context).primaryColor;
     final onPrimary = Theme.of(context).cardColor;
+    final resolvedAvatar = UserAvatarImageUrl.resolve(
+      isLoggedIn: isLoggedIn,
+      userImage: userController.userInfoModel?.image,
+      customerImageUrl: configModel?.baseUrls?.customerImageUrl,
+      appLogo: configModel?.appLogo,
+      ecommerceImageUrl: configModel?.baseUrls?.ecommerceImageUrl,
+    );
+    final imageStr = resolvedAvatar ??
+        (isLoggedIn
+            ? '${configModel?.baseUrls?.customerImageUrl ?? ''}/${userController.userInfoModel?.image ?? ''}'
+            : '');
 
     return SafeArea(
       bottom: false,
@@ -326,9 +341,7 @@ class _MenuHeader extends StatelessWidget {
                 child: CustomImageWidget(
                   placeholder: Images.profile,
                   placeholderColor: onPrimary.withValues(alpha: 0.3),
-                  image:
-                      '${configModel?.baseUrls?.customerImageUrl}'
-                      '/${(userController.userInfoModel != null && isLoggedIn) ? userController.userInfoModel!.image : ''}',
+                  image: imageStr,
                   height: 56,
                   width: 56,
                   fit: BoxFit.cover,

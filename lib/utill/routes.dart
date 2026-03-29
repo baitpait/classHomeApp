@@ -239,12 +239,14 @@ class RouteHelper {
   }
   static String _navigateRoute(BuildContext? context, String path,{RouteAction? route = RouteAction.push}) {
 
-    if(kIsWeb){
+    void runWebNavigation() {
       if(route == RouteAction.pushNamedAndRemoveUntil){
         if(context == null){
           Get.context?.go(path);
         }else{
-          GoRouter.of(context).go(path);
+          if (context.mounted) {
+            GoRouter.of(context).go(path);
+          }
         }
         if(kIsWeb) {
           historyUrlStrategy.replaceState(null, '', '/');
@@ -255,18 +257,26 @@ class RouteHelper {
         if(context == null){
           Get.context?.pushReplacement(path);
         }else{
-          GoRouter.of(context).pushReplacement(path);
+          if (context.mounted) {
+            GoRouter.of(context).pushReplacement(path);
+          }
         }
 
       }else{
         if(context == null){
           Get.context?.push(path);
         }else{
-          GoRouter.of(context).push(path);
+          if (context.mounted) {
+            GoRouter.of(context).push(path);
+          }
         }
 
 
       }
+    }
+
+    if(kIsWeb){
+      WidgetsBinding.instance.addPostFrameCallback((_) => runWebNavigation());
     }else{
       if(route == RouteAction.pushNamedAndRemoveUntil){
         Get.context?.go(path);

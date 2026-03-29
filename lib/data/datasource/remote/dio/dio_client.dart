@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hexacom_user/data/datasource/remote/dio/logging_interceptor.dart';
+import 'package:hexacom_user/data/datasource/remote/dio/rate_limit_interceptor.dart';
 import 'package:hexacom_user/utill/app_constants.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,6 +14,7 @@ class DioClient {
 
   Dio? dio;
   String? token;
+  bool _interceptorsAttached = false;
 
   DioClient(this.baseUrl,
       Dio? dioC, {
@@ -42,7 +44,11 @@ class DioClient {
         'guest-id': sharedPreferences.getString(AppConstants.guestId) ?? '',
 
       };
-    dio?.interceptors.add(loggingInterceptor);
+    if (dio != null && !_interceptorsAttached) {
+      dio!.interceptors.add(loggingInterceptor);
+      dio!.interceptors.add(RateLimitInterceptor(dio!));
+      _interceptorsAttached = true;
+    }
   }
 
 

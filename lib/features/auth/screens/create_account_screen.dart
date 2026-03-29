@@ -231,18 +231,28 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                     ),
                     const SizedBox(height: Dimensions.paddingSizeDefault),
 
-                  RichText(text: TextSpan(children: [
-                    TextSpan(
-                      text: getTranslated('whatsapp_mobile_number', context),
-                      style: rubikMedium.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color),
+                  RichText(
+                    text: TextSpan(
+                      style: rubikMedium.copyWith(
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
+                        fontFamily: fontFamily,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: getTranslated('whatsapp_mobile_number', context),
+                        ),
+                        TextSpan(
+                          text: ' *',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                            fontFamily: fontFamily,
+                            fontWeight: FontWeight.w500,
+                            fontSize: Dimensions.fontSizeDefault,
+                          ),
+                        ),
+                      ],
                     ),
-
-                    TextSpan(
-                      text: ' *',
-                      style: rubikMedium.copyWith(color: Theme.of(context).colorScheme.error),
-                    ),
-
-                  ])),
+                  ),
                   const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
                     Container(
@@ -420,7 +430,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
                                 registrationProvider.registration(context, signUpModel, config).then((status) async {
                                   if (status.isSuccess) {
-                                    LoginRouteHelper.navigateToRoute(widget.fromPage);
+                                    LoginRouteHelper.navigateToRoute(FromPage.mainRoute.name);
                                   }
                                 });
                               }

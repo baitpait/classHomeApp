@@ -8,6 +8,7 @@ import 'package:hexacom_user/features/auth/domain/enums/from_page_enum.dart';
 import 'package:hexacom_user/features/auth/domain/enums/verification_type_enum.dart';
 import 'package:hexacom_user/features/auth/providers/verification_provider.dart';
 import 'package:hexacom_user/helper/auth_helper.dart';
+import 'package:hexacom_user/helper/user_avatar_image_url.dart';
 import 'package:hexacom_user/helper/file_validation_helper.dart';
 import 'package:hexacom_user/helper/phone_number_checker_helper.dart';
 import 'package:hexacom_user/main.dart';
@@ -157,7 +158,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ) : CustomImageWidget(
                               placeholder: Images.placeholder(context),
                               width: 80, height: 80, fit: BoxFit.cover,
-                              image: '${splashProvider.baseUrls!.customerImageUrl}/''${profileProvider.userInfoModel?.image}',
+                              image: UserAvatarImageUrl.resolve(
+                                    isLoggedIn: true,
+                                    userImage: profileProvider.userInfoModel?.image,
+                                    customerImageUrl: splashProvider.baseUrls?.customerImageUrl,
+                                    appLogo: configModel.appLogo,
+                                    ecommerceImageUrl: splashProvider.baseUrls?.ecommerceImageUrl,
+                                  ) ??
+                                  '${splashProvider.baseUrls!.customerImageUrl}/${profileProvider.userInfoModel?.image ?? ''}',
                             ),
                           ),
 
@@ -214,7 +222,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: Dimensions.paddingSizeSmall),
 
                     CustomTextFieldWidget(
-                      hintText: 'John',
+                      hintText: getTranslated('enter_first_name', context),
                       isShowBorder: true,
                       controller: _firstNameController,
                       focusNode: _firstNameFocus,
@@ -232,8 +240,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: Dimensions.paddingSizeSmall),
 
                     CustomTextFieldWidget(
-                      // style: rubikMedium.copyWith(color: Theme.of(context).textTheme.bodyLarge!.color, fontSize: Dimensions.fontSizeSmall),
-                      hintText: 'Doe',
+                      hintText: getTranslated('enter_last_name', context),
                       isShowBorder: true,
                       controller: _lastNameController,
                       focusNode: _lastNameFocus,
@@ -256,7 +263,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   onCountryChanged: (CountryCode value) => countryCode = value.dialCode,
                                   onChanged: (String text) => AuthHelper.identifyEmailOrNumber(text, context),
                                   title: getTranslated('mobile_number', context),
-                                  hintText: getTranslated('number_hint', context),
+                                  hintText: getTranslated('enter_phone_number_with_country_code', context),
                                   isShowBorder: true,
                                   isEnabled: profileProvider.userInfoModel?.isPhoneVerified == 0,
                                   controller: _phoneNumberController,

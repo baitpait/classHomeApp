@@ -49,7 +49,11 @@ class DeleteDialogWidget extends StatelessWidget {
                 ));
                 Provider.of<AddressProvider>(context, listen: false).deleteUserAddressByID(addressModel.id, index, (bool isSuccessful, String message) {
                   Navigator.pop(context);
-                  showCustomSnackBar(message, context, isError: !isSuccessful);
+                  showCustomSnackBar(
+                    isSuccessful ? getTranslated('address_deleted_successfully', context) : message,
+                    context,
+                    isError: !isSuccessful,
+                  );
                   Navigator.pop(context);
                 });
               },

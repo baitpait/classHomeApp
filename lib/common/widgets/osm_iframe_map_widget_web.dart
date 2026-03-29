@@ -48,7 +48,9 @@ class _OsmIframeMapWidgetState extends State<OsmIframeMapWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return HtmlElementView(viewType: _viewType);
+    return SizedBox.expand(
+      child: HtmlElementView(viewType: _viewType),
+    );
   }
 
   String _buildOsmEmbedUrl({

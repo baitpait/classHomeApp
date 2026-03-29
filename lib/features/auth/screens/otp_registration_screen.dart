@@ -163,7 +163,7 @@ class _OtpRegistrationScreenState extends State<OtpRegistrationScreen> {
                   ): CustomTextFieldWidget(
                     countryDialCode: countryCode,
                     onCountryChanged: (CountryCode value) => countryCode = value.dialCode,
-                    hintText: getTranslated('number_hint', context),
+                    hintText: getTranslated('enter_phone_number_with_country_code', context),
                     isShowBorder: true,
                     controller: _phoneNumberController,
                     inputType: TextInputType.phone,

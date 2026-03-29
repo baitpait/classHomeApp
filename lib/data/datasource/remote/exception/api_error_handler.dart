@@ -29,6 +29,9 @@ class ApiErrorHandler {
                 case 503:
                   errorDescription = getTranslated('server_error', Get.context!);
                   break;
+                case 429:
+                  errorDescription = getTranslated('too_many_requests', Get.context!);
+                  break;
                 default:
                   ErrorResponseModel? errorResponse;
                   try {

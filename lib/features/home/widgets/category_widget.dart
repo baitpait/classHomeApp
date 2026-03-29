@@ -35,8 +35,13 @@ class _CategoryWidgetState extends State<CategoryWidget> {
 
     final double cardWidth = 112.0;
     final double imageSize = 100.0; // Larger image, less border
-    // Row height: vertical padding (8) + image + gap (4) + 2-line text (~30)
-    final double cardHeight = 12 + imageSize + 4 + 30;
+    /// Matches [_CategoryCircleCard]: image inset (top=start=end) + bottom inset + gap + label.
+    const double listTopPadding = 12.0;
+    const double labelAreaHeight = 40.0;
+    const double pillImageInset = 6.0;
+    final double cardInnerHeight =
+        pillImageInset + imageSize + 4 + labelAreaHeight + pillImageInset;
+    final double cardHeight = listTopPadding + cardInnerHeight;
     final double itemSpacing = 8.0;
 
     return Consumer<CategoryProvider>(
@@ -57,20 +62,7 @@ class _CategoryWidgetState extends State<CategoryWidget> {
         }
 
         final theme = Theme.of(context);
-        final featuredIds = category.featureCategoryMode?.featuredData
-                ?.map((f) => f.category?.id)
-                .whereType<int>()
-                .toSet() ??
-            <int>{};
-
-        // Requirement: show this slider only for featured categories.
-        final featuredCategories = category.categoryList!
-            .where((c) => c.id != null && featuredIds.contains(c.id))
-            .toList();
-
-        if (featuredCategories.isEmpty) {
-          return const SizedBox.shrink();
-        }
+        final categories = category.categoryList!;
 
         return Container(
           width: double.infinity,
@@ -99,15 +91,15 @@ class _CategoryWidgetState extends State<CategoryWidget> {
                   controller: _scrollController,
                   verticalPosition: cardHeight * 0.5 - 20,
                   horizontalPosition: 0,
-                  isShowForwardButton: featuredCategories.length > 4,
+                  isShowForwardButton: categories.length > 4,
                   child: ListView.builder(
                     controller: _scrollController,
-                    itemCount: featuredCategories.length,
-                    padding: const EdgeInsetsDirectional.only(top: 12, start: 4),
+                    itemCount: categories.length,
+                    padding: EdgeInsetsDirectional.only(top: listTopPadding, start: 4),
                     physics: const BouncingScrollPhysics(),
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (context, index) {
-                      final item = featuredCategories[index];
+                      final item = categories[index];
                       return Padding(
                         padding: EdgeInsetsDirectional.only(end: itemSpacing),
                         child: _CategoryCircleCard(
@@ -117,6 +109,8 @@ class _CategoryWidgetState extends State<CategoryWidget> {
                           imageSize: imageSize,
                           cardWidth: cardWidth,
                           isDesktop: isDesktop,
+                          labelAreaHeight: labelAreaHeight,
+                          pillImageInset: pillImageInset,
                         ),
                       );
                     },
@@ -139,6 +133,8 @@ class _CategoryCircleCard extends StatefulWidget {
     required this.imageSize,
     required this.cardWidth,
     required this.isDesktop,
+    required this.labelAreaHeight,
+    required this.pillImageInset,
   });
 
   final String name;
@@ -147,6 +143,8 @@ class _CategoryCircleCard extends StatefulWidget {
   final double imageSize;
   final double cardWidth;
   final bool isDesktop;
+  final double labelAreaHeight;
+  final double pillImageInset;
 
   @override
   State<_CategoryCircleCard> createState() => _CategoryCircleCardState();
@@ -250,7 +248,6 @@ class _CategoryCircleCardState extends State<_CategoryCircleCard> {
       child: SizedBox(
         width: widget.cardWidth,
         child: Container(
-          padding: const EdgeInsetsDirectional.symmetric(horizontal: 6, vertical: 6),
           decoration: BoxDecoration(
             color: pillColor,
             borderRadius: pillRadius,
@@ -263,40 +260,57 @@ class _CategoryCircleCardState extends State<_CategoryCircleCard> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(
-                width: imageSize,
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: circleBg,
-                      borderRadius: BorderRadius.circular(imageRadiusValue),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(imageRadiusValue - 2),
-                      child: CustomImageWidget(
-                        image: widget.imageUrl,
-                        width: imageSize,
-                        height: imageSize,
-                        fit: BoxFit.cover,
+              Padding(
+                padding: EdgeInsetsDirectional.only(
+                  start: widget.pillImageInset,
+                  end: widget.pillImageInset,
+                  top: widget.pillImageInset,
+                ),
+                child: SizedBox(
+                  width: imageSize,
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: circleBg,
+                        borderRadius: BorderRadius.circular(imageRadiusValue),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(imageRadiusValue - 2),
+                        child: CustomImageWidget(
+                          image: widget.imageUrl,
+                          width: imageSize,
+                          height: imageSize,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
               const SizedBox(height: 4),
-              SizedBox(
-                width: double.infinity,
-                child: Text(
-                  widget.name,
-                  style: rubikMedium.copyWith(
-                    fontSize: fontSize,
-                    color: chipTextColor,
-                    height: 1.2,
+              Padding(
+                padding: EdgeInsetsDirectional.only(
+                  start: widget.pillImageInset,
+                  end: widget.pillImageInset,
+                  bottom: widget.pillImageInset,
+                ),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: widget.labelAreaHeight,
+                  child: Center(
+                    child: Text(
+                      widget.name,
+                      style: rubikMedium.copyWith(
+                        fontSize: fontSize,
+                        color: chipTextColor,
+                        height: 1.2,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
                 ),
               ),
             ],

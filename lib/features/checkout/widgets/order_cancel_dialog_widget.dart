@@ -76,7 +76,7 @@ class OrderCancelDialogWidget extends StatelessWidget {
                 ),
               )),
               const SizedBox(width: 10),
-              Expanded(child: CustomButtonWidget(btnTxt: 'Order Details', onTap: () {
+              Expanded(child: CustomButtonWidget(btnTxt: getTranslated('order_details', context), onTap: () {
                 Navigator.pop(context);
                 Navigator.pop(context);
                 RouteHelper.getOrderDetailsRoute(context, orderID, null, action: RouteAction.push);

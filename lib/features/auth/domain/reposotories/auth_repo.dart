@@ -72,7 +72,7 @@ class AuthRepo {
 
 
   Future<ApiResponseModel> updateToken({String? fcmToken}) async {
-    if (FeatureFlags.disableFirebaseAndPush) {
+    if (FeatureFlags.skipFirebaseAndPush) {
       return ApiResponseModel.withSuccess(null);
     }
     try {
@@ -119,7 +119,7 @@ class AuthRepo {
   }
 
   Future<String?> getDeviceToken() async {
-    if (FeatureFlags.disableFirebaseAndPush) return '@';
+    if (FeatureFlags.skipFirebaseAndPush) return '@';
     String? deviceToken = '@';
     try{
       deviceToken = (await FirebaseMessaging.instance.getToken())!;

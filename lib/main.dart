@@ -1,8 +1,9 @@
-import 'dart:async';
+import 'dart:async' show Future, unawaited;
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hexacom_user/common/models/notification_body.dart';
 import 'package:hexacom_user/common/widgets/cookies_widget.dart';
+import 'package:hexacom_user/common/widgets/global_whatsapp_fab_widget.dart';
 import 'package:hexacom_user/features/address/providers/location_provider.dart';
 import 'package:hexacom_user/features/auth/providers/registration_provider.dart';
 import 'package:hexacom_user/features/auth/providers/verification_provider.dart';
@@ -44,7 +45,7 @@ import 'package:hexacom_user/theme/dark_theme.dart';
 import 'package:hexacom_user/theme/light_theme.dart';
 import 'package:hexacom_user/utill/app_constants.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:url_strategy/url_strategy.dart';
 import 'di_container.dart' as di;
 
@@ -59,7 +60,7 @@ Future<void> main() async {
 
   final List<Future> initFutures = [di.init()];
 
-  if (!FeatureFlags.disableFirebaseAndPush) {
+  if (!FeatureFlags.skipFirebaseAndPush) {
     if(kIsWeb) {
       initFutures.add(Firebase.initializeApp(options: const FirebaseOptions(
           apiKey: "AIzaSyBCtDfdfPqxXDO6rDNlmQC1VJSHOtuyo3w",
@@ -70,19 +71,21 @@ Future<void> main() async {
           appId: "1:384321080318:web:9cf2ec90f41dfb8a2c0eaf"
       )));
 
-      initFutures.add(FacebookAuth.instance.webAndDesktopInitialize(
-        appId: "YOUR_APP_ID",
-        cookie: true,
-        xfbml: true,
-        version: "v13.0",
-      ));
+      if (!FeatureFlags.hideSocialLogin) {
+        initFutures.add(FacebookAuth.instance.webAndDesktopInitialize(
+          appId: "YOUR_APP_ID",
+          cookie: true,
+          xfbml: true,
+          version: "v13.0",
+        ));
+      }
 
     } else {
       initFutures.add(Firebase.initializeApp().then((_) => FirebaseMessaging.instance.requestPermission()));
     }
   }
   await Future.wait(initFutures);
-  if (!FeatureFlags.disableFirebaseAndPush) {
+  if (!FeatureFlags.skipFirebaseAndPush) {
     try {
       await NotificationHelper.initialize(flutterLocalNotificationsPlugin);
       FirebaseMessaging.onBackgroundMessage(myBackgroundMessageHandler);
@@ -95,7 +98,10 @@ Future<void> main() async {
         );
       }
       await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(channel);
-    } catch(e) {
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Notification init failed: $e');
+      }
     }
   }
 
@@ -157,8 +163,11 @@ class _MyAppState extends State<MyApp> {
 
   }
   Future<void> _route() async {
-   await Provider.of<SplashProvider>(context, listen: false).initConfig();
-   await Provider.of<LanguageProvider>(context, listen: false).syncLanguagesFromServer();
+    await Provider.of<SplashProvider>(context, listen: false).initConfig();
+    if (!mounted) return;
+    unawaited(
+      Provider.of<LanguageProvider>(context, listen: false).syncLanguagesFromServer(),
+    );
   }
   @override
   Widget build(BuildContext context) {
@@ -250,6 +259,10 @@ class _MyAppState extends State<MyApp> {
                     && !splashProvider.getAcceptCookiesStatus(splashProvider.configModel!.cookiesManagement!.content)
                     && splashProvider.cookiesShow)
                   const Positioned.fill(child: Align(alignment: Alignment.bottomCenter, child: CookiesWidget())),
+
+                GlobalWhatsappFabOverlay(
+                  routeChangeListenable: RouteHelper.goRoutes.routerDelegate,
+                ),
 
               ]),
             )),

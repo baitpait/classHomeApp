@@ -39,7 +39,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    if (!FeatureFlags.disableFirebaseAndPush) {
+    if (!FeatureFlags.skipFirebaseAndPush) {
       triggerFirebaseNotification();
     }
 

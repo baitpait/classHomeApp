@@ -172,7 +172,7 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> updateToken() async {
-    if (FeatureFlags.disableFirebaseAndPush) return;
+    if (FeatureFlags.skipFirebaseAndPush) return;
     if(await authRepo!.getDeviceToken() != '@'){
       await authRepo!.updateToken();
     }
@@ -501,7 +501,7 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<SocialLoginModel> googleWebSignIn() async {
-    if (FeatureFlags.disableFirebaseAndPush || FeatureFlags.hideSocialLogin) {
+    if (FeatureFlags.skipFirebaseAndPush || FeatureFlags.hideSocialLogin) {
       return SocialLoginModel(uniqueId: '', token: '', medium: '', email: '');
     }
     final FirebaseAuth auth = FirebaseAuth.instance;

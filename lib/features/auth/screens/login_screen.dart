@@ -221,16 +221,28 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                   SizedBox(height: ResponsiveHelper.isDesktop(context) ? size.height * 0.03 : Dimensions.paddingSizeDefault),
 
-                                  RichText(text: TextSpan(children: [
-                                    TextSpan(
-                                      text: getTranslated('whatsapp_mobile_number', context),
-                                      style: rubikMedium.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color),
+                                  RichText(
+                                    text: TextSpan(
+                                      style: rubikMedium.copyWith(
+                                        color: Theme.of(context).textTheme.bodyLarge?.color,
+                                        fontFamily: fontFamily,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text: getTranslated('whatsapp_mobile_number', context),
+                                        ),
+                                        TextSpan(
+                                          text: ' *',
+                                          style: TextStyle(
+                                            color: Theme.of(context).colorScheme.error,
+                                            fontFamily: fontFamily,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: Dimensions.fontSizeDefault,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    TextSpan(
-                                      text: ' *',
-                                      style: rubikMedium.copyWith(color: Theme.of(context).colorScheme.error),
-                                    ),
-                                  ])),
+                                  ),
                                   const SizedBox(height: Dimensions.paddingSizeExtraSmall),
                                   Container(
                                     decoration: BoxDecoration(
