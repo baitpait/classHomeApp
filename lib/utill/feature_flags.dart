@@ -18,7 +18,7 @@ class FeatureFlags {
 
   /// Disable Firebase and push on **all** platforms (FCM init, token, background handler).
   /// Same as admin: Firebase hidden and disabled.
-  static const bool disableFirebaseAndPush = false;
+  static const bool disableFirebaseAndPush = true;
 
   /// Web-only: skip Firebase/FCM when the site is display/streaming-only (no push, no fcm-subscribe API).
   /// Set to false if you enable push on web again. Code paths stay in place; guards use [skipFirebaseAndPush].

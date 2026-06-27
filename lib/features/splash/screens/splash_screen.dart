@@ -70,14 +70,19 @@ class _SplashScreenState extends State<SplashScreen> {
           firstTime = false;
         });
 
-    Provider.of<SplashProvider>(context, listen: false).initSharedData();
+    // Defer provider mutations until after the first frame so notifyListeners()
+    // is not called during the build phase.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      Provider.of<SplashProvider>(context, listen: false).initSharedData();
 
-    Provider.of<CartProvider>(context, listen: false).getCartData();
-    Provider
-        .of<LanguageProvider>(context, listen: false)
-        .initializeAllLanguages(context);
+      Provider.of<CartProvider>(context, listen: false).getCartData();
+      Provider
+          .of<LanguageProvider>(context, listen: false)
+          .initializeAllLanguages(context);
 
-    _routeToPage();
+      _routeToPage();
+    });
   }
 
   triggerFirebaseNotification() async {

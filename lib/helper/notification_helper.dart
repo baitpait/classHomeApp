@@ -135,7 +135,7 @@ class NotificationHelper {
       contentTitle: title, htmlFormatContentTitle: true,
     );
     final BuildContext? context = Get.context;
-    String channelName = 'Elite Vape';
+    String channelName = 'كلاس هوم';
     if (context != null) {
       final splashProvider = Provider.of<SplashProvider>(context, listen: false);
       final name = splashProvider.configModel?.ecommerceName;
@@ -165,7 +165,7 @@ class NotificationHelper {
       summaryText: body, htmlFormatSummaryText: true,
     );
     final BuildContext? context = Get.context;
-    String channelName = 'Elite Vape';
+    String channelName = 'كلاس هوم';
     if (context != null) {
       final splashProvider = Provider.of<SplashProvider>(context, listen: false);
       final name = splashProvider.configModel?.ecommerceName;

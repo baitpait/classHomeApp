@@ -9,7 +9,6 @@ import 'package:hexacom_user/features/home/enums/banner_type_enum.dart';
 import 'package:hexacom_user/features/home/providers/banner_provider.dart';
 import 'package:hexacom_user/features/flash_sale/providers/flash_sale_provider.dart';
 import 'package:hexacom_user/features/home/widgets/banner_widget.dart';
-import 'package:hexacom_user/features/home/widgets/category_widget.dart';
 import 'package:hexacom_user/features/home/widgets/home_category_sections_widget.dart';
 import 'package:hexacom_user/features/home/widgets/flash_sale_widget.dart';
 import 'package:hexacom_user/features/home/widgets/main_slider_shimmer_widget.dart';
@@ -190,11 +189,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                                 ),
                               ),
 
-                        // Slightly tighter gap between banner and categories on mobile
-                        if (!ResponsiveHelper.isDesktop(context))
-                          const SizedBox(height: 8),
-                        const CategoryWidget(),
-
+                        // Top categories removed — banner kept above.
                         if (!ResponsiveHelper.isDesktop(context))
                           const SizedBox(height: Dimensions.mobileHomeSectionGap),
                         const FlashSaleWidget(),

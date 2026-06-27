@@ -1,8 +1,8 @@
 /* Reset */
 :root {
-  --color-brand-red: #ec2227;
-  --color-brand-maroon: #741113;
-  --color-brand-maroon-dark: #5c0d10;
+  --color-brand-red: #e97b2c;
+  --color-brand-maroon: #1f4c5c;
+  --color-brand-maroon-dark: #143742;
   --color-neutral-gray: #d2d3d4;
   --primary-color: var(--color-brand-red);
   --header-top: var(--color-brand-maroon);

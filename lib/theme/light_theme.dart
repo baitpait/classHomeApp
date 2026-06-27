@@ -2,14 +2,14 @@ import 'package:hexacom_user/utill/app_constants.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:flutter/material.dart';
 
-// محفوظ: أحمر #EC2227، عنابي #741113، رمادي #D2D3D4
-const Color _brandRed = Color(0xFFEC2227);
-const Color _brandMaroon = Color(0xFF741113);
+// كلاس هوم: برتقالي #E97B2C (أساسي)، كحلي/تركوازي داكن #1F4C5C (ثانوي)، رمادي #D2D3D4
+const Color _brandRed = Color(0xFFE97B2C);
+const Color _brandMaroon = Color(0xFF1F4C5C);
 const Color _onBrandRed = Color(0xFFFFFFFF);
 const Color _onBrandMaroon = Color(0xFFFFFFFF);
 const Color _surface = Color(0xFFFFFFFF);
 const Color _errorBrand = Color(0xFFC62828);
-const Color _hintMuted = Color(0xFF6D5658);
+const Color _hintMuted = Color(0xFF5E6B70);
 
 ThemeData light = ThemeData(
   fontFamily: AppConstants.fontFamily,

@@ -2,10 +2,10 @@ import 'package:hexacom_user/utill/app_constants.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:flutter/material.dart';
 
-// الوضع الداكن: نفس العائلة اللونية مع سطوح عنابية دافئة
-const Color _brandRedBright = Color(0xFFFF5A5F);
-const Color _brandMaroonSurface = Color(0xFF8B2E33);
-const Color _onBrandRedDark = Color(0xFF1A0A0B);
+// الوضع الداكن: هوية كلاس هوم — برتقالي مضيء مع سطوح تركوازية داكنة
+const Color _brandRedBright = Color(0xFFF59A4B);
+const Color _brandMaroonSurface = Color(0xFF2C6075);
+const Color _onBrandRedDark = Color(0xFF11201F);
 const Color _errorBrand = Color(0xFFEF5350);
 
 ThemeData dark = ThemeData(
@@ -13,13 +13,13 @@ ThemeData dark = ThemeData(
   primaryColor: _brandRedBright,
   secondaryHeaderColor: _brandMaroonSurface,
   brightness: Brightness.dark,
-  scaffoldBackgroundColor: const Color(0xFF1A1213),
-  cardColor: const Color(0xFF2A1C1E),
+  scaffoldBackgroundColor: const Color(0xFF111A1D),
+  cardColor: const Color(0xFF1A2528),
   hintColor: const Color(0xFFB0B1B3),
   focusColor: const Color(0xFFE0E1E3),
   disabledColor: const Color(0xFF6B6C6E),
   shadowColor: Colors.black.withValues(alpha: 0.45),
-  dividerColor: const Color(0xFF4A3235),
+  dividerColor: const Color(0xFF324448),
   textTheme: TextTheme(
     displaySmall: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: const Color(0xFFF0F0F2)),
     headlineMedium: TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: const Color(0xFFF0F0F2)),
@@ -63,11 +63,11 @@ ThemeData dark = ThemeData(
   ),
   inputDecorationTheme: InputDecorationTheme(
     filled: true,
-    fillColor: const Color(0xFF2E2022),
+    fillColor: const Color(0xFF1F2C2F),
     border: OutlineInputBorder(borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault)),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
-      borderSide: const BorderSide(color: Color(0xFF4A3235)),
+      borderSide: const BorderSide(color: Color(0xFF324448)),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
@@ -77,25 +77,25 @@ ThemeData dark = ThemeData(
   ),
   cardTheme: CardThemeData(
     elevation: 0,
-    color: const Color(0xFF2A1C1E),
+    color: const Color(0xFF1A2528),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Dimensions.radiusSizeLarge)),
   ),
   popupMenuTheme: const PopupMenuThemeData(
-    color: Color(0xFF2A1C1E),
-    surfaceTintColor: Color(0xFF2A1C1E),
+    color: Color(0xFF1A2528),
+    surfaceTintColor: Color(0xFF1A2528),
   ),
   colorScheme: const ColorScheme.dark(
     primary: _brandRedBright,
-    onPrimary: Color(0xFF1A0A0B),
+    onPrimary: Color(0xFF11201F),
     secondary: _brandMaroonSurface,
     onSecondary: Color(0xFFFFFFFF),
     error: _errorBrand,
     onError: Colors.white,
-    surface: Color(0xFF2A1C1E),
+    surface: Color(0xFF1A2528),
     onSurface: Color(0xFFE8E9EA),
     onSurfaceVariant: Color(0xFFB0B1B3),
-    outline: Color(0xFF4A3235),
-    surfaceContainerHighest: Color(0xFF352428),
+    outline: Color(0xFF324448),
+    surfaceContainerHighest: Color(0xFF243438),
   ),
   tabBarTheme: TabBarThemeData(
     indicatorColor: _brandRedBright,
@@ -103,13 +103,13 @@ ThemeData dark = ThemeData(
     unselectedLabelColor: Color(0xFFB0B1B3),
   ),
   appBarTheme: const AppBarThemeData(
-    backgroundColor: Color(0xFF1A1213),
+    backgroundColor: Color(0xFF111A1D),
     foregroundColor: Color(0xFFE8E9EA),
     elevation: 0,
     surfaceTintColor: Colors.transparent,
   ),
   bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-    backgroundColor: Color(0xFF2A1C1E),
+    backgroundColor: Color(0xFF1A2528),
     selectedItemColor: _brandRedBright,
     unselectedItemColor: Color(0xFFB0B1B3),
   ),

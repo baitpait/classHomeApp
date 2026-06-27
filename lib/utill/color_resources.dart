@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:hexacom_user/provider/theme_provider.dart';
 import 'package:provider/provider.dart';
 
-/// شركة محفوظ للتجارة والصيانة — ألوان الهوية: أحمر `#EC2227`، عنابي `#741113`، رمادي `#D2D3D4`، أسود/أبيض.
+/// كلاس هوم — ألوان الهوية حسب الشعار: برتقالي `#E97B2C`، كحلي/تركوازي داكن `#1F4C5C`، رمادي `#D2D3D4`، أسود/أبيض.
+/// (الأسماء brandRed/brandMaroon أسماء قديمة محتفظ بها؛ قيمها الآن برتقالي/كحلي.)
 class ColorResources {
-  static const Color brandRed = Color(0xFFEC2227);
-  static const Color brandMaroon = Color(0xFF741113);
-  static const Color brandMaroonDark = Color(0xFF5C0D10);
+  static const Color brandRed = Color(0xFFE97B2C);
+  static const Color brandMaroon = Color(0xFF1F4C5C);
+  static const Color brandMaroonDark = Color(0xFF143742);
   /// للتدرجات والظلال فوق الخلفيات الداكنة.
-  static const Color brandRedSoft = Color(0xFFFF5C61);
+  static const Color brandRedSoft = Color(0xFFF4A35C);
 
   static const Color lightGray = Color(0xFFD2D3D4);
   static const Color white = Color(0xFFFFFFFF);
@@ -28,13 +29,13 @@ class ColorResources {
     return Provider.of<ThemeProvider>(context).darkTheme ? const Color(0xFF6f7275) : lightGray;
   }
   static Color getGrayColor(BuildContext context) {
-    return Provider.of<ThemeProvider>(context).darkTheme ? const Color(0xFF919191) : const Color(0xFF5C3E40);
+    return Provider.of<ThemeProvider>(context).darkTheme ? const Color(0xFF919191) : const Color(0xFF3E4F54);
   }
   static Color getSearchBg(BuildContext context) {
     return Provider.of<ThemeProvider>(context).darkTheme ? const Color(0xFF585a5c) : white;
   }
   static Color getBackgroundColor(BuildContext context) {
-    return Provider.of<ThemeProvider>(context).darkTheme ? const Color(0xFF2A1C1E) : white;
+    return Provider.of<ThemeProvider>(context).darkTheme ? const Color(0xFF1A2528) : white;
   }
 
   static Color getGreyBunkerColor(BuildContext context) {

@@ -13,9 +13,10 @@ class AppConstants {
   /// مرّر عبر: `flutter build web --dart-define=API_BASE_URL=https://admin.mahfoozco.com/`
   /// fallback للتطوير المحلي فقط.
   static const String _defaultDevBaseUrl = 'http://127.0.0.1:8000/';
+  static const String _defaultBaseUrl = 'https://admin.classhome.store/';
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: _defaultDevBaseUrl,
+    defaultValue: _defaultBaseUrl,
   );
 
   /// True إذا كان البِناء يستخدم القيمة الافتراضية (localhost) — استخدمه للتحذير في الإنتاج.

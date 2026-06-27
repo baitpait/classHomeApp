@@ -233,7 +233,7 @@ class _MyAppState extends State<MyApp> {
           routerDelegate: RouteHelper.goRoutes.routerDelegate,
           routeInformationParser: RouteHelper.goRoutes.routeInformationParser,
           routeInformationProvider: RouteHelper.goRoutes.routeInformationProvider,
-          title: splashProvider.configModel != null ? splashProvider.configModel!.ecommerceName ?? '' : 'Elite Vape',
+          title: splashProvider.configModel != null ? splashProvider.configModel!.ecommerceName ?? '' : 'كلاس هوم',
           debugShowCheckedModeBanner: false,
           theme: theme,
           locale: locale,
