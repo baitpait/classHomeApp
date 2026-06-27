@@ -61,8 +61,22 @@ class _CategoryWidgetState extends State<CategoryWidget> {
           );
         }
 
+        final categories = category.categoryList!
+            .where((c) => c.hasProductsForStoreDisplay)
+            .toList();
+        if (categories.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+              child: Text(
+                getTranslated('no_category_available', context),
+                style: rubikMedium.copyWith(color: Theme.of(context).hintColor),
+              ),
+            ),
+          );
+        }
+
         final theme = Theme.of(context);
-        final categories = category.categoryList!;
 
         return Container(
           width: double.infinity,

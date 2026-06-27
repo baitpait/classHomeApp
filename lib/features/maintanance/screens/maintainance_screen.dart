@@ -142,6 +142,26 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> with WidgetsBindi
                       ),
                     ),
                   ),
+                  if ((configModel.ecommercePhoneSecondary ?? '').trim().isNotEmpty) ...[
+                    const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+                    InkWell(
+                      onTap: () {
+                        launchUrl(
+                          Uri.parse('tel:${configModel.ecommercePhoneSecondary!.trim()}'),
+                          mode: LaunchMode.externalApplication,
+                        );
+                      },
+                      child: Text(
+                        configModel.ecommercePhoneSecondary!.trim(),
+                        style: rubikRegular.copyWith(
+                          color: Theme.of(context).indicatorColor,
+                          fontSize: Dimensions.fontSizeDefault,
+                          decoration: TextDecoration.underline,
+                          decorationColor: Theme.of(context).indicatorColor,
+                        ),
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: Dimensions.paddingSizeExtraSmall),
                 ],
 

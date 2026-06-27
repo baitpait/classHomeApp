@@ -2,25 +2,25 @@ import 'package:hexacom_user/utill/app_constants.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:flutter/material.dart';
 
-// Anagheem Home: logo teal #88C0B7, peach #F9A891, cream #FDE3C9
-const Color _brandTeal = Color(0xFF88C0B7);
-const Color _brandPeach = Color(0xFFF9A891);
-const Color _onBrandTeal = Color(0xFF1A2E2C);
-const Color _onBrandPeach = Color(0xFF2C2422);
-const Color _surfaceWarm = Color(0xFFFFFBF8);
+// محفوظ: أحمر #EC2227، عنابي #741113، رمادي #D2D3D4
+const Color _brandRed = Color(0xFFEC2227);
+const Color _brandMaroon = Color(0xFF741113);
+const Color _onBrandRed = Color(0xFFFFFFFF);
+const Color _onBrandMaroon = Color(0xFFFFFFFF);
+const Color _surface = Color(0xFFFFFFFF);
 const Color _errorBrand = Color(0xFFC62828);
-const Color _hintMuted = Color(0xFF6D7A78);
+const Color _hintMuted = Color(0xFF6D5658);
 
 ThemeData light = ThemeData(
   fontFamily: AppConstants.fontFamily,
-  primaryColor: _brandTeal,
-  secondaryHeaderColor: _brandPeach,
+  primaryColor: _brandRed,
+  secondaryHeaderColor: _brandMaroon,
   brightness: Brightness.light,
   cardColor: Colors.white,
   focusColor: const Color(0xFFD2D3D4),
   hintColor: _hintMuted,
-  canvasColor: _surfaceWarm,
-  scaffoldBackgroundColor: _surfaceWarm,
+  canvasColor: _surface,
+  scaffoldBackgroundColor: _surface,
   shadowColor: const Color(0xFFD2D3D4),
   textTheme: TextTheme(
     displaySmall: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: const Color(0xFF000000)),
@@ -37,8 +37,8 @@ ThemeData light = ThemeData(
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
-      backgroundColor: _brandPeach,
-      foregroundColor: _onBrandPeach,
+      backgroundColor: _brandRed,
+      foregroundColor: _onBrandRed,
       minimumSize: const Size(0, 48),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Dimensions.radiusButton)),
@@ -47,8 +47,8 @@ ThemeData light = ThemeData(
   ),
   filledButtonTheme: FilledButtonThemeData(
     style: FilledButton.styleFrom(
-      backgroundColor: _brandPeach,
-      foregroundColor: _onBrandPeach,
+      backgroundColor: _brandRed,
+      foregroundColor: _onBrandRed,
       minimumSize: const Size(0, 48),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Dimensions.radiusButton)),
@@ -57,7 +57,7 @@ ThemeData light = ThemeData(
   ),
   textButtonTheme: TextButtonThemeData(
     style: TextButton.styleFrom(
-      foregroundColor: _brandTeal,
+      foregroundColor: _brandRed,
       minimumSize: const Size(0, 48),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Dimensions.radiusButton)),
@@ -69,7 +69,7 @@ ThemeData light = ThemeData(
     border: OutlineInputBorder(borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault)),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
-      borderSide: const BorderSide(color: _brandTeal, width: 1.5),
+      borderSide: const BorderSide(color: _brandRed, width: 1.5),
     ),
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
   ),
@@ -81,19 +81,19 @@ ThemeData light = ThemeData(
   popupMenuTheme: const PopupMenuThemeData(color: Colors.white, surfaceTintColor: Colors.white),
   colorScheme: ColorScheme(
     brightness: Brightness.light,
-    primary: _brandTeal,
-    onPrimary: _onBrandTeal,
-    secondary: _brandPeach,
-    onSecondary: _onBrandPeach,
+    primary: _brandRed,
+    onPrimary: _onBrandRed,
+    secondary: _brandMaroon,
+    onSecondary: _onBrandMaroon,
     error: _errorBrand,
     onError: Colors.white,
-    surface: _surfaceWarm,
+    surface: _surface,
     onSurface: const Color(0xFF1C1C1E),
     shadow: const Color(0xFFD2D3D4),
   ),
   tabBarTheme: TabBarThemeData(
-    indicatorColor: _brandPeach,
-    labelColor: _onBrandPeach,
+    indicatorColor: _brandRed,
+    labelColor: _brandMaroon,
     unselectedLabelColor: _hintMuted,
   ),
 );

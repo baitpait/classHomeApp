@@ -7,6 +7,7 @@ class ConfigModel {
   String? _favIcon;
   String? _ecommerceAddress;
   String? _ecommercePhone;
+  String? _ecommercePhoneSecondary;
   String? _ecommerceEmail;
   EcommerceLocationCoverage? _ecommerceLocationCoverage;
   double? _minimumOrderValue;
@@ -63,6 +64,7 @@ class ConfigModel {
         String? favIcon,
         String? ecommerceAddress,
         String? ecommercePhone,
+        String? ecommercePhoneSecondary,
         String? ecommerceEmail,
         EcommerceLocationCoverage? ecommerceLocationCoverage,
         double? minimumOrderValue,
@@ -109,6 +111,7 @@ class ConfigModel {
     _favIcon = favIcon;
     _ecommerceAddress = ecommerceAddress;
     _ecommercePhone = ecommercePhone;
+    _ecommercePhoneSecondary = ecommercePhoneSecondary;
     _ecommerceEmail = ecommerceEmail;
     _ecommerceLocationCoverage = ecommerceLocationCoverage;
     _minimumOrderValue = minimumOrderValue;
@@ -164,6 +167,7 @@ class ConfigModel {
   String? get favIcon => _favIcon;
   String? get ecommerceAddress => _ecommerceAddress;
   String? get ecommercePhone => _ecommercePhone;
+  String? get ecommercePhoneSecondary => _ecommercePhoneSecondary;
   String? get ecommerceEmail => _ecommerceEmail;
   EcommerceLocationCoverage? get ecommerceLocationCoverage => _ecommerceLocationCoverage;
   double? get minimumOrderValue => _minimumOrderValue;
@@ -223,6 +227,8 @@ class ConfigModel {
     _favIcon = json['fav_icon']?.toString();
     _ecommerceAddress = json['ecommerce_address']?.toString();
     _ecommercePhone = json['ecommerce_phone']?.toString();
+    final secPhone = json['ecommerce_phone_secondary']?.toString() ?? json['phone_secondary']?.toString();
+    _ecommercePhoneSecondary = (secPhone != null && secPhone.trim().isNotEmpty) ? secPhone.trim() : null;
     _ecommerceEmail = json['ecommerce_email']?.toString();
     _ecommerceLocationCoverage = json['ecommerce_location_coverage'] != null
         ? EcommerceLocationCoverage.fromJson(
@@ -353,6 +359,7 @@ class ConfigModel {
     data['fav_icon'] = _favIcon;
     data['ecommerce_address'] = _ecommerceAddress;
     data['ecommerce_phone'] = _ecommercePhone;
+    data['ecommerce_phone_secondary'] = _ecommercePhoneSecondary;
     data['ecommerce_email'] = _ecommerceEmail;
     if (_ecommerceLocationCoverage != null) {
       data['ecommerce_location_coverage'] =

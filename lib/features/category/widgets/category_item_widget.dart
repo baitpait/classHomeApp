@@ -34,7 +34,9 @@ class CategoryItemWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(5),
               child: CustomImageWidget(
                 image: '$icon',
-                fit: BoxFit.cover, width: 100, height: 100,
+                fit: BoxFit.cover,
+                width: 60,
+                height: 60,
               ),
             ),
           ),

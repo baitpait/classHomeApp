@@ -8,7 +8,18 @@ class AppConstants {
   static const AppMode appMode = AppMode.release;
   static const String fontFamily = 'Exo';
   static const String fontFamilyArabic = 'Cairo';
-  static const String baseUrl = 'https://admin.anagheemhome.com/';
+
+  /// Build-time API base URL.
+  /// مرّر عبر: `flutter build web --dart-define=API_BASE_URL=https://admin.mahfoozco.com/`
+  /// fallback للتطوير المحلي فقط.
+  static const String _defaultDevBaseUrl = 'http://127.0.0.1:8000/';
+  static const String baseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: _defaultDevBaseUrl,
+  );
+
+  /// True إذا كان البِناء يستخدم القيمة الافتراضية (localhost) — استخدمه للتحذير في الإنتاج.
+  static const bool isDevBaseUrl = baseUrl == _defaultDevBaseUrl;
 
   /// Resolves [path] (e.g. `/api/v1/...`) against [baseUrl] without `//` in the path.
   static Uri resolveApiUri(String path) {
@@ -21,8 +32,8 @@ class AppConstants {
   static const String bannerUri = '/api/v1/banners';
   static const String latestProductUri = '/api/v1/products/latest';
 
-  /// Home "latest" feed page size (other widgets).
-  static const int homeLatestProductsLimit = 200;
+  /// Home "latest" feed page size — lower = fewer parallel image loads on first paint.
+  static const int homeLatestProductsLimit = 96;
 
   /// Home non-featured category sections: max products per category (from category products API).
   static const int homeNonFeaturedCategoryProductMax = 5;
@@ -31,7 +42,8 @@ class AppConstants {
   static const int homeFeaturedCategoryProductMax = 10;
 
   /// Parallel category product requests during home preload (avoid flooding the server).
-  static const int homeCategoryProductFetchConcurrency = 4;
+  /// تقليلها يخفف الضغط على cPanel مشترك ويقلّل احتمال timeouts.
+  static const int homeCategoryProductFetchConcurrency = 2;
   static const String searchProductUri = '/api/v1/products/details/';
   static const String subCategoryUri = '/api/v1/categories/childes/';
   static const String categoryProductUri = '/api/v1/categories/products/';

@@ -68,6 +68,7 @@ class DetailsViewWidget extends StatelessWidget {
           _PickupStoreInfoCard(
             branch: selectedBranch,
             storePhone: configModel?.ecommercePhone,
+            storePhoneSecondary: configModel?.ecommercePhoneSecondary,
             storeLogoUrl: configModel?.baseUrls != null && (configModel?.appLogo ?? '').isNotEmpty
                 ? '${configModel!.baseUrls!.ecommerceImageUrl}/${configModel.appLogo}'
                 : null,
@@ -306,11 +307,13 @@ class _LoyaltyPointsSwitchSection extends StatelessWidget {
 class _PickupStoreInfoCard extends StatelessWidget {
   final Branches branch;
   final String? storePhone;
+  final String? storePhoneSecondary;
   final String? storeLogoUrl;
 
   const _PickupStoreInfoCard({
     required this.branch,
     this.storePhone,
+    this.storePhoneSecondary,
     this.storeLogoUrl,
   });
 
@@ -318,6 +321,7 @@ class _PickupStoreInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasAddress = (branch.address ?? '').trim().isNotEmpty;
     final hasPhone = (storePhone ?? '').trim().isNotEmpty;
+    final hasPhone2 = (storePhoneSecondary ?? '').trim().isNotEmpty;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeExtraSmall),
@@ -376,6 +380,7 @@ class _PickupStoreInfoCard extends StatelessWidget {
           const SizedBox(height: Dimensions.paddingSizeLarge * 2),
           if (hasAddress) _InfoRow(icon: Icons.location_on_outlined, label: getTranslated('address', context), value: branch.address!),
           if (hasPhone) _InfoRow(icon: Icons.phone_outlined, label: getTranslated('phone', context), value: storePhone!),
+          if (hasPhone2) _InfoRow(icon: Icons.phone_outlined, label: getTranslated('phone', context), value: storePhoneSecondary!.trim()),
         ],
       ),
     );

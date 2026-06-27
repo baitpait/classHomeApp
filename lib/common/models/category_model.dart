@@ -3,6 +3,7 @@ class CategoryModel {
   String? _name;
   int? _parentId;
   int? _position;
+  int? _displayOrder;
   int? _status;
   String? _createdAt;
   String? _updatedAt;
@@ -15,6 +16,7 @@ class CategoryModel {
         String? name,
         int? parentId,
         int? position,
+        int? displayOrder,
         int? status,
         String? createdAt,
         String? updatedAt,
@@ -26,6 +28,7 @@ class CategoryModel {
     _name = name;
     _parentId = parentId;
     _position = position;
+    _displayOrder = displayOrder;
     _status = status;
     _createdAt = createdAt;
     _updatedAt = updatedAt;
@@ -38,6 +41,7 @@ class CategoryModel {
   String? get name => _name;
   int? get parentId => _parentId;
   int? get position => _position;
+  int? get displayOrder => _displayOrder;
   int? get status => _status;
   String? get createdAt => _createdAt;
   String? get updatedAt => _updatedAt;
@@ -45,11 +49,17 @@ class CategoryModel {
   String? get banner => _banner;
   int? get totalProductQuantity => _totalProductQuantity;
 
+  /// من API `products_count` — تصنيفات بلا منتجات لا تُعرض في الرئيسية/المتجر.
+  bool get hasProductsForStoreDisplay => (totalProductQuantity ?? 0) > 0;
+
   CategoryModel.fromJson(Map<String, dynamic> json) {
     _id = json['id'];
     _name = json['name'];
     _parentId = json['parent_id'];
     _position = json['position'];
+    _displayOrder = json['display_order'] is int
+        ? json['display_order'] as int
+        : int.tryParse('${json['display_order']}');
     _status = json['status'];
     _createdAt = json['created_at'];
     _updatedAt = json['updated_at'];
@@ -67,6 +77,7 @@ class CategoryModel {
     data['name'] = _name;
     data['parent_id'] = _parentId;
     data['position'] = _position;
+    data['display_order'] = _displayOrder;
     data['status'] = _status;
     data['created_at'] = _createdAt;
     data['updated_at'] = _updatedAt;

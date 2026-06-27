@@ -80,6 +80,7 @@ class CategoryProvider extends ChangeNotifier {
             .toSet() ??
         <int>{};
     final ids = _categoryList!
+        .where((c) => c.hasProductsForStoreDisplay)
         .map((c) => c.id)
         .whereType<int>()
         .where((id) => !featuredIds.contains(id))

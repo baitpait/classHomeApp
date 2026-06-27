@@ -67,6 +67,17 @@ class SupportScreen extends StatelessWidget {
                   icon: Images.callIcon,
                   onTap: ()=> launchUrlString('tel:${configModel?.ecommercePhone}', mode: LaunchMode.externalApplication),
                 ),
+                if ((configModel?.ecommercePhoneSecondary ?? '').trim().isNotEmpty) ...[
+                  const SizedBox(height: Dimensions.paddingSizeDefault),
+                  SupportCardWidget(
+                    title: configModel?.ecommercePhoneSecondary?.trim() ?? '',
+                    icon: Images.callIcon,
+                    onTap: () {
+                      final s = configModel?.ecommercePhoneSecondary?.trim() ?? '';
+                      launchUrlString('tel:$s', mode: LaunchMode.externalApplication);
+                    },
+                  ),
+                ],
                 const SizedBox(height: Dimensions.paddingSizeDefault),
 
                 SupportCardWidget(

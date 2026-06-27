@@ -2,24 +2,24 @@ import 'package:hexacom_user/utill/app_constants.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:flutter/material.dart';
 
-// Dark theme: teal + peach accents (Anagheem Home identity)
-const Color _brandTealBright = Color(0xFFA5D4CC);
-const Color _brandPeachBright = Color(0xFFFFB5A3);
-const Color _onBrandPeachDark = Color(0xFF1E1A1A);
+// الوضع الداكن: نفس العائلة اللونية مع سطوح عنابية دافئة
+const Color _brandRedBright = Color(0xFFFF5A5F);
+const Color _brandMaroonSurface = Color(0xFF8B2E33);
+const Color _onBrandRedDark = Color(0xFF1A0A0B);
 const Color _errorBrand = Color(0xFFEF5350);
 
 ThemeData dark = ThemeData(
   fontFamily: AppConstants.fontFamily,
-  primaryColor: _brandTealBright,
-  secondaryHeaderColor: _brandPeachBright,
+  primaryColor: _brandRedBright,
+  secondaryHeaderColor: _brandMaroonSurface,
   brightness: Brightness.dark,
-  scaffoldBackgroundColor: const Color(0xFF1A2221),
-  cardColor: const Color(0xFF242E2D),
+  scaffoldBackgroundColor: const Color(0xFF1A1213),
+  cardColor: const Color(0xFF2A1C1E),
   hintColor: const Color(0xFFB0B1B3),
   focusColor: const Color(0xFFE0E1E3),
   disabledColor: const Color(0xFF6B6C6E),
   shadowColor: Colors.black.withValues(alpha: 0.45),
-  dividerColor: const Color(0xFF3A4543),
+  dividerColor: const Color(0xFF4A3235),
   textTheme: TextTheme(
     displaySmall: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: const Color(0xFFF0F0F2)),
     headlineMedium: TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: const Color(0xFFF0F0F2)),
@@ -35,8 +35,8 @@ ThemeData dark = ThemeData(
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
-      backgroundColor: _brandPeachBright,
-      foregroundColor: _onBrandPeachDark,
+      backgroundColor: _brandRedBright,
+      foregroundColor: _onBrandRedDark,
       minimumSize: const Size(0, 48),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Dimensions.radiusButton)),
@@ -45,8 +45,8 @@ ThemeData dark = ThemeData(
   ),
   filledButtonTheme: FilledButtonThemeData(
     style: FilledButton.styleFrom(
-      backgroundColor: _brandPeachBright,
-      foregroundColor: _onBrandPeachDark,
+      backgroundColor: _brandRedBright,
+      foregroundColor: _onBrandRedDark,
       minimumSize: const Size(0, 48),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Dimensions.radiusButton)),
@@ -55,7 +55,7 @@ ThemeData dark = ThemeData(
   ),
   textButtonTheme: TextButtonThemeData(
     style: TextButton.styleFrom(
-      foregroundColor: _brandTealBright,
+      foregroundColor: _brandRedBright,
       minimumSize: const Size(0, 48),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Dimensions.radiusButton)),
@@ -63,54 +63,54 @@ ThemeData dark = ThemeData(
   ),
   inputDecorationTheme: InputDecorationTheme(
     filled: true,
-    fillColor: const Color(0xFF252F2E),
+    fillColor: const Color(0xFF2E2022),
     border: OutlineInputBorder(borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault)),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
-      borderSide: const BorderSide(color: Color(0xFF3A4543)),
+      borderSide: const BorderSide(color: Color(0xFF4A3235)),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
-      borderSide: const BorderSide(color: _brandTealBright, width: 1.5),
+      borderSide: const BorderSide(color: _brandRedBright, width: 1.5),
     ),
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
   ),
   cardTheme: CardThemeData(
     elevation: 0,
-    color: const Color(0xFF242E2D),
+    color: const Color(0xFF2A1C1E),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Dimensions.radiusSizeLarge)),
   ),
   popupMenuTheme: const PopupMenuThemeData(
-    color: Color(0xFF242E2D),
-    surfaceTintColor: Color(0xFF242E2D),
+    color: Color(0xFF2A1C1E),
+    surfaceTintColor: Color(0xFF2A1C1E),
   ),
   colorScheme: const ColorScheme.dark(
-    primary: _brandTealBright,
-    onPrimary: Color(0xFF0D1514),
-    secondary: _brandPeachBright,
-    onSecondary: _onBrandPeachDark,
+    primary: _brandRedBright,
+    onPrimary: Color(0xFF1A0A0B),
+    secondary: _brandMaroonSurface,
+    onSecondary: Color(0xFFFFFFFF),
     error: _errorBrand,
     onError: Colors.white,
-    surface: Color(0xFF242E2D),
+    surface: Color(0xFF2A1C1E),
     onSurface: Color(0xFFE8E9EA),
     onSurfaceVariant: Color(0xFFB0B1B3),
-    outline: Color(0xFF3A4543),
-    surfaceContainerHighest: Color(0xFF2D3836),
+    outline: Color(0xFF4A3235),
+    surfaceContainerHighest: Color(0xFF352428),
   ),
   tabBarTheme: TabBarThemeData(
-    indicatorColor: _brandPeachBright,
-    labelColor: _brandPeachBright,
+    indicatorColor: _brandRedBright,
+    labelColor: _brandRedBright,
     unselectedLabelColor: Color(0xFFB0B1B3),
   ),
   appBarTheme: const AppBarThemeData(
-    backgroundColor: Color(0xFF1A2221),
+    backgroundColor: Color(0xFF1A1213),
     foregroundColor: Color(0xFFE8E9EA),
     elevation: 0,
     surfaceTintColor: Colors.transparent,
   ),
   bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-    backgroundColor: Color(0xFF242E2D),
-    selectedItemColor: _brandTealBright,
+    backgroundColor: Color(0xFF2A1C1E),
+    selectedItemColor: _brandRedBright,
     unselectedItemColor: Color(0xFFB0B1B3),
   ),
 );

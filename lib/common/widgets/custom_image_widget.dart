@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hexacom_user/utill/app_constants.dart';
 import 'package:hexacom_user/utill/images.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
 
 class CustomImageWidget extends StatelessWidget {
@@ -50,14 +49,45 @@ class CustomImageWidget extends StatelessWidget {
     );
   }
 
+  /// On web, optional `w`/`h` on [image-proxy] shrink bytes over the wire (Laravel + Intervention).
+  static String webProxyUrlFor(
+    String originalImageUrl, {
+    required double devicePixelRatio,
+    double? layoutWidth,
+    double? layoutHeight,
+  }) {
+    final root = AppConstants.baseUrl.endsWith('/')
+        ? AppConstants.baseUrl
+        : '${AppConstants.baseUrl}/';
+    final base =
+        '${root}image-proxy?url=${Uri.encodeComponent(originalImageUrl)}';
+    if (layoutWidth == null ||
+        layoutHeight == null ||
+        layoutWidth <= 0 ||
+        layoutHeight <= 0) {
+      return base;
+    }
+    final w = (layoutWidth * devicePixelRatio).round().clamp(32, 2048);
+    final h = (layoutHeight * devicePixelRatio).round().clamp(32, 2048);
+    return '$base&w=$w&h=$h';
+  }
+
   @override
   Widget build(BuildContext context) {
     final placeholderPath = placeholder.isNotEmpty ? placeholder : Images.placeholder(context);
     final dpr = MediaQuery.devicePixelRatioOf(context);
     final memWidth = width != null ? (width! * dpr).round() : null;
     final memHeight = height != null ? (height! * dpr).round() : null;
+    final resolvedUrl = kIsWeb
+        ? webProxyUrlFor(
+            image,
+            devicePixelRatio: dpr,
+            layoutWidth: width,
+            layoutHeight: height,
+          )
+        : image;
     return CachedNetworkImage(
-      imageUrl: kIsWeb ? '${AppConstants.baseUrl}/image-proxy?url=${Uri.encodeComponent(image)}' : image,
+      imageUrl: resolvedUrl,
       height: height,
       width: width,
       fit: fit,

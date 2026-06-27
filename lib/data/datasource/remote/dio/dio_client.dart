@@ -29,21 +29,28 @@ class DioClient {
 
   }
 
-  Future<void> updateHeader({String? getToken, Dio? dioC})async {
+  Future<void> updateHeader({String? getToken, Dio? dioC}) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'X-localization': sharedPreferences.getString(AppConstants.languageCode)
+          ?? AppConstants.languages[0].languageCode
+          ?? 'ar',
+      'guest-id': sharedPreferences.getString(AppConstants.guestId) ?? '',
+    };
+
+    /// إرسال Authorization فقط للمستخدم المسجّل دخوله؛ بدون الهيدر لزائر لتجنّب
+    /// تلويث Audit Logs بقيمة "Bearer null" ومنع التداخل مع WAF/Rate-Limiters.
+    if (getToken != null && getToken.isNotEmpty && getToken != 'null') {
+      headers['Authorization'] = 'Bearer $getToken';
+    }
+
     dio
       ?..options.baseUrl = baseUrl
       ..options.connectTimeout = const Duration(seconds: 15)
       ..options.receiveTimeout = const Duration(seconds: 15)
       ..options.sendTimeout = const Duration(seconds: 15)
-      ..options.headers = {
+      ..options.headers = headers;
 
-        'Content-Type': 'application/json; charset=UTF-8',
-        'X-localization': sharedPreferences.getString(AppConstants.languageCode)
-            ?? AppConstants.languages[0].languageCode,
-        'Authorization': 'Bearer $getToken',
-        'guest-id': sharedPreferences.getString(AppConstants.guestId) ?? '',
-
-      };
     if (dio != null && !_interceptorsAttached) {
       dio!.interceptors.add(loggingInterceptor);
       dio!.interceptors.add(RateLimitInterceptor(dio!));

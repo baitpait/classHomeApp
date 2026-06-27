@@ -74,7 +74,9 @@ class _ProductFilterBottomSheetWidgetState extends State<ProductFilterBottomShee
     sliderMax =  widget.sliderMax ??  1;
     sliderMin =  widget.sliderMin ?? 0;
     searchProvider.setLowerAndUpperValue(widget.searchMinPrice ?? sliderMin, widget.searchMaxPrice ?? sliderMax, isUpdate: false);
-    categoryList = categoryProvider.categoryList ?? [];
+    categoryList = (categoryProvider.categoryList ?? [])
+        .where((c) => c.hasProductsForStoreDisplay)
+        .toList();
     if (categoryProvider.categoryList == null || categoryProvider.categoryList!.isEmpty) {
       categoryProvider.getCategoryList(false);
     }
@@ -87,7 +89,11 @@ class _ProductFilterBottomSheetWidgetState extends State<ProductFilterBottomShee
   Widget build(BuildContext context) {
     return Consumer<SearchProvider>(
         builder: (context, searchProvider, child){
-          final categories = Provider.of<CategoryProvider>(context).categoryList ?? categoryList;
+          final rawCategories =
+              Provider.of<CategoryProvider>(context).categoryList ?? categoryList;
+          final categories = rawCategories
+              .where((c) => c.hasProductsForStoreDisplay)
+              .toList();
           final showSeeMore = _isSeeMoreShow && categories.length > 5;
           final double minPrice = searchProvider.lowerValue ?? 0;
           final double maxPrice = searchProvider.upperValue ?? 1;

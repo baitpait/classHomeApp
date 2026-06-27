@@ -88,10 +88,12 @@ class _StoreScreenState extends State<StoreScreen> with AutomaticKeepAliveClient
     if (!mounted) return;
     final list = cp.categoryList;
     if (list == null || list.isEmpty) return;
+    final withProducts = list.where((c) => c.hasProductsForStoreDisplay).toList();
+    if (withProducts.isEmpty) return;
     final initialId = widget.initialCategoryId;
-    final int? idToSelect = (initialId != null && list.any((c) => c.id == initialId))
+    final int? idToSelect = (initialId != null && withProducts.any((c) => c.id == initialId))
         ? initialId
-        : list.first.id;
+        : withProducts.first.id;
     if (_selectedCategoryId == null && idToSelect != null) {
       setState(() => _selectedCategoryId = idToSelect);
       cp.selectCategoryById(idToSelect);
@@ -141,7 +143,10 @@ class _StoreScreenState extends State<StoreScreen> with AutomaticKeepAliveClient
       appBar: isDesktop ? const PreferredSize(preferredSize: Size.fromHeight(90), child: WebAppBarWidget()) : null,
       body: Consumer<CategoryProvider>(
         builder: (context, category, _) {
-          final categories = category.categoryList;
+          final rawCategories = category.categoryList;
+          final categories = rawCategories == null
+              ? null
+              : rawCategories.where((c) => c.hasProductsForStoreDisplay).toList();
           final subs = category.subCategoryList;
           final products = category.categoryProductList;
 

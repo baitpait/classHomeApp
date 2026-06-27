@@ -27,10 +27,21 @@ String? _productImageUrl(Product product, SplashProvider splashProvider) {
   return '${splashProvider.baseUrls!.productImageUrl}/${product.image!.first}';
 }
 
-Widget _buildProductImage(BuildContext context, Product product, SplashProvider splashProvider) {
+Widget _buildProductImage(
+  BuildContext context,
+  Product product,
+  SplashProvider splashProvider, {
+  required double cacheWidth,
+  required double cacheHeight,
+}) {
   final url = _productImageUrl(product, splashProvider);
   if (url != null) {
-    return CustomImageWidget(image: url, fit: BoxFit.cover);
+    return CustomImageWidget(
+      image: url,
+      fit: BoxFit.cover,
+      width: cacheWidth,
+      height: cacheHeight,
+    );
   }
   return Image.asset(Images.placeholder(context), fit: BoxFit.cover);
 }
@@ -201,7 +212,17 @@ class _VerticalCard extends StatelessWidget {
         aspectRatio: 1.1,
         child: Stack(children: [
           Positioned.fill(
-            child: _buildProductImage(context, product, splashProvider),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return _buildProductImage(
+                  context,
+                  product,
+                  splashProvider,
+                  cacheWidth: constraints.maxWidth,
+                  cacheHeight: constraints.maxHeight,
+                );
+              },
+            ),
           ),
 
           // Limited stock badge (current stock at or below minimum_stock_alert)
@@ -361,7 +382,17 @@ class _HorizontalCard extends StatelessWidget {
                         fit: StackFit.expand,
                         children: [
                           Positioned.fill(
-                            child: _buildProductImage(context, product, splashProvider),
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                return _buildProductImage(
+                                  context,
+                                  product,
+                                  splashProvider,
+                                  cacheWidth: constraints.maxWidth,
+                                  cacheHeight: constraints.maxHeight,
+                                );
+                              },
+                            ),
                           ),
                           if ((product.totalStock ?? 0) < 1)
                             Positioned.fill(

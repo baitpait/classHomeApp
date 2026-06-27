@@ -66,7 +66,7 @@ class FooterWebWidget extends StatelessWidget {
           color: _footerBackground,
           border: Border(
             top: BorderSide(
-              color: ColorResources.brandTeal.withValues(alpha: 0.35),
+              color: ColorResources.brandRed.withValues(alpha: 0.4),
               width: 1,
             ),
           ),
@@ -152,6 +152,15 @@ class FooterWebWidget extends StatelessWidget {
                                   height: Dimensions.paddingSizeSmall),
                               _FooterText(
                                 text: configModel.ecommercePhone!,
+                                color: _footerTextMuted,
+                              ),
+                            ],
+                            if (configModel.ecommercePhoneSecondary != null &&
+                                configModel.ecommercePhoneSecondary!.trim().isNotEmpty) ...[
+                              const SizedBox(
+                                  height: Dimensions.paddingSizeExtraSmall),
+                              _FooterText(
+                                text: configModel.ecommercePhoneSecondary!.trim(),
                                 color: _footerTextMuted,
                               ),
                             ],

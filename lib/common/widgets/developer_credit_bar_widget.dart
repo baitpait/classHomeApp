@@ -5,7 +5,7 @@ import 'package:hexacom_user/utill/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-/// Developer credit bar — teal gradient + peach accent (Anagheem Home identity).
+/// Developer credit bar — تدرج عنابي/أحمر (هوية محفوظ).
 /// Used from the web menu sheet and [FooterWebWidget].
 class DeveloperCreditBarWidget extends StatelessWidget {
   const DeveloperCreditBarWidget({super.key});
@@ -38,7 +38,7 @@ class DeveloperCreditBarWidget extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  ColorResources.brandTealDark.withValues(alpha: 0.95),
+                  ColorResources.brandMaroonDark.withValues(alpha: 0.98),
                   ColorResources.navBarNavy,
                 ],
               ),
@@ -49,12 +49,12 @@ class DeveloperCreditBarWidget extends StatelessWidget {
                 bottomEnd: const Radius.circular(26),
               ),
               border: Border.all(
-                color: ColorResources.brandTeal.withValues(alpha: 0.35),
+                color: ColorResources.brandRed.withValues(alpha: 0.45),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: ColorResources.brandPeach.withValues(alpha: 0.18),
+                  color: ColorResources.brandRed.withValues(alpha: 0.22),
                   blurRadius: 22,
                   offset: const Offset(0, 10),
                 ),
@@ -80,13 +80,13 @@ class DeveloperCreditBarWidget extends StatelessWidget {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          ColorResources.brandTeal,
-                          ColorResources.brandPeach,
+                          ColorResources.brandRed,
+                          ColorResources.brandMaroon,
                         ],
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: ColorResources.brandPeach.withValues(alpha: 0.4),
+                          color: ColorResources.brandRedSoft.withValues(alpha: 0.35),
                           blurRadius: 8,
                           spreadRadius: -2,
                         ),

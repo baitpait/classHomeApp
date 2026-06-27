@@ -75,10 +75,13 @@ class HomeCategorySectionsWidget extends StatelessWidget {
             final id = cat.id;
             if (id == null || featuredIds.contains(id)) continue;
 
+            final products = previews[id] ?? [];
+            if (products.isEmpty) continue;
+
             children.add(
               CategoryProductSectionCard(
                 category: cat,
-                products: previews[id] ?? [],
+                products: products,
               ),
             );
           }

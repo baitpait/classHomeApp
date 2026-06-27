@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
   <!--
     If you are serving your web app in a path other than the root, change the
@@ -15,50 +15,47 @@
   <meta name="google-signin-client_id" content="YOUR_GOOGLE_SIGN_IN_CLIENT_KEY">
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A Ecommerce Website.">
+  <!-- نصوص الميتا مطابقة لحقول إعدادات المتجر في الـ API (/api/v1/config): business_name, address, phone, email, logo_full_url -->
+  <meta name="description" content="شركة محفوظ للتجارة والصيانة — الخليل-حارة الشيخ-بالقرب من ديوان القواسمي القديم. هاتف: 0599252530. البريد: mahfooz_ee@hotmail.com">
+  <meta name="keywords" content="شركة محفوظ للتجارة والصيانة, الخليل-حارة الشيخ-بالقرب من ديوان القواسمي القديم, mahfoozco">
 
-  <!-- DEMO ONLY -->
-<!--  <meta name="robots" content="nofollow, noindex, max-snippet:1, max-video-preview:1, max-image-preview:standard">-->
-<!--  <link rel="canonical" href="https://hexacom-web.6amtech.com"/>-->
-
+  <link rel="canonical" href="https://mahfoozco.com/">
 
   <!-- Open Graph / Facebook / WhatsApp -->
-  <meta property="og:locale" content="en_US">
+  <meta property="og:locale" content="ar_PS">
+  <meta property="og:locale:alternate" content="en_US">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Online Shopping Marketplace | Fashion, Electronics, Accessories & More">
-  <meta property="og:description" content="Shop the latest fashion, footwear, electronics, mobile phones, accessories, and home appliances all in one place. Enjoy fast delivery, secure checkout, top deals, and exclusive discounts across every category.">
-  <meta property="og:url" content="https://yourdomain.com">
-  <meta property="og:site_name" content="Baitpait">
-  <meta property="og:image" content="https://yourdomain.com/assets/meta_banner.png">
-  <meta property="og:image:secure_url" content="https://yourdomain.com/assets/meta_banner.png">
+  <meta property="og:title" content="شركة محفوظ للتجارة والصيانة">
+  <meta property="og:description" content="شركة محفوظ للتجارة والصيانة — الخليل-حارة الشيخ-بالقرب من ديوان القواسمي القديم. هاتف: 0599252530. البريد: mahfooz_ee@hotmail.com">
+  <meta property="og:url" content="https://mahfoozco.com/">
+  <meta property="og:site_name" content="شركة محفوظ للتجارة والصيانة">
+  <meta property="og:image" content="https://admin.mahfoozco.com/storage/ecommerce/2026-03-31-69cbd0f476ee2.webp">
+  <meta property="og:image:secure_url" content="https://admin.mahfoozco.com/storage/ecommerce/2026-03-31-69cbd0f476ee2.webp">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="grofresh">
-  <meta property="og:updated_time" content="2025-10-29T14:59:38+06:00">
+  <meta property="og:image:alt" content="شعار شركة محفوظ للتجارة والصيانة">
+  <meta property="og:updated_time" content="2026-05-14T15:21:11+03:00">
 
   <!-- Twitter -->
-
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Online Shopping Marketplace | Fashion, Electronics, Accessories & More">
-  <meta name="twitter:description" content="Shop the latest fashion, footwear, electronics, mobile phones, accessories, and home appliances all in one place. Enjoy fast delivery, secure checkout, top deals, and exclusive discounts across every category.">
-  <meta name="twitter:image" content="https://yourdomain.com/assets/meta_banner.png">
-  <meta name="twitter:site" content="@6amtech">
-  <meta name="twitter:creator" content="@6amtech">
+  <meta name="twitter:title" content="شركة محفوظ للتجارة والصيانة">
+  <meta name="twitter:description" content="شركة محفوظ للتجارة والصيانة — الخليل-حارة الشيخ-بالقرب من ديوان القواسمي القديم. هاتف: 0599252530. البريد: mahfooz_ee@hotmail.com">
+  <meta name="twitter:image" content="https://admin.mahfoozco.com/storage/ecommerce/2026-03-31-69cbd0f476ee2.webp">
 
   <!-- Robots and SEO -->
-  <meta name="author" content="6amTech">
+  <meta name="author" content="شركة محفوظ للتجارة والصيانة">
 
   <!-- Browser header / address bar color on mobile -->
-  <meta name="theme-color" content="#88C0B7">
+  <meta name="theme-color" content="#741113">
 
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="store">
+  <meta name="apple-mobile-web-app-title" content="شركة محفوظ …">
 
 
-  <title>store</title>
+  <title>شركة محفوظ للتجارة والصيانة</title>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" type="text/css" href="style.css">
 
@@ -121,7 +118,7 @@
     .sk {
       position: relative;
       overflow: hidden;
-      background: #eef0f4;
+      background: #ebe4e5;
       border-radius: 12px;
     }
 
@@ -217,6 +214,49 @@
   </style>
 </head>
 <body>
+
+<script>
+  // -------------------------------------------------------------------
+  // SW PURGE (one-time, idempotent) — يلغّي تسجيل Service Worker القديم
+  // ويحذف كل الـ caches القديمة عند أول زيارة بعد رفع نسخة جديدة.
+  // ضروري لأن `serviceWorkerVersion` لا يتغير دائماً مع كل build
+  // مما يجعل SW القديم يستمر بخدمة main.dart.js قديم من الـ cache.
+  // مفتاح localStorage يضمن أن التنظيف يحدث مرة واحدة فقط لكل إصدار.
+  // -------------------------------------------------------------------
+  (function purgeStaleServiceWorker() {
+    var PURGE_KEY = "mahfoozco_sw_purge_v2026_05_14_03";
+    if (typeof Storage === "undefined") return;
+    if (localStorage.getItem(PURGE_KEY) === "done") return;
+    if (!("serviceWorker" in navigator)) {
+      localStorage.setItem(PURGE_KEY, "done");
+      return;
+    }
+    var hadWorker = false;
+    navigator.serviceWorker.getRegistrations().then(function (regs) {
+      var unregisterAll = (regs || []).map(function (reg) {
+        hadWorker = true;
+        return reg.unregister().catch(function () { return false; });
+      });
+      return Promise.all(unregisterAll);
+    }).then(function () {
+      if (typeof caches === "undefined") return [];
+      return caches.keys();
+    }).then(function (keys) {
+      return Promise.all((keys || []).map(function (k) {
+        hadWorker = true;
+        return caches.delete(k).catch(function () { return false; });
+      }));
+    }).then(function () {
+      localStorage.setItem(PURGE_KEY, "done");
+      if (hadWorker) {
+        // إعادة تحميل مرة واحدة فقط لتطبيق التغييرات بدون SW قديم.
+        location.reload();
+      }
+    }).catch(function () {
+      localStorage.setItem(PURGE_KEY, "done");
+    });
+  })();
+</script>
 
 <div id="app-loader" dir="rtl">
   <div class="skeleton">

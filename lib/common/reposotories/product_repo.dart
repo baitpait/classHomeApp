@@ -15,7 +15,7 @@ class ProductRepo extends DataSyncRepo{
 
   Future<ApiResponseModel<T>> getLatestProductList<T>(int offset, int limit, ProductFilterType? filterType, {required DataSourceEnum source}) async {
 
-    return  await fetchData<T>('${AppConstants.latestProductUri}?limit=$limit&&offset=$offset${filterType != null ? '&sort_by=${ProductHelper.getProductFilterTypeValue(filterType)}' : ''}', source);
+    return  await fetchData<T>('${AppConstants.latestProductUri}?limit=$limit&offset=$offset${filterType != null ? '&sort_by=${ProductHelper.getProductFilterTypeValue(filterType)}' : ''}', source);
   }
 
   Future<ApiResponseModel<T>> getOfferProductList<T>({required DataSourceEnum source}) async {
@@ -72,7 +72,7 @@ class ProductRepo extends DataSyncRepo{
     String? shortBy,
     List<int>? categoryIds,
   }) async {
-    String url = '${AppConstants.flashSale}?limit=15&&offset=$offset';
+    String url = '${AppConstants.flashSale}?limit=15&offset=$offset';
 
     if(rating != null) {
       url = '$url&rating=${rating+1}';

@@ -1,11 +1,11 @@
 {
-    "name": "Hexacom",
-    "short_name": "Hexacom",
+    "name": "شركة محفوظ للتجارة والصيانة",
+    "short_name": "شركة محفوظ …",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#FFFBF8",
-    "theme_color": "#88C0B7",
-    "description": "A new Flutter project.",
+    "background_color": "#FFFFFF",
+    "theme_color": "#741113",
+    "description": "شركة محفوظ للتجارة والصيانة — الخليل-حارة الشيخ-بالقرب من ديوان القواسمي القديم. هاتف: 0599252530. البريد: mahfooz_ee@hotmail.com",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": []

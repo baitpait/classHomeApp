@@ -1,7 +1,11 @@
 /* Reset */
 :root {
-  --primary-color: #9c2e2e;
-  --header-top: #3A4756;
+  --color-brand-red: #ec2227;
+  --color-brand-maroon: #741113;
+  --color-brand-maroon-dark: #5c0d10;
+  --color-neutral-gray: #d2d3d4;
+  --primary-color: var(--color-brand-red);
+  --header-top: var(--color-brand-maroon);
 }
 *, *::before, *::after {
   box-sizing: border-box;
@@ -76,7 +80,7 @@
   background-color: var(--header-top);
 }
 .theme-dark .header-top-line {
-  background-color: #2a343f;
+  background-color: var(--color-brand-maroon-dark);
 }
 .header .logo {
   max-block-size: 2.8rem;

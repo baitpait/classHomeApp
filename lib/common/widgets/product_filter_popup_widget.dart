@@ -151,7 +151,9 @@ class _ProductFilterPopupWidgetState extends State<ProductFilterPopupWidget> {
                 await categoryProvider.getCategoryList(true);
               }
 
-              final categories = categoryProvider.categoryList ?? [];
+              final categories = (categoryProvider.categoryList ?? [])
+                  .where((c) => c.hasProductsForStoreDisplay)
+                  .toList();
               if (!mounted || categories.isEmpty) {
                 setState(() {
                   _isCategoryOpen = false;
@@ -204,11 +206,11 @@ class _ProductFilterPopupWidgetState extends State<ProductFilterPopupWidget> {
               });
 
               if (selected != null) {
-                final selectedCategory = categoryProvider.categoryList
-                    ?.firstWhere((c) => c.id == selected, orElse: () => categories.first);
+                final selectedCategory =
+                    categories.firstWhere((c) => c.id == selected);
                 setState(() {
                   _selectedCategoryId = selected;
-                  _selectedCategoryName = selectedCategory?.name;
+                  _selectedCategoryName = selectedCategory.name;
                 });
                 context.read<ProductProvider>().applyHomeFilters(
                       categoryId: _selectedCategoryId,

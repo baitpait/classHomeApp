@@ -39,55 +39,63 @@ class DataSyncRepo {
       throw const FormatException('Unexpected HTML response from API. Please check baseUrl and endpoint.');
     }
 
-    // Prepare the cache data
     final cacheData = CacheResponseCompanion(
-      endPoint: Value(uri),
+      endPoint: Value(_localeAwareKey(uri)),
       header: Value(jsonEncode(dioClient.dio?.options.headers)),
       response: Value(jsonEncode(response.data)),
     );
 
-    // Cache the data based on the platform
     if (kIsWeb && _isWebCachesActive()) {
-      _cacheResponseWeb(uri, cacheData);
+      _cacheResponseWeb(_localeAwareKey(uri), cacheData);
     }
 
     if(!kIsWeb && _isAppCachesActive()) {
-      await DbHelper.insertOrUpdate(id: uri, data: cacheData);
+      await DbHelper.insertOrUpdate(id: _localeAwareKey(uri), data: cacheData);
     }
 
     return ApiResponseModel.withSuccess(response as T);
+  }
+
+  /// مفتاح الكاش يضم اللغة لمنع عرض بيانات لغة سابقة بعد التبديل.
+  /// مثال: `/api/v1/categories::ar`
+  String _localeAwareKey(String uri) {
+    final locale = sharedPreferences?.getString(AppConstants.languageCode)
+        ?? AppConstants.languages[0].languageCode
+        ?? 'ar';
+    return '$uri::$locale';
   }
 
   bool _isWebCachesActive()=> (AppConstants.cachesType == LocalCachesTypeEnum.all || AppConstants.cachesType == LocalCachesTypeEnum.web);
   bool _isAppCachesActive()=> (AppConstants.cachesType == LocalCachesTypeEnum.all || AppConstants.cachesType == LocalCachesTypeEnum.app);
   bool _isACachesDisable() => AppConstants.cachesType == LocalCachesTypeEnum.none;
 
-  void _cacheResponseWeb(String uri, CacheResponseCompanion cacheData) {
+  void _cacheResponseWeb(String key, CacheResponseCompanion cacheData) {
     final cacheJson = CacheResponseData(
       id: 0,
       endPoint: cacheData.endPoint.value,
       header: cacheData.header.value,
       response: cacheData.response.value,
     ).toJson();
-    sharedPreferences?.setString(uri, jsonEncode(cacheJson));
+    sharedPreferences?.setString(key, jsonEncode(cacheJson));
   }
 
   Future<ApiResponseModel<T>> _fetchFromLocalCache<T>(String uri) async {
     CacheResponseData? cacheData;
+    final key = _localeAwareKey(uri);
 
     if (kIsWeb) {
-      final cachedJson = sharedPreferences?.getString(uri);
+      final cachedJson = sharedPreferences?.getString(key);
       if (cachedJson != null) {
         cacheData = CacheResponseData.fromJson(jsonDecode(cachedJson));
       }
     } else {
-      cacheData = await database.getCacheResponseById(uri);
+      cacheData = await database.getCacheResponseById(key);
     }
 
     if (cacheData != null) {
       return ApiResponseModel.withSuccess(cacheData as T);
     } else {
-      return ApiResponseModel.withError("No local data found for $uri");
+      return ApiResponseModel.withError("No local data found for $key");
     }
   }
 }
