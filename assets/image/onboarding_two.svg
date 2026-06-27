@@ -1,0 +1,21 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" fill="none">
+  <!-- soft brand blob -->
+  <path d="M64 150c-20-66 60-104 140-100 86 4 142-26 154 50 12 76-34 118-84 150-58 38-140 44-196 2C30 224 80 204 64 150Z" fill="#E7EFF1"/>
+  <!-- coins stack -->
+  <ellipse cx="116" cy="300" rx="40" ry="13" fill="#1F4C5C"/>
+  <ellipse cx="116" cy="288" rx="40" ry="13" fill="#2C6075"/>
+  <ellipse cx="116" cy="276" rx="40" ry="13" fill="#E97B2C"/>
+  <ellipse cx="116" cy="264" rx="40" ry="13" fill="#F4A35C"/>
+  <text x="116" y="270" font-family="Arial" font-size="20" font-weight="bold" fill="#fff" text-anchor="middle">$</text>
+  <!-- card -->
+  <rect x="150" y="120" width="180" height="112" rx="16" fill="#1F4C5C"/>
+  <rect x="150" y="146" width="180" height="22" fill="#143742"/>
+  <rect x="168" y="190" width="70" height="10" rx="5" fill="#F4A35C"/>
+  <rect x="168" y="206" width="44" height="8" rx="4" fill="#9DB4BC"/>
+  <rect x="286" y="184" width="30" height="30" rx="6" fill="#E97B2C"/>
+  <!-- check badge -->
+  <circle cx="300" cy="120" r="34" fill="#E97B2C"/>
+  <path d="M286 120l10 11 20-22" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- floor line -->
+  <path d="M60 314h300" stroke="#1F4C5C" stroke-width="4" stroke-linecap="round" opacity="0.35"/>
+</svg>

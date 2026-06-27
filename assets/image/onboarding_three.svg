@@ -1,0 +1,26 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" fill="none">
+  <!-- soft brand blob -->
+  <path d="M58 160c-16-70 70-108 150-104 86 4 138-22 150 54 12 76-40 116-90 146-58 36-134 42-190 0C28 226 74 214 58 160Z" fill="#FBEAD9"/>
+  <!-- house in background -->
+  <path d="M250 196l46-34 46 34v82h-92z" fill="#E7EFF1"/>
+  <path d="M244 200l52-40 52 40" stroke="#1F4C5C" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="282" y="232" width="28" height="46" fill="#2C6075"/>
+  <rect x="316" y="226" width="20" height="20" rx="3" fill="#E97B2C"/>
+  <!-- delivery truck -->
+  <rect x="56" y="196" width="120" height="74" rx="10" fill="#1F4C5C"/>
+  <path d="M176 224h44l30 30v16h-74z" fill="#2C6075"/>
+  <path d="M176 224h30l24 24h-54z" fill="#9DB4BC"/>
+  <!-- box with sofa hint on truck -->
+  <rect x="78" y="166" width="64" height="44" rx="6" fill="#E97B2C"/>
+  <path d="M78 184h64" stroke="#fff" stroke-width="4" opacity="0.7"/>
+  <path d="M110 166v44" stroke="#fff" stroke-width="4" opacity="0.7"/>
+  <!-- wheels -->
+  <circle cx="96" cy="278" r="18" fill="#143742"/>
+  <circle cx="96" cy="278" r="7" fill="#9DB4BC"/>
+  <circle cx="214" cy="278" r="18" fill="#143742"/>
+  <circle cx="214" cy="278" r="7" fill="#9DB4BC"/>
+  <!-- motion lines -->
+  <path d="M30 210h26M22 232h34M36 254h22" stroke="#E97B2C" stroke-width="5" stroke-linecap="round"/>
+  <!-- floor line -->
+  <path d="M40 296h320" stroke="#1F4C5C" stroke-width="4" stroke-linecap="round" opacity="0.35"/>
+</svg>

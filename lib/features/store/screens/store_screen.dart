@@ -38,7 +38,6 @@ class StoreScreen extends StatefulWidget {
 class _StoreScreenState extends State<StoreScreen> with AutomaticKeepAliveClientMixin {
   final GlobalKey<ScaffoldState> _drawerKey = GlobalKey();
   int? _selectedCategoryId;
-  int _selectedSubIndex = 0;
   static const double _headerScrollThreshold = 50.0;
   final ScrollController _scrollController = ScrollController();
   final ScrollController _categoryScrollController = ScrollController();
@@ -97,7 +96,6 @@ class _StoreScreenState extends State<StoreScreen> with AutomaticKeepAliveClient
     if (_selectedCategoryId == null && idToSelect != null) {
       setState(() => _selectedCategoryId = idToSelect);
       cp.selectCategoryById(idToSelect);
-      await cp.getSubCategoryList(idToSelect);
       cp.getCategoryProductList(idToSelect);
     }
   }
@@ -106,25 +104,11 @@ class _StoreScreenState extends State<StoreScreen> with AutomaticKeepAliveClient
     if (id == null) return;
     setState(() {
       _selectedCategoryId = id;
-      _selectedSubIndex = 0;
+      _visibleProductCount = _productBatchSize;
     });
     final cp = context.read<CategoryProvider>();
     cp.selectCategoryById(id);
-    cp.getSubCategoryList(id);
     cp.getCategoryProductList(id);
-  }
-
-  void _onSubCategoryTap(int index) {
-    setState(() => _selectedSubIndex = index);
-    final cp = context.read<CategoryProvider>();
-    final subs = cp.subCategoryList;
-    final categoryId = _selectedCategoryId;
-    if (categoryId == null) return;
-    if (index == 0) {
-      cp.getCategoryProductList(categoryId);
-    } else if (subs != null && index <= subs.length) {
-      cp.getCategoryProductList(subs[index - 1].id);
-    }
   }
 
   @override
@@ -147,7 +131,6 @@ class _StoreScreenState extends State<StoreScreen> with AutomaticKeepAliveClient
           final categories = rawCategories == null
               ? null
               : rawCategories.where((c) => c.hasProductsForStoreDisplay).toList();
-          final subs = category.subCategoryList;
           final products = category.categoryProductList;
 
           return CustomScrollView(
@@ -230,35 +213,6 @@ class _StoreScreenState extends State<StoreScreen> with AutomaticKeepAliveClient
                             ),
                           ),
                         ),
-
-                      // Subcategories Section (desktop: gap below divider = 8, same as gap above line)
-                      if (_selectedCategoryId != null && subs != null && subs.isNotEmpty) ...[
-                        SizedBox(height: isDesktop ? 6 : 8),
-                        SizedBox(
-                          height: isDesktop ? 44 : 38,
-                          child: ListView.separated(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: isDesktop ? 14 : 10,
-                              vertical: isDesktop ? 0 : 0,
-                            ),
-                            scrollDirection: Axis.horizontal,
-                            itemCount: subs.length + 1,
-                            separatorBuilder: (_, __) => SizedBox(width: isDesktop ? 8 : 6),
-                            itemBuilder: (context, i) {
-                              final isAll = i == 0;
-                              final selected = _selectedSubIndex == i;
-                              final label = isAll ? getTranslated('all', context) : (subs[i - 1].name ?? '');
-                              return _SubCategoryChip(
-                                label: label,
-                                isSelected: selected,
-                                onTap: () => _onSubCategoryTap(i),
-                                isDesktop: isDesktop,
-                              );
-                            },
-                          ),
-                        ),
-                        SizedBox(height: isDesktop ? 2 : 10),
-                      ],
 
                       if (categories == null || categories.isEmpty)
                         Padding(
@@ -629,93 +583,6 @@ class _StoreCategoryCard extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SubCategoryChip extends StatefulWidget {
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-  final bool isDesktop;
-
-  const _SubCategoryChip({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-    required this.isDesktop,
-  });
-
-  @override
-  State<_SubCategoryChip> createState() => _SubCategoryChipState();
-}
-
-class _SubCategoryChipState extends State<_SubCategoryChip> {
-  bool _hovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: InkWell(
-        onTap: widget.onTap,
-        borderRadius: BorderRadius.circular(12),
-        hoverColor: Colors.transparent,
-        splashColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeInOut,
-          padding: EdgeInsets.symmetric(
-            horizontal: widget.isDesktop ? 18 : 14,
-            vertical: widget.isDesktop ? 10 : 8,
-          ),
-          decoration: BoxDecoration(
-            color: widget.isSelected
-                ? Theme.of(context).primaryColor
-                : (_hovered 
-                    ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
-                    : Theme.of(context).cardColor.withValues(alpha: 0.5)),
-            border: Border.all(
-              color: widget.isSelected
-                  ? Theme.of(context).primaryColor
-                  : (_hovered
-                      ? Theme.of(context).primaryColor.withValues(alpha: 0.3)
-                      : Theme.of(context).dividerColor.withValues(alpha: 0.25)),
-              width: widget.isSelected ? 2 : 1.5,
-            ),
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: widget.isSelected ? [
-              BoxShadow(
-                color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ] : (_hovered ? [
-              BoxShadow(
-                color: Theme.of(context).primaryColor.withValues(alpha: 0.08),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ] : []),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            widget.label.length >= 25 
-                ? '${widget.label.substring(0, 22)}...' 
-                : widget.label,
-            style: rubikMedium.copyWith(
-              fontSize: widget.isDesktop ? 13 : 11,
-              color: widget.isSelected 
-                  ? Colors.white 
-                  : (_hovered
-                      ? Theme.of(context).primaryColor
-                      : Theme.of(context).textTheme.bodyMedium?.color),
-              fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.w500,
-            ),
           ),
         ),
       ),

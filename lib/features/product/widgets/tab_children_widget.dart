@@ -19,7 +19,8 @@ class TabChildrenWidget extends StatefulWidget {
 }
 
 class _TabChildrenWidgetState extends State<TabChildrenWidget> {
-  bool showSeeMoreButton = true;
+  // Always show the full description without truncation / "see more".
+  bool showSeeMoreButton = false;
 
   @override
   Widget build(BuildContext context) {

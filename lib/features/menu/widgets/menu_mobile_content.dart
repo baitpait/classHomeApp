@@ -22,6 +22,31 @@ import 'package:provider/provider.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+/// Whether the user actually provided their own (real) email — so it is worth
+/// showing. Phone/OTP sign-ups get a site-generated placeholder email; those are
+/// hidden. The checks below reject generated forms without hiding genuine emails
+/// (which contain ordinary letters and a real provider domain).
+bool _hasUserEnteredEmail(dynamic userInfo) {
+  final email = (userInfo?.email ?? '').toString().trim().toLowerCase();
+  if (email.isEmpty) return false;
+
+  // Must be a syntactically valid email.
+  final match = RegExp(r'^([\w.\-+]+)@([\w\-]+\.[\w\-.]+)$').firstMatch(email);
+  if (match == null) return false;
+  final local = match.group(1)!;
+
+  // 1) Generated from the phone number (local part contains the phone digits).
+  final phoneDigits = (userInfo?.phone ?? '').toString().replaceAll(RegExp(r'\D'), '');
+  final localDigits = local.replaceAll(RegExp(r'\D'), '');
+  if (phoneDigits.length >= 6 && localDigits.contains(phoneDigits)) return false;
+
+  // 2) Random/system token local part: pure hex (>=12) or all-digits (>=8).
+  if (RegExp(r'^[0-9a-f]{12,}$').hasMatch(local)) return false;
+  if (RegExp(r'^\d{8,}$').hasMatch(local)) return false;
+
+  return true;
+}
+
 /// Redesigned mobile menu content: header card, grouped sections, and actions.
 class MenuMobileContent extends StatelessWidget {
   const MenuMobileContent({super.key});
@@ -292,7 +317,8 @@ class _MenuHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primary = Theme.of(context).primaryColor;
+    // Header uses the brand secondary (navy) color instead of the orange primary.
+    final primary = Theme.of(context).colorScheme.secondary;
     final onPrimary = Theme.of(context).cardColor;
     final resolvedAvatar = UserAvatarImageUrl.resolve(
       isLoggedIn: isLoggedIn,
@@ -380,10 +406,12 @@ class _MenuHeader extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                  if (isLoggedIn && userController.userInfoModel != null) ...[
+                  if (isLoggedIn &&
+                      userController.userInfoModel != null &&
+                      _hasUserEnteredEmail(userController.userInfoModel)) ...[
                     const SizedBox(height: 2),
                     Text(
-                      userController.userInfoModel?.email ?? '',
+                      userController.userInfoModel!.email!.trim(),
                       style: rubikRegular.copyWith(
                         fontSize: Dimensions.fontSizeSmall,
                         color: onPrimary.withValues(alpha: 0.85),

@@ -1,5 +1,6 @@
 import 'package:hexacom_user/utill/routes.dart';
 import 'package:hexacom_user/utill/styles.dart';
+import 'package:hexacom_user/common/widgets/custom_asset_image_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_pop_scope_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:hexacom_user/localization/language_constrants.dart';
@@ -24,7 +25,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
 
     _pageController.addListener((){
       if(_pageController.offset > ((context.size?.width ?? 0) * 2)){
-        RouteHelper.getWelcomeRoute(context, action: RouteAction.pushReplacement);
+        RouteHelper.getMainRoute(context, action: RouteAction.pushReplacement);
       }
     });
     super.initState();
@@ -52,7 +53,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
               child: InkWell(
                   onTap: () {
                     onBoardingList.toggleShowOnBoardingStatus();
-                    RouteHelper.getWelcomeRoute(context, action: RouteAction.pushReplacement);
+                    RouteHelper.getMainRoute(context, action: RouteAction.pushReplacement);
                     },
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
@@ -81,7 +82,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                       height: 400,
                       child: Padding(
                         padding: const EdgeInsets.all(30),
-                        child: Image.asset(onBoardingList.onBoardingList[index].imageUrl),
+                        child: CustomAssetImageWidget(onBoardingList.onBoardingList[index].imageUrl, fit: BoxFit.contain),
                       ),
                     ),
 
@@ -158,7 +159,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                 InkWell(
                   onTap: () {
                     if(onBoardingList.selectedIndex == 2){
-                      RouteHelper.getWelcomeRoute(context, action: RouteAction.pushReplacement);
+                      RouteHelper.getMainRoute(context, action: RouteAction.pushReplacement);
                     }else{
                       _pageController.nextPage(duration: const Duration(seconds: 1), curve: Curves.ease);
                     }

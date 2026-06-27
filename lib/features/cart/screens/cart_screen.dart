@@ -254,8 +254,6 @@ class _CartScreenState extends State<CartScreen> {
                               ),
                             ),
 
-                            if(!isDesktop) const CartProductListWidget(),
-
                             if(!isDesktop && !selfPickup) ...[
                               const SizedBox(height: Dimensions.paddingSizeDefault),
                               CartDeliveryAddressSectionWidget(
@@ -271,6 +269,9 @@ class _CartScreenState extends State<CartScreen> {
                               _CartLoyaltySwitchSection(),
                               const SizedBox(height: Dimensions.paddingSizeDefault),
                             ],
+
+                            // Cart contents moved below the billing/address section.
+                            if(!isDesktop) const CartProductListWidget(),
 
                             if(!isDesktop) ...[
                               CartDetailsWidget(
@@ -367,7 +368,7 @@ class _CartScreenState extends State<CartScreen> {
             ),
 
           ]) : NoDataScreen(
-            image: Images.wishListNoData,
+            image: Images.emptyCart,
             title: getTranslated('empty_cart', context),
             subTitle: getTranslated('look_like_have_not_added', context),
             showFooter: true,

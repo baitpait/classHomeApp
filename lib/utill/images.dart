@@ -57,6 +57,7 @@ class Images {
   static const String offerProductBg = 'assets/image/offer_product_bg.png';
   static const String deliveryAddressIcon = 'assets/image/delivery_address_icon.png';
   static const String wishListNoData = 'assets/image/wishlist_nodata.png';
+  static const String emptyCart = 'assets/image/empty_cart.png';
   static const String percent = 'assets/image/percent.png';
   static const String amount = 'assets/image/amount.png';
   // static const String profileMenuIcon = 'assets/image/profile_menu_icon.png';
@@ -95,9 +96,9 @@ class Images {
   static const String italy = 'assets/image/italy.png';
   static const String japan = 'assets/image/japan.png';
   static const String korea = 'assets/image/korean.png';
-  static const String onBoardingOne = 'assets/image/onboarding_one.png';
-  static const String onBoardingThree = 'assets/image/onboarding_three.png';
-  static const String onBoardingTwo = 'assets/image/onboarding_two.png';
+  static const String onBoardingOne = 'assets/image/onboarding_one.svg';
+  static const String onBoardingThree = 'assets/image/onboarding_three.svg';
+  static const String onBoardingTwo = 'assets/image/onboarding_two.svg';
   static const String unitedKingdom = 'assets/image/united_kindom.png';
   static const String done = 'assets/icon/done.png';
 
