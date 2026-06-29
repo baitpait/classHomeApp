@@ -204,6 +204,8 @@
     "address": "العنوان",
     "area": "منطقة",
     "city": "المدينة",
+    "region": "المنطقة",
+    "select_region_first": "اختر المنطقة أولاً",
     "area": "المنطقة",
     "already_added_in_cart": "موجود في السلة",
     "payment_failed": "فشل الدفع",

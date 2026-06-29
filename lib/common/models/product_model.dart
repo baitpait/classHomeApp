@@ -83,6 +83,7 @@ class Product {
   double? _pricePerSqm;
   String? _rollLabel;
   double? _wastePercent;
+  bool? _countsAsRoll;
 
   Product(
       {int? id,
@@ -111,7 +112,8 @@ class Product {
         String? priceBasis,
         double? pricePerSqm,
         String? rollLabel,
-        double? wastePercent}) {
+        double? wastePercent,
+        bool? countsAsRoll}) {
     _id = id;
     _name = name;
     _description = description;
@@ -139,6 +141,7 @@ class Product {
     _pricePerSqm = pricePerSqm;
     _rollLabel = rollLabel;
     _wastePercent = wastePercent;
+    _countsAsRoll = countsAsRoll;
   }
 
   int? get id => _id;
@@ -168,6 +171,7 @@ class Product {
   double? get pricePerSqm => _pricePerSqm;
   String? get rollLabel => _rollLabel;
   double get wastePercent => _wastePercent ?? 0;
+  bool get countsAsRoll => _countsAsRoll ?? false;
 
   /// Translation key for stock status: stock_run_out, limited_stock, or in_stock.
   String get stockStatusKey {
@@ -232,6 +236,8 @@ class Product {
     _pricePerSqm = json['price_per_sqm'] == null ? null : double.tryParse('${json['price_per_sqm']}');
     _rollLabel = json['roll_label'];
     _wastePercent = json['waste_percent'] == null ? null : double.tryParse('${json['waste_percent']}');
+    final rollFlag = json['counts_as_roll'];
+    _countsAsRoll = rollFlag == true || rollFlag == 1 || '$rollFlag' == '1' || '$rollFlag'.toLowerCase() == 'true';
   }
 
   Map<String, dynamic> toJson() {
@@ -272,6 +278,7 @@ class Product {
     data['price_per_sqm'] = _pricePerSqm;
     data['roll_label'] = _rollLabel;
     data['waste_percent'] = _wastePercent;
+    data['counts_as_roll'] = (_countsAsRoll ?? false) ? 1 : 0;
     return data;
   }
 }

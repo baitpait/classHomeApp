@@ -204,6 +204,8 @@
   "address": "כתובת",
   "area": "אזור",
   "city": "עיר",
+  "region": "אזור",
+  "select_region_first": "בחר אזור תחילה",
   "already_added_in_cart": "כבר נוסף בעגלה",
   "payment_failed": "התשלום נכשל",
   "payment_process_is_interrupted": "תהליך התשלום מופרע. נא להשלים את תשלום ההזמנה מדף פרטי ההזמנה.",

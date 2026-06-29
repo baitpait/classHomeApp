@@ -64,6 +64,7 @@ class CartModel {
   double? get taxAmount => _taxAmount;
   int? get stock => _stock;
   Product? get product => _product;
+  // ignore: unnecessary_getters_setters
   Map<String, dynamic>? get areaCalc => _areaCalc;
   set areaCalc(Map<String, dynamic>? value) => _areaCalc = value;
 

@@ -317,6 +317,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               maxStock: cartModel.stock ?? 9999,
             );
             if (result == null) return; // cancelled
+            if (!context.mounted) return;
             cartModel.quantity = result.rolls;
             cartModel.areaCalc = result.areaCalc;
           }

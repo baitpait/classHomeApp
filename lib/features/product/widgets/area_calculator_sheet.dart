@@ -216,7 +216,7 @@ class _AreaCalculatorSheetState extends State<_AreaCalculatorSheet> {
                 contentPadding: EdgeInsets.zero,
                 dense: true,
                 value: _applyWaste,
-                activeColor: primary,
+                activeThumbColor: primary,
                 onChanged: (v) => setState(() => _applyWaste = v),
                 title: Text(
                   '${getTranslated('apply_waste', context)} (+${_fmt(_waste)}%)',

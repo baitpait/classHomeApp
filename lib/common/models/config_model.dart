@@ -50,6 +50,8 @@ class ConfigModel {
   List<String>? _cities;
   List<AreaModel>? _areas;
   List<CityModel>? _citiesStructured;
+  int? _deliveryRollFreeThreshold;
+  double? _deliveryRollSurchargeRate;
   double? _loyaltyPointRedemptionValue;
   bool? _loyaltyPointsEnabled;
   double? _loyaltyAmountForOnePoint;
@@ -209,6 +211,8 @@ class ConfigModel {
   List<String>? get cities => _cities;
   List<AreaModel>? get areas => _areas;
   List<CityModel>? get citiesStructured => _citiesStructured;
+  int get deliveryRollFreeThreshold => _deliveryRollFreeThreshold ?? 7;
+  double get deliveryRollSurchargeRate => _deliveryRollSurchargeRate ?? 0.10;
 
   set setFetchedFromOnline(bool value) => _fetchedFromOnline = value;
   int? get maxImageUploadSize => _maxImageUploadSize;
@@ -317,6 +321,8 @@ class ConfigModel {
     if (json['areas'] != null && json['areas'] is List) {
       _areas = (json['areas'] as List).map((e) => AreaModel.fromJson(Map<String, dynamic>.from(e as Map))).toList();
     }
+    _deliveryRollFreeThreshold = json['delivery_roll_free_threshold'] == null ? null : int.tryParse('${json['delivery_roll_free_threshold']}');
+    _deliveryRollSurchargeRate = json['delivery_roll_surcharge_rate'] == null ? null : double.tryParse('${json['delivery_roll_surcharge_rate']}');
     if (json['cities'] != null && json['cities'] is List) {
       final list = json['cities'] as List;
       if (list.isNotEmpty && list.first is Map) {

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:hexacom_user/common/models/address_model.dart';
 import 'package:hexacom_user/common/models/config_model.dart';
 import 'package:hexacom_user/features/auth/providers/auth_provider.dart';
+import 'package:hexacom_user/features/cart/providers/cart_provider.dart';
 import 'package:hexacom_user/features/checkout/providers/checkout_provider.dart';
 import 'package:hexacom_user/features/order/enums/delivery_charge_type.dart';
 import 'package:hexacom_user/features/order/providers/order_provider.dart';
@@ -267,19 +268,44 @@ class CheckOutHelper {
     }
     bool matchId(dynamic id) => toInt(id) == areaId;
 
+    double base = 0.0;
     final configModel = splashProvider.configModel;
     if(configModel?.areas != null) {
       final list = configModel!.areas!.where((a) => matchId(a.id)).toList();
-      if(list.isNotEmpty && list.first.deliveryCharge != null) return list.first.deliveryCharge!;
+      if(list.isNotEmpty && list.first.deliveryCharge != null) base = list.first.deliveryCharge!;
     }
-    final areas = splashProvider.deliveryInfoModelList?[checkoutProvider.branchIndex].deliveryChargeByArea;
-    if(areas != null && areas.isNotEmpty) {
-      try {
-        final area = areas.firstWhere((area) => matchId(area.id));
-        return area.deliveryCharge?.toDouble() ?? 0.0;
-      } catch (_) {}
+    if(base == 0.0) {
+      final areas = splashProvider.deliveryInfoModelList?[checkoutProvider.branchIndex].deliveryChargeByArea;
+      if(areas != null && areas.isNotEmpty) {
+        try {
+          final area = areas.firstWhere((area) => matchId(area.id));
+          base = area.deliveryCharge?.toDouble() ?? 0.0;
+        } catch (_) {}
+      }
     }
-    return 0.0;
+    return applyRollDeliverySurcharge(base, getDeliveryRollCount(context), configModel);
+  }
+
+  /// مجموع الرولات المؤثّرة على رسوم التوصيل (عناصر السلة المعلّمة countsAsRoll فقط).
+  static int getDeliveryRollCount(BuildContext context){
+    final CartProvider cartProvider = context.read<CartProvider>();
+    int rolls = 0;
+    for(final cart in cartProvider.cartList){
+      if(cart?.product?.countsAsRoll ?? false){
+        rolls += cart?.quantity ?? 0;
+      }
+    }
+    return rolls;
+  }
+
+  /// كل رول فوق العتبة يزيد سعر التوصيل بنسبة ثابتة من السعر الأساسي.
+  static double applyRollDeliverySurcharge(double base, int rolls, ConfigModel? config){
+    final int threshold = config?.deliveryRollFreeThreshold ?? 7;
+    final double rate = config?.deliveryRollSurchargeRate ?? 0.10;
+    if(base <= 0 || rolls <= threshold) return base;
+    final int extra = rolls - threshold;
+    final double charged = base * (1 + rate * extra);
+    return double.parse(charged.toStringAsFixed(2));
   }
 
   static bool isSelectDeliveryAddress(AddressModel deliveryAddress){

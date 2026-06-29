@@ -204,6 +204,8 @@
   "address": "Address",
   "area": "Area",
   "city": "City",
+  "region": "Region",
+  "select_region_first": "Select region first",
   "area": "Area",
   "already_added_in_cart": "Already added in cart",
   "payment_failed": "Payment Failed",
