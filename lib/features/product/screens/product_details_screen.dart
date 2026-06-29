@@ -18,6 +18,7 @@ import 'package:hexacom_user/features/product/widgets/related_product_widget.dar
 import 'package:hexacom_user/features/product/widgets/tab_children_widget.dart';
 import 'package:hexacom_user/features/product/widgets/tabbar_widget.dart';
 import 'package:hexacom_user/features/product/widgets/variation_view_widget.dart';
+import 'package:hexacom_user/features/product/widgets/area_calculator_sheet.dart';
 import 'package:hexacom_user/features/wishlist/providers/wishlist_provider.dart';
 import 'package:hexacom_user/helper/cart_helper.dart';
 import 'package:hexacom_user/helper/custom_snackbar_helper.dart';
@@ -299,7 +300,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   VoidCallback? _onSubmitCartButton(CartProvider cartProvider, CartModel? cartModel, bool isExistInCart, BuildContext context) {
-    return (cartModel?.stock ?? 0) > 0 ? () {
+    return (cartModel?.stock ?? 0) > 0 ? () async {
 
       if(cartProvider.pendingCartList.isNotEmpty) {
         cartProvider.updateCart();
@@ -307,7 +308,19 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
       }else {
         if (!isExistInCart && (cartModel?.stock ?? 0) > 0) {
-          cartProvider.addToCart(cartModel!, null);
+          final product = cartModel!.product;
+          if (product != null && product.isAreaBased) {
+            final result = await showAreaCalculatorSheet(
+              context,
+              product,
+              cartModel.discountedPrice ?? cartModel.price ?? 0,
+              maxStock: cartModel.stock ?? 9999,
+            );
+            if (result == null) return; // cancelled
+            cartModel.quantity = result.rolls;
+            cartModel.areaCalc = result.areaCalc;
+          }
+          cartProvider.addToCart(cartModel, null);
           showCustomSnackBar(getTranslated('added_to_cart', context), context, isError: false);
 
 

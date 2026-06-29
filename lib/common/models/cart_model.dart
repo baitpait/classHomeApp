@@ -10,6 +10,9 @@ class CartModel {
   double? _taxAmount;
   int? _stock;
   Product? _product;
+  /// Optional area-based purchase snapshot (wallpaper etc.):
+  /// {width, length, area, coverage, rolls, waste_percent, price_basis}
+  Map<String, dynamic>? _areaCalc;
 
   CartModel(
         int? id,
@@ -20,7 +23,8 @@ class CartModel {
         int? quantity,
         double? taxAmount,
         int? maxQty,
-        Product? product) {
+        Product? product,
+        {Map<String, dynamic>? areaCalc}) {
     _id = id;
     _price = price;
     _discountedPrice = discountedPrice;
@@ -30,6 +34,7 @@ class CartModel {
     _taxAmount = taxAmount;
     _stock = maxQty;
     _product = product;
+    _areaCalc = areaCalc;
   }
 
   CartModel copyWith(){
@@ -42,7 +47,8 @@ class CartModel {
         _quantity,
         _taxAmount,
         _stock,
-        _product
+        _product,
+        areaCalc: _areaCalc,
     );
   }
 
@@ -58,6 +64,8 @@ class CartModel {
   double? get taxAmount => _taxAmount;
   int? get stock => _stock;
   Product? get product => _product;
+  Map<String, dynamic>? get areaCalc => _areaCalc;
+  set areaCalc(Map<String, dynamic>? value) => _areaCalc = value;
 
   CartModel.fromJson(Map<String, dynamic> json) {
     _id = int.parse('${json['id']}');
@@ -76,6 +84,9 @@ class CartModel {
     if (json['product'] != null) {
       _product = Product.fromJson(json['product']);
     }
+    if (json['area_calc'] != null) {
+      _areaCalc = Map<String, dynamic>.from(json['area_calc']);
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -91,6 +102,9 @@ class CartModel {
     data['tax_amount'] = _taxAmount;
     data['max_qty'] = _stock;
     data['product'] = _product!.toJson();
+    if (_areaCalc != null) {
+      data['area_calc'] = _areaCalc;
+    }
     return data;
   }
 }

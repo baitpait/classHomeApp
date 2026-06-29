@@ -106,6 +106,7 @@ class PlaceOrderButtonView extends StatelessWidget {
                         carts.add(Cart(
                           cart.product!.id.toString(), cart.discountedPrice.toString(), '', cart.variation,
                           cart.discountAmount, cart.quantity, cart.taxAmount,
+                          areaCalc: cart.areaCalc,
                         ));
                       }
 

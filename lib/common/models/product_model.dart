@@ -76,6 +76,13 @@ class Product {
   int? _totalStock;
   int? _minimumStockAlert;
   List<Rating>? _rating;
+  // Area-based selling (wallpaper etc.)
+  bool? _isAreaBased;
+  double? _coveragePerUnit;
+  String? _priceBasis;
+  double? _pricePerSqm;
+  String? _rollLabel;
+  double? _wastePercent;
 
   Product(
       {int? id,
@@ -98,7 +105,13 @@ class Product {
         String? unit,
         int? totalStock,
         int? minimumStockAlert,
-        List<Rating>? rating}) {
+        List<Rating>? rating,
+        bool? isAreaBased,
+        double? coveragePerUnit,
+        String? priceBasis,
+        double? pricePerSqm,
+        String? rollLabel,
+        double? wastePercent}) {
     _id = id;
     _name = name;
     _description = description;
@@ -120,6 +133,12 @@ class Product {
     _totalStock = totalStock;
     _minimumStockAlert = minimumStockAlert;
     _rating = rating;
+    _isAreaBased = isAreaBased;
+    _coveragePerUnit = coveragePerUnit;
+    _priceBasis = priceBasis;
+    _pricePerSqm = pricePerSqm;
+    _rollLabel = rollLabel;
+    _wastePercent = wastePercent;
   }
 
   int? get id => _id;
@@ -143,6 +162,12 @@ class Product {
   int? get totalStock => _totalStock;
   int? get minimumStockAlert => _minimumStockAlert;
   List<Rating>? get rating => _rating;
+  bool get isAreaBased => _isAreaBased ?? false;
+  double? get coveragePerUnit => _coveragePerUnit;
+  String get priceBasis => _priceBasis ?? 'roll';
+  double? get pricePerSqm => _pricePerSqm;
+  String? get rollLabel => _rollLabel;
+  double get wastePercent => _wastePercent ?? 0;
 
   /// Translation key for stock status: stock_run_out, limited_stock, or in_stock.
   String get stockStatusKey {
@@ -200,6 +225,13 @@ class Product {
         _rating!.add(Rating.fromJson(v));
       });
     }
+    final areaFlag = json['is_area_based'];
+    _isAreaBased = areaFlag == true || areaFlag == 1 || '$areaFlag' == '1' || '$areaFlag'.toLowerCase() == 'true';
+    _coveragePerUnit = json['coverage_per_unit'] == null ? null : double.tryParse('${json['coverage_per_unit']}');
+    _priceBasis = json['price_basis'];
+    _pricePerSqm = json['price_per_sqm'] == null ? null : double.tryParse('${json['price_per_sqm']}');
+    _rollLabel = json['roll_label'];
+    _wastePercent = json['waste_percent'] == null ? null : double.tryParse('${json['waste_percent']}');
   }
 
   Map<String, dynamic> toJson() {
@@ -234,6 +266,12 @@ class Product {
     if (_rating != null) {
       data['rating'] = _rating!.map((v) => v.toJson()).toList();
     }
+    data['is_area_based'] = (_isAreaBased ?? false) ? 1 : 0;
+    data['coverage_per_unit'] = _coveragePerUnit;
+    data['price_basis'] = _priceBasis;
+    data['price_per_sqm'] = _pricePerSqm;
+    data['roll_label'] = _rollLabel;
+    data['waste_percent'] = _wastePercent;
     return data;
   }
 }

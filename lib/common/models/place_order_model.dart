@@ -154,6 +154,7 @@ class Cart {
   double? _discountAmount;
   int? _quantity;
   double? _taxAmount;
+  Map<String, dynamic>? _areaCalc;
 
   Cart(
       String productId,
@@ -162,7 +163,8 @@ class Cart {
         List<Variation>? variation,
         double? discountAmount,
         int? quantity,
-        double? taxAmount) {
+        double? taxAmount,
+        {Map<String, dynamic>? areaCalc}) {
     _productId = productId;
     _price = price;
     _variant = variant;
@@ -170,6 +172,7 @@ class Cart {
     _discountAmount = discountAmount;
     _quantity = quantity;
     _taxAmount = taxAmount;
+    _areaCalc = areaCalc;
   }
 
   String? get productId => _productId;
@@ -179,6 +182,7 @@ class Cart {
   double? get discountAmount => _discountAmount;
   int? get quantity => _quantity;
   double? get taxAmount => _taxAmount;
+  Map<String, dynamic>? get areaCalc => _areaCalc;
 
   Cart.fromJson(Map<String, dynamic> json) {
     _productId = json['product_id'];
@@ -193,6 +197,9 @@ class Cart {
     _discountAmount = json['discount_amount'];
     _quantity = json['quantity'];
     _taxAmount = json['tax_amount'];
+    if (json['area_calc'] != null) {
+      _areaCalc = Map<String, dynamic>.from(json['area_calc']);
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -206,6 +213,9 @@ class Cart {
     data['discount_amount'] = _discountAmount;
     data['quantity'] = _quantity;
     data['tax_amount'] = _taxAmount;
+    if (_areaCalc != null) {
+      data['area_calc'] = _areaCalc;
+    }
     return data;
   }
 }

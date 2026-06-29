@@ -167,6 +167,33 @@ class CartProductWidget extends StatelessWidget {
                               ],
                             ),
                           ],
+                          if (cart?.areaCalc != null) ...[
+                            const SizedBox(height: 4),
+                            Builder(builder: (context) {
+                              final ac = cart!.areaCalc!;
+                              String f(v) {
+                                final d = double.tryParse('$v') ?? 0;
+                                return d == d.roundToDouble() ? d.toInt().toString() : d.toStringAsFixed(2);
+                              }
+                              final hasDims = ac['width'] != null && ac['length'] != null && (double.tryParse('${ac['width']}') ?? 0) > 0;
+                              final m = getTranslated('meter', context);
+                              final sqm = getTranslated('sqm', context);
+                              final text = hasDims
+                                  ? '${f(ac['width'])} × ${f(ac['length'])} $m = ${f(ac['area'])} $sqm'
+                                  : '${getTranslated('each_roll_covers', context)} ${f(ac['coverage'])} $sqm';
+                              return Row(children: [
+                                Icon(Icons.straighten_rounded, size: 14, color: Theme.of(context).primaryColor),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(
+                                    text,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: rubikRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).primaryColor),
+                                  ),
+                                ),
+                              ]);
+                            }),
+                          ],
                         ],
                       ),
                     ),
