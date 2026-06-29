@@ -293,12 +293,14 @@ class CheckOutHelper {
     return base;
   }
 
-  /// مجموع الرولات المؤثّرة على رسوم التوصيل (عناصر السلة المعلّمة countsAsRoll فقط).
+  /// مجموع الرولات المؤثّرة على رسوم التوصيل: المنتجات "بالمساحة" تُحتسب تلقائياً،
+  /// إضافةً لأي منتج معلّم يدوياً countsAsRoll.
   static int getDeliveryRollCount(BuildContext context){
     final CartProvider cartProvider = context.read<CartProvider>();
     int rolls = 0;
     for(final cart in cartProvider.cartList){
-      if(cart?.product?.countsAsRoll ?? false){
+      final product = cart?.product;
+      if((product?.countsAsRoll ?? false) || (product?.isAreaBased ?? false)){
         rolls += cart?.quantity ?? 0;
       }
     }
