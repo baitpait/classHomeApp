@@ -251,6 +251,13 @@ class CheckOutHelper {
   }
 
   static double getAreaWiseDeliveryCharge(BuildContext context){
+    final configModel = context.read<SplashProvider>().configModel;
+    final double base = getAreaBaseDeliveryCharge(context);
+    return applyRollDeliverySurcharge(base, getDeliveryRollCount(context), configModel);
+  }
+
+  /// السعر الأساسي للتوصيل حسب المنطقة المختارة (قبل زيادة الرولات).
+  static double getAreaBaseDeliveryCharge(BuildContext context){
     final CheckoutProvider checkoutProvider = context.read<CheckoutProvider>();
     final SplashProvider splashProvider = context.read<SplashProvider>();
     final OrderProvider orderProvider = context.read<OrderProvider>();
@@ -283,7 +290,7 @@ class CheckOutHelper {
         } catch (_) {}
       }
     }
-    return applyRollDeliverySurcharge(base, getDeliveryRollCount(context), configModel);
+    return base;
   }
 
   /// مجموع الرولات المؤثّرة على رسوم التوصيل (عناصر السلة المعلّمة countsAsRoll فقط).

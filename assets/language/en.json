@@ -109,6 +109,8 @@
   "apply": "Apply",
   "subtotal": "Subtotal",
   "delivery_fee": "Delivery Fee",
+  "base_region_fee": "Base region fee",
+  "extra_rolls_surcharge": "Extra rolls surcharge",
   "total_amount": "Total Amount",
   "place_order": "Place Order",
   "no_data_available": "No data available",

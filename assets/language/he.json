@@ -109,6 +109,8 @@
   "apply": "החל",
   "subtotal": "סכום ביניים",
   "delivery_fee": "דמי משלוח",
+  "base_region_fee": "דמי אזור בסיסיים",
+  "extra_rolls_surcharge": "תוספת גלילים נוספים",
   "total_amount": "סכום כולל",
   "place_order": "בצע הזמנה",
   "no_data_available": "אין נתונים זמינים",

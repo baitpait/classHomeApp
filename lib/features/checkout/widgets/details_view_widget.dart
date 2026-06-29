@@ -12,6 +12,7 @@ import 'package:hexacom_user/features/profile/providers/profile_provider.dart';
 import 'package:hexacom_user/features/checkout/widgets/place_order_button_view.dart';
 import 'package:hexacom_user/features/order/providers/order_provider.dart';
 import 'package:hexacom_user/features/splash/providers/splash_provider.dart';
+import 'package:hexacom_user/helper/checkout_helper.dart';
 import 'package:hexacom_user/helper/price_converter_helper.dart';
 import 'package:hexacom_user/helper/responsive_helper.dart';
 import 'package:hexacom_user/localization/language_constrants.dart';
@@ -174,6 +175,38 @@ class DetailsViewWidget extends StatelessWidget {
                   },
                 )
               ]),
+
+              Builder(builder: (context) {
+                final double base = CheckOutHelper.getAreaBaseDeliveryCharge(context);
+                final int rolls = CheckOutHelper.getDeliveryRollCount(context);
+                final config = context.read<SplashProvider>().configModel;
+                final int threshold = config?.deliveryRollFreeThreshold ?? 7;
+                final double rate = config?.deliveryRollSurchargeRate ?? 0.10;
+                if (base <= 0 || rolls <= threshold) return const SizedBox.shrink();
+                final int extra = rolls - threshold;
+                final double surcharge = double.parse((base * rate * extra).toStringAsFixed(2));
+                final TextStyle detailStyle = rubikRegular.copyWith(
+                  fontSize: Dimensions.fontSizeSmall,
+                  color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.65),
+                );
+                Widget detailRow(String label, String value) => Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                    Flexible(child: Text(label, style: detailStyle)),
+                    CustomDirectionalityWidget(child: Text(value, style: detailStyle)),
+                  ]),
+                );
+                return Padding(
+                  padding: const EdgeInsetsDirectional.only(start: 8, top: 6),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    detailRow(getTranslated('base_region_fee', context), PriceConverterHelper.convertPrice(base)),
+                    detailRow(
+                      '${getTranslated('extra_rolls_surcharge', context)} ($rolls ${getTranslated('roll', context)}, +$extra × ${(rate * 100).toStringAsFixed(0)}%)',
+                      '(+) ${PriceConverterHelper.convertPrice(surcharge)}',
+                    ),
+                  ]),
+                );
+              }),
             ],
 
             if (loyaltyDiscount > 0) ...[
