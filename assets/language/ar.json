@@ -206,6 +206,8 @@
     "address": "العنوان",
     "area": "منطقة",
     "city": "المدينة",
+    "building": "رقم المبنى / الطابق",
+    "street_neighborhood": "الشارع / الحي",
     "region": "المنطقة",
     "select_region_first": "اختر المنطقة أولاً",
     "area": "المنطقة",

@@ -4,6 +4,7 @@ import 'package:hexacom_user/features/address/providers/address_provider.dart';
 import 'package:hexacom_user/features/address/providers/location_provider.dart';
 import 'package:hexacom_user/features/address/widgets/address_button_widget.dart';
 import 'package:hexacom_user/helper/auth_helper.dart';
+import 'package:hexacom_user/helper/price_converter_helper.dart';
 import 'package:hexacom_user/helper/responsive_helper.dart';
 import 'package:hexacom_user/localization/language_constrants.dart';
 import 'package:hexacom_user/provider/localization_provider.dart';
@@ -19,6 +20,7 @@ class AddressDetailsWidget extends StatelessWidget {
   final TextEditingController contactPersonNameController;
   final TextEditingController contactPersonNumberController;
   final TextEditingController addressTextController;
+  final TextEditingController? buildingController;
   final FocusNode addressNode;
   final FocusNode nameNode;
   final FocusNode numberNode;
@@ -36,6 +38,7 @@ class AddressDetailsWidget extends StatelessWidget {
     required this.contactPersonNameController,
     required this.contactPersonNumberController,
     required this.addressTextController,
+    this.buildingController,
     required this.addressNode,
     required this.nameNode,
     required this.numberNode,
@@ -57,6 +60,22 @@ class AddressDetailsWidget extends StatelessWidget {
 
   static String _areaName(AreaModel a, String langCode) {
     return (langCode == 'ar' && (a.nameAr ?? '').isNotEmpty) ? (a.nameAr ?? a.nameEn ?? '') : (a.nameEn ?? a.nameAr ?? '');
+  }
+
+  /// Field label with an optional red asterisk for required fields.
+  Widget _fieldLabel(BuildContext context, String text, {bool required = false}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeExtraSmall),
+      child: RichText(
+        text: TextSpan(
+          text: text,
+          style: rubikMedium.copyWith(color: Theme.of(context).hintColor, fontSize: Dimensions.fontSizeSmall),
+          children: required
+              ? [TextSpan(text: ' *', style: rubikMedium.copyWith(color: Theme.of(context).colorScheme.error, fontSize: Dimensions.fontSizeSmall))]
+              : const [],
+        ),
+      ),
+    );
   }
 
   @override
@@ -96,11 +115,7 @@ class AddressDetailsWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  getTranslated('contact_person_name', context),
-                  style: rubikMedium.copyWith(color: Theme.of(context).hintColor, fontSize: Dimensions.fontSizeSmall),
-                ),
-                const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+                _fieldLabel(context, getTranslated('contact_person_name', context), required: true),
                 CustomTextFieldWidget(
                   hintText: getTranslated('enter_contact_person_name', context),
                   isShowBorder: true,
@@ -115,11 +130,7 @@ class AddressDetailsWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: Dimensions.paddingSizeDefault),
 
-                Text(
-                  getTranslated('contact_person_number', context),
-                  style: rubikMedium.copyWith(color: Theme.of(context).hintColor, fontSize: Dimensions.fontSizeSmall),
-                ),
-                const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+                _fieldLabel(context, getTranslated('contact_person_number', context), required: true),
                 CustomTextFieldWidget(
                   hintText: '5XXXXXXXX',
                   isShowBorder: true,
@@ -148,11 +159,7 @@ class AddressDetailsWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (hasAreasAndCities) ...[
-                  Text(
-                    getTranslated('region', context),
-                    style: rubikMedium.copyWith(color: Theme.of(context).hintColor, fontSize: Dimensions.fontSizeSmall),
-                  ),
-                  const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+                  _fieldLabel(context, getTranslated('region', context), required: true),
                   _buildDropdownContainer(
                     context,
                     child: DropdownButtonHideUnderline(
@@ -174,14 +181,14 @@ class AddressDetailsWidget extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (selectedAreaId != null) ...[
+                    const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+                    _deliveryFeeChip(context, config.areas, selectedAreaId!),
+                  ],
                   const SizedBox(height: Dimensions.paddingSizeDefault),
                 ],
 
-                Text(
-                  getTranslated('city', context),
-                  style: rubikMedium.copyWith(color: Theme.of(context).hintColor, fontSize: Dimensions.fontSizeSmall),
-                ),
-                const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+                _fieldLabel(context, getTranslated('city', context), required: true),
                 _buildDropdownContainer(
                   context,
                   child: DropdownButtonHideUnderline(
@@ -219,25 +226,33 @@ class AddressDetailsWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: Dimensions.paddingSizeDefault),
 
-                Text(
-                  getTranslated('address', context),
-                  style: rubikMedium.copyWith(color: Theme.of(context).hintColor, fontSize: Dimensions.fontSizeSmall),
-                ),
-                const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+                _fieldLabel(context, getTranslated('street_neighborhood', context), required: true),
                 CustomTextFieldWidget(
                   onChanged: (String? value) {
                     locationProvider.setAddress = value;
                   },
-                  hintText: getTranslated('address', context),
+                  hintText: getTranslated('street_neighborhood', context),
                   isShowBorder: true,
                   isDense: false,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                  maxLines: 5,
-                  inputType: TextInputType.multiline,
-                  inputAction: TextInputAction.newline,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  maxLines: 2,
+                  inputType: TextInputType.streetAddress,
+                  inputAction: TextInputAction.next,
                   capitalization: TextCapitalization.sentences,
                   focusNode: addressNode,
                   controller: addressTextController,
+                ),
+                const SizedBox(height: Dimensions.paddingSizeDefault),
+
+                _fieldLabel(context, getTranslated('building', context)),
+                CustomTextFieldWidget(
+                  hintText: getTranslated('building', context),
+                  isShowBorder: true,
+                  isDense: false,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  inputType: TextInputType.text,
+                  inputAction: TextInputAction.done,
+                  controller: buildingController,
                 ),
               ],
             ),
@@ -254,6 +269,7 @@ class AddressDetailsWidget extends StatelessWidget {
                 contactPersonNumberController: contactPersonNumberController,
                 contactPersonNameController: contactPersonNameController,
                 addressTextController: addressTextController,
+                buildingController: buildingController,
                 address: address,
                 selectedCity: selectedCity ?? '',
                 selectedAreaId: selectedAreaId,
@@ -299,6 +315,31 @@ class AddressDetailsWidget extends StatelessWidget {
           child,
         ],
       ),
+    );
+  }
+
+  /// Live delivery fee preview for the selected region.
+  Widget _deliveryFeeChip(BuildContext context, List<AreaModel>? areas, int areaId) {
+    AreaModel? area;
+    for (final a in areas ?? <AreaModel>[]) {
+      if (a.id == areaId) { area = a; break; }
+    }
+    if (area?.deliveryCharge == null) return const SizedBox.shrink();
+    final primary = Theme.of(context).primaryColor;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        Icon(Icons.local_shipping_outlined, size: 16, color: primary),
+        const SizedBox(width: 6),
+        Text(
+          '${getTranslated('delivery_fee', context)}: ${PriceConverterHelper.convertPrice(area!.deliveryCharge)}',
+          style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: primary),
+        ),
+      ]),
     );
   }
 

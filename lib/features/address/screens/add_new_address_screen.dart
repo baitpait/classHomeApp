@@ -33,6 +33,7 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
   final TextEditingController _contactPersonNameController = TextEditingController();
   final TextEditingController _contactPersonNumberController = TextEditingController();
   final TextEditingController _addressTextController = TextEditingController();
+  final TextEditingController _buildingController = TextEditingController();
 
   final FocusNode _addressNode = FocusNode();
   final FocusNode _nameNode = FocusNode();
@@ -50,7 +51,8 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
 
     if (widget.address != null && !widget.fromCheckout) {
       Provider.of<LocationProvider>(context, listen: false).setAddress = widget.address?.address;
-      _addressTextController.text = widget.address!.address ?? '';
+      _addressTextController.text = widget.address!.streetNumber ?? widget.address!.address ?? '';
+      _buildingController.text = widget.address!.houseNumber ?? '';
       _selectedCity = widget.address!.city;
       _selectedAreaId = widget.address!.areaId;
     }
@@ -146,6 +148,7 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
                                   contactPersonNameController: _contactPersonNameController,
                                   contactPersonNumberController: _contactPersonNumberController,
                                   addressTextController: _addressTextController,
+                                  buildingController: _buildingController,
                                   addressNode: _addressNode,
                                   nameNode: _nameNode,
                                   numberNode: _numberNode,
@@ -162,6 +165,7 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
                                   contactPersonNameController: _contactPersonNameController,
                                   contactPersonNumberController: _contactPersonNumberController,
                                   addressTextController: _addressTextController,
+                                  buildingController: _buildingController,
                                   addressNode: _addressNode,
                                   nameNode: _nameNode,
                                   numberNode: _numberNode,
@@ -195,6 +199,7 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
                 contactPersonNumberController: _contactPersonNumberController,
                 contactPersonNameController: _contactPersonNameController,
                 addressTextController: _addressTextController,
+                buildingController: _buildingController,
                 address: widget.address,
                 selectedCity: _selectedCity ?? '',
                 countryCode : addressProvider.countryCode ?? '',

@@ -68,6 +68,9 @@ class AddressModel {
     data['user_id'] = userId;
     data['_method'] = method;
     data['contact_person_name'] = contactPersonName;
+    data['road'] = streetNumber;
+    data['house'] = houseNumber;
+    data['floor'] = floorNumber;
     return data;
   }
 }

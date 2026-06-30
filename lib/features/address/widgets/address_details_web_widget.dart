@@ -1,4 +1,3 @@
-import 'package:country_code_picker/country_code_picker.dart';
 import 'package:hexacom_user/common/models/address_model.dart';
 import 'package:hexacom_user/common/models/config_model.dart';
 import 'package:hexacom_user/features/address/providers/address_provider.dart';
@@ -18,6 +17,7 @@ class AddressDetailsWebWidget extends StatelessWidget {
   final TextEditingController contactPersonNameController;
   final TextEditingController contactPersonNumberController;
   final TextEditingController addressTextController;
+  final TextEditingController? buildingController;
   final FocusNode addressNode;
   final FocusNode nameNode;
   final FocusNode numberNode;
@@ -34,6 +34,7 @@ class AddressDetailsWebWidget extends StatelessWidget {
     required this.contactPersonNameController,
     required this.contactPersonNumberController,
     required this.addressTextController,
+    this.buildingController,
     required this.addressNode,
     required this.nameNode,
     required this.numberNode,
@@ -96,8 +97,7 @@ class AddressDetailsWebWidget extends StatelessWidget {
               ),
               const SizedBox(height: Dimensions.paddingSizeDefault),
               CustomTextFieldWidget(
-                countryDialCode: addressProvider.countryCode,
-                onCountryChanged: (CountryCode value) => addressProvider.setCountryCode(value.dialCode ?? '', isUpdate: true),
+                fixedCountryCode: '+972',
                 isRequired: true,
                 title: getTranslated('phone_number', context),
                 hintText: getTranslated('enter_contact_person_number', context),
@@ -198,17 +198,28 @@ class AddressDetailsWebWidget extends StatelessWidget {
               const SizedBox(height: Dimensions.paddingSizeDefault),
 
               CustomTextFieldWidget(
-                title: getTranslated('address', context),
+                title: getTranslated('street_neighborhood', context),
                 isRequired: true,
                 onChanged: (String? value) => locationProvider.setAddress = value,
-                hintText: getTranslated('address', context),
+                hintText: getTranslated('street_neighborhood', context),
                 isShowBorder: true,
-                maxLines: 5,
-                inputType: TextInputType.multiline,
-                inputAction: TextInputAction.newline,
+                maxLines: 2,
+                inputType: TextInputType.streetAddress,
+                inputAction: TextInputAction.next,
                 capitalization: TextCapitalization.sentences,
                 focusNode: addressNode,
                 controller: addressTextController,
+                isDense: false,
+              ),
+              const SizedBox(height: Dimensions.paddingSizeDefault),
+
+              CustomTextFieldWidget(
+                title: getTranslated('building', context),
+                hintText: getTranslated('building', context),
+                isShowBorder: true,
+                inputType: TextInputType.text,
+                inputAction: TextInputAction.done,
+                controller: buildingController,
                 isDense: false,
               ),
               const SizedBox(height: Dimensions.paddingSizeLarge),
@@ -218,6 +229,7 @@ class AddressDetailsWebWidget extends StatelessWidget {
                 contactPersonNumberController: contactPersonNumberController,
                 contactPersonNameController: contactPersonNameController,
                 addressTextController: addressTextController,
+                buildingController: buildingController,
                 address: address,
                 selectedCity: selectedCity ?? '',
                 selectedAreaId: selectedAreaId,

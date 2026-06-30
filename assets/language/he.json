@@ -206,6 +206,8 @@
   "address": "כתובת",
   "area": "אזור",
   "city": "עיר",
+  "building": "מספר בניין / קומה",
+  "street_neighborhood": "רחוב / שכונה",
   "region": "אזור",
   "select_region_first": "בחר אזור תחילה",
   "already_added_in_cart": "כבר נוסף בעגלה",

@@ -23,6 +23,7 @@ class AddressButtonWidget extends StatelessWidget {
   final TextEditingController contactPersonNameController;
   final TextEditingController contactPersonNumberController;
   final TextEditingController addressTextController;
+  final TextEditingController? buildingController;
   final AddressModel? address;
   final String selectedCity;
   final String countryCode;
@@ -35,6 +36,7 @@ class AddressButtonWidget extends StatelessWidget {
     required this.contactPersonNumberController,
     required this.contactPersonNameController,
     required this.addressTextController,
+    this.buildingController,
     required this.address,
     required this.selectedCity,
     required this.countryCode,
@@ -166,13 +168,22 @@ class AddressButtonWidget extends StatelessWidget {
       }
       else {
 
+        final String street = addressText;
+        final String building = buildingController?.text.trim() ?? '';
+        final String composedAddress = [
+          if (street.isNotEmpty) street,
+          if (building.isNotEmpty) building,
+        ].join('، ');
+
         AddressModel addressModel = AddressModel(
           addressType: 'Other',
           contactPersonName: contactPersonNameController.text.trim(),
           contactPersonNumber: phone,
           city: selectedCity,
           areaId: selectedAreaId,
-          address: addressText.isNotEmpty ? addressText : locationProvider.address,
+          address: composedAddress.isNotEmpty ? composedAddress : locationProvider.address,
+          streetNumber: street.isNotEmpty ? street : null,
+          houseNumber: building.isNotEmpty ? building : null,
           latitude: null,
           longitude: null,
         );

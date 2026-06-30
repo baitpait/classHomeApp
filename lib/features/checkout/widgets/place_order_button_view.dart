@@ -36,11 +36,15 @@ class PlaceOrderButtonView extends StatelessWidget {
   final String? orderNote;
   final ScrollController? scrollController;
   final GlobalKey? dropdownKey;
+  /// Called before placing the order (e.g. to auto-save an inline address form).
+  /// Returns false to abort placing the order.
+  final Future<bool> Function()? onBeforePlaceOrder;
 
   const PlaceOrderButtonView({
     super.key, required this.amount, required this.deliveryCharge,
     required this.orderType, required this.kmWiseCharge,
-    required this.cartList, required this.orderNote, this.scrollController, this.dropdownKey
+    required this.cartList, required this.orderNote, this.scrollController, this.dropdownKey,
+    this.onBeforePlaceOrder,
   });
 
   @override
@@ -60,6 +64,14 @@ class PlaceOrderButtonView extends StatelessWidget {
             child: Consumer<OrderProvider>(
                 builder: (context, orderProvider, _) {
                   return CustomButtonWidget(isLoading: orderProvider.isLoading, btnTxt: getTranslated('confirm_order', context), onTap: () async {
+                    final double minOrderValue = Provider.of<SplashProvider>(context, listen: false).configModel!.minimumOrderValue ?? 0;
+                    // Auto-save the inline address form (if any) before placing — so the
+                    // customer doesn't need a separate "save address" tap.
+                    if (!selfPickup && (amount ?? 0) >= minOrderValue && onBeforePlaceOrder != null) {
+                      final bool ok = await onBeforePlaceOrder!();
+                      if (!ok) return;
+                      if (!context.mounted) return;
+                    }
                     if(amount! < Provider.of<SplashProvider>(context, listen: false).configModel!.minimumOrderValue!) {
                       final splash = Provider.of<SplashProvider>(context, listen: false);
                       final minOrder = splash.configModel!.minimumOrderValue;

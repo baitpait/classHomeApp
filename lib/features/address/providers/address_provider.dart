@@ -21,7 +21,7 @@ class AddressProvider with ChangeNotifier {
   String? _lastAddressSuccessType;
   List<String> _getAllAddressType = [];
   int _selectAddressIndex = 0;
-  String? _countryCode;
+  String? _countryCode = '+972';
   Prediction? predictionModel;
   List<AddressModel>? get addressList => _addressList;
   bool get isLoading => _isLoading;
@@ -150,12 +150,9 @@ class AddressProvider with ChangeNotifier {
     return index;
   }
 
+  // مقدمة الهاتف ثابتة دائماً +972 (متجر فلسطين/إسرائيل) — لا تتغيّر حسب الإدخال أو الإعداد.
   void setCountryCode (String code, {bool isUpdate = false}){
-    if(!code.contains('+')){
-      _countryCode = "+$code";
-    }else{
-      _countryCode = code;
-    }
+    _countryCode = '+972';
     if(isUpdate){
       notifyListeners();
     }
