@@ -5,7 +5,6 @@ import 'package:hexacom_user/common/widgets/custom_asset_image_widget.dart';
 import 'package:hexacom_user/features/auth/widgets/code_picker_widget.dart';
 import 'package:hexacom_user/helper/responsive_helper.dart';
 import 'package:hexacom_user/localization/language_constrants.dart';
-import 'package:hexacom_user/utill/color_resources.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
 import 'package:hexacom_user/utill/styles.dart';
 
@@ -178,24 +177,32 @@ class _CustomTextFieldWidgetState extends State<CustomTextFieldWidget> {
                   horizontal: widget.isPadding ? 22 : 0,
                 ),
             enabledBorder: !widget.isShowBorder ? InputBorder.none : OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
+              borderRadius: BorderRadius.circular(14),
               borderSide: BorderSide(
                 width: 1,
-                color: widget.borderColor ?? ColorResources.lightGray.withValues(alpha: 0.9),
+                color: widget.borderColor ?? Theme.of(context).hintColor.withValues(alpha: 0.25),
               ),
             ),
             focusedBorder: !widget.isShowBorder ? InputBorder.none : OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
+              borderRadius: BorderRadius.circular(14),
               borderSide: BorderSide(
-                width: 1,
-                color: widget.borderColor ?? ColorResources.primary,
+                width: 1.5,
+                color: widget.borderColor ?? Theme.of(context).primaryColor,
               ),
             ),
+            errorBorder: !widget.isShowBorder ? InputBorder.none : OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(width: 1, color: Theme.of(context).colorScheme.error.withValues(alpha: 0.7)),
+            ),
+            focusedErrorBorder: !widget.isShowBorder ? InputBorder.none : OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(width: 1.5, color: Theme.of(context).colorScheme.error),
+            ),
             border: !widget.isShowBorder ? InputBorder.none : OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
+              borderRadius: BorderRadius.circular(14),
               borderSide: BorderSide(
                 width: 1,
-                color: widget.borderColor ?? ColorResources.lightGray.withValues(alpha: 0.8),
+                color: widget.borderColor ?? Theme.of(context).hintColor.withValues(alpha: 0.25),
               ),
             ),
             isDense: widget.isDense,
