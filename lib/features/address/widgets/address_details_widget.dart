@@ -55,6 +55,10 @@ class AddressDetailsWidget extends StatelessWidget {
     return (langCode == 'ar' && (c.nameAr ?? '').isNotEmpty) ? (c.nameAr ?? c.nameEn ?? '') : (c.nameEn ?? c.nameAr ?? '');
   }
 
+  static String _areaName(AreaModel a, String langCode) {
+    return (langCode == 'ar' && (a.nameAr ?? '').isNotEmpty) ? (a.nameAr ?? a.nameEn ?? '') : (a.nameEn ?? a.nameAr ?? '');
+  }
+
   @override
   Widget build(BuildContext context) {
     final LocationProvider locationProvider = context.read<LocationProvider>();
@@ -142,6 +146,33 @@ class AddressDetailsWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (hasAreasAndCities) ...[
+                  Text(
+                    getTranslated('region', context),
+                    style: rubikMedium.copyWith(color: Theme.of(context).hintColor, fontSize: Dimensions.fontSizeSmall),
+                  ),
+                  const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+                  _buildDropdownContainer(
+                    context,
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<int?>(
+                        value: selectedAreaId,
+                        hint: Text('${getTranslated('select', context)} ${getTranslated('region', context)}'),
+                        isExpanded: true,
+                        items: (config.areas ?? []).map((AreaModel a) {
+                          return DropdownMenuItem<int?>(value: a.id, child: Text(_areaName(a, locale)));
+                        }).toList(),
+                        onChanged: (int? id) {
+                          if (id == null || id == selectedAreaId) return;
+                          onAreaChanged?.call(id);
+                          onCityChanged(null); // reset city when region changes
+                        },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: Dimensions.paddingSizeDefault),
+                ],
+
                 Text(
                   getTranslated('city', context),
                   style: rubikMedium.copyWith(color: Theme.of(context).hintColor, fontSize: Dimensions.fontSizeSmall),
@@ -153,19 +184,20 @@ class AddressDetailsWidget extends StatelessWidget {
                     child: hasAreasAndCities
                         ? DropdownButton<int?>(
                             value: selectedCityId,
-                            hint: Text('${getTranslated('select', context)} ${getTranslated('city', context)}'),
+                            hint: Text(selectedAreaId == null
+                                ? getTranslated('select_region_first', context)
+                                : '${getTranslated('select', context)} ${getTranslated('city', context)}'),
                             isExpanded: true,
-                            items: allCities.map((CityModel c) {
+                            items: allCities.where((c) => c.areaId == selectedAreaId).map((CityModel c) {
                               return DropdownMenuItem<int?>(
                                 value: c.id,
                                 child: Text(_cityName(c, locale)),
                               );
                             }).toList(),
-                            onChanged: (int? id) {
+                            onChanged: selectedAreaId == null ? null : (int? id) {
                               if (id == null) return;
                               final c = allCities.firstWhere((c) => c.id == id);
                               onCityChanged(_cityName(c, locale));
-                              onAreaChanged?.call(c.areaId);
                             },
                           )
                         : DropdownButton<String>(
