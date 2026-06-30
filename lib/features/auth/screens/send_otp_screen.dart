@@ -1,4 +1,3 @@
-import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:hexacom_user/common/enums/footer_type_enum.dart';
 import 'package:hexacom_user/common/models/config_model.dart';
@@ -47,7 +46,6 @@ class _SendOtpScreenState extends State<SendOtpScreen> {
     super.initState();
     _phoneNumberController = TextEditingController();
 
-    final ConfigModel configModel = Provider.of<SplashProvider>(context, listen: false).configModel!;
     final AuthProvider authProvider =  Provider.of<AuthProvider>(context, listen: false);
 
     UserLogData? userData = authProvider.getUserData();
@@ -55,10 +53,8 @@ class _SendOtpScreenState extends State<SendOtpScreen> {
       if(userData.phoneNumber != null){
         _phoneNumberController!.text = PhoneNumberCheckerHelper.getPhoneNumber(userData.phoneNumber ?? '', userData.countryCode ?? '') ?? '';
       }
-      countryCode ??= "+${userData.countryCode}";
-    }else{
-      countryCode ??= CountryCode.fromCountryCode(configModel.countryCode!).dialCode;
     }
+    countryCode = '+972'; // مقدمة ثابتة لكل المتجر
 
   }
 
@@ -168,8 +164,7 @@ class _SendOtpScreenState extends State<SendOtpScreen> {
                       Expanded(flex: 7, child: Column(children: [
 
                         CustomTextFieldWidget(
-                          countryDialCode: countryCode,
-                          onCountryChanged: (CountryCode value) => countryCode = value.dialCode,
+                          fixedCountryCode: '+972',
                           hintText: getTranslated('enter_phone_number_with_country_code', context),
                           isShowBorder: true,
                           controller: _phoneNumberController,

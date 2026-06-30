@@ -430,6 +430,7 @@
   "add_delivery_note": "הוסף תעודת משלוח",
   "type": "סוג",
   "delivery_to": "משלוח ל",
+  "order_summary": "סיכום הזמנה",
   "no_contact_info_added": "לא נוסף פרטי איש קשר",
   "select_form_saved_address": "בחר מהכתובת השמורה",
   "you_have_to_save_address": "אתה צריך כתובת שמורה",

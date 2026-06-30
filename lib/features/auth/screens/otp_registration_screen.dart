@@ -1,4 +1,3 @@
-import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:hexacom_user/common/enums/footer_type_enum.dart';
 import 'package:hexacom_user/common/models/config_model.dart';
@@ -49,8 +48,7 @@ class _OtpRegistrationScreenState extends State<OtpRegistrationScreen> {
     _nameController = TextEditingController();
     _phoneNumberController = TextEditingController();
 
-    final ConfigModel? configModel = Provider.of<SplashProvider>(context, listen: false).configModel;
-    countryCode ??= CountryCode.fromCountryCode(configModel?.countryCode ?? '').dialCode;
+    countryCode = '+972'; // مقدمة ثابتة لكل المتجر
 
     if(widget.userName != null && widget.userName!.isNotEmpty){
       _nameController?.text = widget.userName!;
@@ -161,8 +159,7 @@ class _OtpRegistrationScreenState extends State<OtpRegistrationScreen> {
                     isShowPrefixIcon: true,
                     prefixAssetImageColor: Theme.of(context).hintColor,
                   ): CustomTextFieldWidget(
-                    countryDialCode: countryCode,
-                    onCountryChanged: (CountryCode value) => countryCode = value.dialCode,
+                    fixedCountryCode: '+972',
                     hintText: getTranslated('enter_phone_number_with_country_code', context),
                     isShowBorder: true,
                     controller: _phoneNumberController,

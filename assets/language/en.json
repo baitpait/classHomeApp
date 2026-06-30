@@ -432,6 +432,7 @@
   "add_delivery_note" : "Add Delivery Note",
   "type" : "Type",
   "delivery_to": "Delivery to",
+  "order_summary": "Order summary",
   "no_contact_info_added": "No Contact Info Added",
   "select_form_saved_address": "Select from saved address",
   "you_have_to_save_address": "You Have to saved address",

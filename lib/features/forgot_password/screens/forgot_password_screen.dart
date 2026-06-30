@@ -1,4 +1,3 @@
-import 'package:country_code_picker/country_code_picker.dart';
 import 'package:hexacom_user/common/enums/footer_type_enum.dart';
 import 'package:hexacom_user/common/models/config_model.dart';
 import 'package:hexacom_user/features/auth/domain/enums/from_page_enum.dart';
@@ -39,12 +38,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.initState();
 
     VerificationProvider verificationProvider = Provider.of<VerificationProvider>(context, listen: false);
-    SplashProvider splashProvider = Provider.of<SplashProvider>(context, listen: false);
 
     verificationProvider.setVerificationCode = '';
     verificationProvider.setVerificationMessage = '';
 
-    _countryDialCode = CountryCode.fromCountryCode(splashProvider.configModel!.countryCode!).dialCode;
+    _countryDialCode = '+972'; // مقدمة ثابتة لكل المتجر
   }
 
   @override
@@ -108,8 +106,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               selector: (context, authProvider) => authProvider.isNumberLogin,
                               builder: (context, isNumberLogin, child) {
                                 return CustomTextFieldWidget(
-                                  countryDialCode: isNumberLogin ? _countryDialCode : null,
-                                  onCountryChanged: (CountryCode value) => _countryDialCode = value.dialCode,
+                                  fixedCountryCode: isNumberLogin ? '+972' : null,
                                   onChanged: (String text) => AuthHelper.identifyEmailOrNumber(text, context),
                                   hintText: getTranslated('enter_email_phone', context),
                                   title: getTranslated('email_phone', context),
@@ -123,8 +120,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               selector: (context, authProvider) => authProvider.isNumberLogin,
                               builder: (context, isNumberLogin, child) {
                                 return CustomTextFieldWidget(
-                                  countryDialCode: isNumberLogin ? _countryDialCode : null,
-                                  onCountryChanged: (CountryCode value) => _countryDialCode = value.dialCode,
+                                  fixedCountryCode: isNumberLogin ? '+972' : null,
                                   onChanged: (String text) => AuthHelper.identifyEmailOrNumber(text, context),
                                   hintText: getTranslated('enter_phone_number_with_country_code', context),
                                   title: getTranslated('phone_number', context),

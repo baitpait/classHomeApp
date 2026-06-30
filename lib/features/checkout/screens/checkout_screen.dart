@@ -257,18 +257,30 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           MapViewWidget(isSelfPickUp: selfPickup),
                         const SizedBox(height: Dimensions.paddingSizeSmall),
 
-                        if(!isDesktop && CheckOutHelper.getDeliveryChargeType(context) == DeliveryChargeType.area.name && !selfPickup)...[
-                          ZipCodeViewWidget(
-                            dropDownKey: dropDownKey,
-                            discount: widget.discount ?? 0.0,
-                            amount: widget.amount ?? 0.0,
-                            isSelfPickUp: selfPickup,
+                        if(!isDesktop && !selfPickup)
+                          _stepHeader(context, 1, getTranslated('delivery_to', context)),
+
+                        // Region picker shown only as a fallback when the selected address has no region yet
+                        // (avoids duplicating the region selection that now lives in the structured address form).
+                        if(!isDesktop && CheckOutHelper.getDeliveryChargeType(context) == DeliveryChargeType.area.name && !selfPickup)
+                          Selector<OrderProvider, int?>(
+                            selector: (_, op) => op.selectedAreaID,
+                            builder: (context, areaId, child) => areaId != null
+                                ? const SizedBox.shrink()
+                                : ZipCodeViewWidget(
+                                    dropDownKey: dropDownKey,
+                                    discount: widget.discount ?? 0.0,
+                                    amount: widget.amount ?? 0.0,
+                                    isSelfPickUp: selfPickup,
+                                  ),
                           ),
-                        ],
 
                         if(!isDesktop)...[
                           DeliveryAddressWidget(selfPickup: selfPickup),
                         ],
+
+                        if(!isDesktop)
+                          _stepHeader(context, selfPickup ? 1 : 2, getTranslated('order_summary', context)),
 
                         if(!isDesktop) Selector<OrderProvider, double?>(
                           selector: (context, orderProvider) => orderProvider.deliveryCharge,
@@ -350,6 +362,25 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           );
         },
       ),
+    );
+  }
+
+  Widget _stepHeader(BuildContext context, int number, String title) {
+    final Color primary = Theme.of(context).primaryColor;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        Dimensions.paddingSizeDefault, Dimensions.paddingSizeDefault, Dimensions.paddingSizeDefault, Dimensions.paddingSizeExtraSmall,
+      ),
+      child: Row(children: [
+        Container(
+          width: 24, height: 24,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(color: primary.withValues(alpha: 0.12), shape: BoxShape.circle),
+          child: Text('$number', style: rubikSemiBold.copyWith(fontSize: Dimensions.fontSizeSmall, color: primary)),
+        ),
+        const SizedBox(width: Dimensions.paddingSizeSmall),
+        Text(title, style: rubikSemiBold.copyWith(fontSize: Dimensions.fontSizeLarge)),
+      ]),
     );
   }
 

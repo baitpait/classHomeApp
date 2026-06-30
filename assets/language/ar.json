@@ -431,6 +431,7 @@
     "add_delivery_note": "ملاحظة للتوصيل",
     "type": "النوع",
     "delivery_to": "التوصيل إلى",
+    "order_summary": "ملخّص الطلب",
     "no_contact_info_added": "لم تُضف بيانات الاتصال",
     "select_form_saved_address": "اختر من العناوين المحفوظة",
     "you_have_to_save_address": "يجب حفظ العنوان",

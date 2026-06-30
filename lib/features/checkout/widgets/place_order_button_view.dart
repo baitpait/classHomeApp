@@ -72,6 +72,21 @@ class PlaceOrderButtonView extends StatelessWidget {
                       if (!ok) return;
                       if (!context.mounted) return;
                     }
+                    // First-time / guest: auto-select the just-added address so the order
+                    // can be confirmed without a separate "select address" step.
+                    if (!selfPickup && (locationProvider.addressList?.isNotEmpty ?? false) && checkoutProvider.orderAddressIndex < 0) {
+                      final splashCfg = Provider.of<SplashProvider>(context, listen: false).configModel;
+                      if (splashCfg != null) {
+                        await CheckOutHelper.selectDeliveryAddress(
+                          context,
+                          isAvailable: true,
+                          index: locationProvider.addressList!.length - 1,
+                          configModel: splashCfg,
+                          fromAddressList: false,
+                        );
+                        if (!context.mounted) return;
+                      }
+                    }
                     if(amount! < Provider.of<SplashProvider>(context, listen: false).configModel!.minimumOrderValue!) {
                       final splash = Provider.of<SplashProvider>(context, listen: false);
                       final minOrder = splash.configModel!.minimumOrderValue;
