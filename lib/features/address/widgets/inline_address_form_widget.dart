@@ -1,3 +1,4 @@
+import 'package:country_code_picker/country_code_picker.dart';
 import 'package:hexacom_user/common/models/address_model.dart';
 import 'package:hexacom_user/common/models/config_model.dart';
 import 'package:hexacom_user/common/models/response_model.dart';
@@ -15,26 +16,12 @@ import 'package:hexacom_user/utill/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-/// Lets an external widget (e.g. the place-order button) trigger saving the inline address form.
-class AddressFormController {
-  Future<bool> Function()? _save;
-  bool Function()? _isSaved;
-
-  /// Saves the form; returns true on success (or if already saved). Shows validation snackbars on failure.
-  Future<bool> save() async => _save == null ? false : await _save!();
-
-  /// Whether the form has already been saved (to avoid duplicate addresses).
-  bool get isSaved => _isSaved?.call() ?? false;
-}
-
 /// Inline form to add a new address (e.g. inside cart). Uses same fields and validation as [AddNewAddressScreen].
 /// On save success calls [onSaved] so parent can refresh list, select new address, and recalc delivery.
 class InlineAddressFormWidget extends StatefulWidget {
   final VoidCallback? onSaved;
-  final AddressFormController? controller;
-  final bool showSaveButton;
 
-  const InlineAddressFormWidget({super.key, this.onSaved, this.controller, this.showSaveButton = true});
+  const InlineAddressFormWidget({super.key, this.onSaved});
 
   @override
   State<InlineAddressFormWidget> createState() => _InlineAddressFormWidgetState();
@@ -50,15 +37,12 @@ class _InlineAddressFormWidgetState extends State<InlineAddressFormWidget> {
 
   String? _selectedCity;
   int? _selectedAreaId;
-  bool _isSaved = false;
 
   static const _slate = Color(0xFF3A4756);
 
   @override
   void initState() {
     super.initState();
-    widget.controller?._save = save;
-    widget.controller?._isSaved = () => _isSaved;
     WidgetsBinding.instance.addPostFrameCallback((_) => _initForm());
   }
 
@@ -75,10 +59,11 @@ class _InlineAddressFormWidgetState extends State<InlineAddressFormWidget> {
 
   Future<void> _initForm() async {
     final AddressProvider addressProvider = context.read<AddressProvider>();
+    final SplashProvider splashProvider = context.read<SplashProvider>();
     final ProfileProvider profileProvider = context.read<ProfileProvider>();
+    final ConfigModel configModel = splashProvider.configModel!;
 
-    // Fixed dial code for this store: +972
-    addressProvider.setCountryCode('+972', isUpdate: false);
+    addressProvider.setCountryCode(CountryCode.fromCountryCode(configModel.countryCode!).dialCode ?? '');
     context.read<LocationProvider>().setPickedAddressLatLon(null, null, isUpdate: false);
 
     final userModel = profileProvider.userInfoModel;
@@ -86,10 +71,12 @@ class _InlineAddressFormWidgetState extends State<InlineAddressFormWidget> {
     if (_contactPersonNameController.text.isEmpty) {
       _contactPersonNameController.text = '';
     }
-    // Prefill the local part of the user's phone (without country code / leading zeros).
-    final String localPhone = (PhoneNumberCheckerHelper.getPhoneNumber(userModel?.phone ?? '', '+972') ?? '')
-        .replaceFirst(RegExp(r'^0+'), '');
-    _contactPersonNumberController.text = localPhone;
+    addressProvider.setCountryCode(
+      PhoneNumberCheckerHelper.getCountryCode(userModel?.phone ?? CountryCode.fromCountryCode(configModel.countryCode!).dialCode) ?? '',
+      isUpdate: true,
+    );
+    _contactPersonNumberController.text =
+        PhoneNumberCheckerHelper.getPhoneNumber(userModel?.phone ?? '', addressProvider.countryCode ?? '') ?? '';
     addressProvider.setAddressStatusMessage = '';
     addressProvider.setErrorMessage = '';
     if (mounted) setState(() {});
@@ -162,31 +149,27 @@ class _InlineAddressFormWidgetState extends State<InlineAddressFormWidget> {
                 ],
               ),
             ),
-          if (widget.showSaveButton)
-            Consumer<LocationProvider>(
-              builder: (context, locationProvider, _) {
-                return SizedBox(
-                  width: double.infinity,
-                  child: CustomButtonWidget(
-                    isLoading: addressProvider.isLoading,
-                    btnTxt: getTranslated('save_location', context),
-                    backgroundColor: _slate,
-                    onTap: addressProvider.isLoading || locationProvider.isLoading
-                        ? null
-                        : () => save(),
-                  ),
-                );
-              },
-            ),
+          Consumer<LocationProvider>(
+            builder: (context, locationProvider, _) {
+              return SizedBox(
+                width: double.infinity,
+                child: CustomButtonWidget(
+                  isLoading: addressProvider.isLoading,
+                  btnTxt: getTranslated('save_location', context),
+                  backgroundColor: _slate,
+                  onTap: addressProvider.isLoading || locationProvider.isLoading
+                      ? null
+                      : () => _onSave(context),
+                ),
+              );
+            },
+          ),
         ],
       ),
     );
   }
 
-  /// Validates and saves the address. Returns true on success (or if already saved).
-  /// Shows a validation snackbar and returns false on invalid input.
-  Future<bool> save() async {
-    if (_isSaved) return true;
+  Future<void> _onSave(BuildContext context) async {
     final AddressProvider addressProvider = context.read<AddressProvider>();
     final LocationProvider locationProvider = context.read<LocationProvider>();
     final SplashProvider splashProvider = context.read<SplashProvider>();
@@ -195,27 +178,26 @@ class _InlineAddressFormWidgetState extends State<InlineAddressFormWidget> {
         branches.isEmpty ||
         (branches.length == 1 && (branches[0].latitude == null || branches[0].latitude!.isEmpty));
 
-    // Local part without leading zeros; fixed +972 prefix.
-    final String localNumber = _contactPersonNumberController.text.trim().replaceFirst(RegExp(r'^0+'), '');
-    final String phone = '+972$localNumber';
+    final String phone =
+        (addressProvider.countryCode ?? '') + _contactPersonNumberController.text.trim();
     final bool isValidPhone = PhoneNumberCheckerHelper.isPhoneValidWithCountryCode(phone);
 
     if (_contactPersonNameController.text.trim().isEmpty) {
       showCustomSnackBar(getTranslated('enter_contact_person_name', context), context);
-      return false;
+      return;
     }
     if (_selectedCity == null || _selectedCity!.isEmpty) {
       showCustomSnackBar('${getTranslated('select', context)} ${getTranslated('city', context)}', context);
-      return false;
+      return;
     }
     final String addressText = _addressTextController.text.trim();
     if (addressText.isEmpty) {
       showCustomSnackBar(getTranslated('please_enter_address', context), context);
-      return false;
+      return;
     }
     if (!isValidPhone) {
       showCustomSnackBar(getTranslated('invalid_phone_number', context), context);
-      return false;
+      return;
     }
 
     if (!isAvailable && branches.isNotEmpty) {
@@ -224,7 +206,7 @@ class _InlineAddressFormWidgetState extends State<InlineAddressFormWidget> {
 
     if (!isAvailable) {
       showCustomSnackBar(getTranslated('service_is_not_available', context), context);
-      return false;
+      return;
     }
 
     final AddressModel addressModel = AddressModel(
@@ -239,14 +221,12 @@ class _InlineAddressFormWidgetState extends State<InlineAddressFormWidget> {
     );
 
     final ResponseModel value = await addressProvider.addAddress(addressModel, context);
-    if (!mounted) return false;
+    if (!context.mounted) return;
     if (value.isSuccess) {
-      _isSaved = true;
+      showCustomSnackBar(getTranslated('address_added_successfuly', context), context, isError: false);
       widget.onSaved?.call();
-      return true;
     } else {
       showCustomSnackBar(value.message ?? '', context);
-      return false;
     }
   }
 }

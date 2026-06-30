@@ -17,7 +17,6 @@ class AddressDetailsWebWidget extends StatelessWidget {
   final TextEditingController contactPersonNameController;
   final TextEditingController contactPersonNumberController;
   final TextEditingController addressTextController;
-  final TextEditingController? buildingController;
   final FocusNode addressNode;
   final FocusNode nameNode;
   final FocusNode numberNode;
@@ -34,7 +33,6 @@ class AddressDetailsWebWidget extends StatelessWidget {
     required this.contactPersonNameController,
     required this.contactPersonNumberController,
     required this.addressTextController,
-    this.buildingController,
     required this.addressNode,
     required this.nameNode,
     required this.numberNode,
@@ -49,10 +47,6 @@ class AddressDetailsWebWidget extends StatelessWidget {
 
   static String _cityName(CityModel c, String langCode) {
     return (langCode == 'ar' && (c.nameAr ?? '').isNotEmpty) ? (c.nameAr ?? c.nameEn ?? '') : (c.nameEn ?? c.nameAr ?? '');
-  }
-
-  static String _areaName(AreaModel a, String langCode) {
-    return (langCode == 'ar' && (a.nameAr ?? '').isNotEmpty) ? (a.nameAr ?? a.nameEn ?? '') : (a.nameEn ?? a.nameAr ?? '');
   }
 
   @override
@@ -111,43 +105,6 @@ class AddressDetailsWebWidget extends StatelessWidget {
               ),
               const SizedBox(height: Dimensions.paddingSizeDefault),
 
-              if (hasAreasAndCities) ...[
-                Text(
-                  getTranslated('region', context),
-                  style: rubikRegular.copyWith(
-                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                    fontSize: Dimensions.fontSizeDefault,
-                  ),
-                ),
-                const SizedBox(height: Dimensions.paddingSizeExtraSmall),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Theme.of(context).dividerColor),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<int?>(
-                      value: selectedAreaId,
-                      hint: Text('${getTranslated('select', context)} ${getTranslated('region', context)}'),
-                      isExpanded: true,
-                      items: (config.areas ?? []).map((AreaModel a) {
-                        return DropdownMenuItem<int?>(
-                          value: a.id,
-                          child: Text(_areaName(a, locale)),
-                        );
-                      }).toList(),
-                      onChanged: (int? id) {
-                        if (id == null || id == selectedAreaId) return;
-                        onAreaChanged?.call(id);
-                        onCityChanged(null);
-                      },
-                    ),
-                  ),
-                ),
-                const SizedBox(height: Dimensions.paddingSizeDefault),
-              ],
-
               Text(
                 getTranslated('city', context),
                 style: rubikRegular.copyWith(
@@ -166,20 +123,19 @@ class AddressDetailsWebWidget extends StatelessWidget {
                   child: hasAreasAndCities
                       ? DropdownButton<int?>(
                           value: selectedCityId,
-                          hint: Text(selectedAreaId == null
-                              ? getTranslated('select_region_first', context)
-                              : '${getTranslated('select', context)} ${getTranslated('city', context)}'),
+                          hint: Text('${getTranslated('select', context)} ${getTranslated('city', context)}'),
                           isExpanded: true,
-                          items: allCities.where((c) => c.areaId == selectedAreaId).map((CityModel c) {
+                          items: allCities.map((CityModel c) {
                             return DropdownMenuItem<int?>(
                               value: c.id,
                               child: Text(_cityName(c, locale)),
                             );
                           }).toList(),
-                          onChanged: selectedAreaId == null ? null : (int? id) {
+                          onChanged: (int? id) {
                             if (id == null) return;
                             final c = allCities.firstWhere((c) => c.id == id);
                             onCityChanged(_cityName(c, locale));
+                            onAreaChanged?.call(c.areaId);
                           },
                         )
                       : DropdownButton<String>(
@@ -198,28 +154,17 @@ class AddressDetailsWebWidget extends StatelessWidget {
               const SizedBox(height: Dimensions.paddingSizeDefault),
 
               CustomTextFieldWidget(
-                title: getTranslated('street_neighborhood', context),
+                title: getTranslated('address', context),
                 isRequired: true,
                 onChanged: (String? value) => locationProvider.setAddress = value,
-                hintText: getTranslated('street_neighborhood', context),
+                hintText: getTranslated('address', context),
                 isShowBorder: true,
-                maxLines: 2,
-                inputType: TextInputType.streetAddress,
-                inputAction: TextInputAction.next,
+                maxLines: 5,
+                inputType: TextInputType.multiline,
+                inputAction: TextInputAction.newline,
                 capitalization: TextCapitalization.sentences,
                 focusNode: addressNode,
                 controller: addressTextController,
-                isDense: false,
-              ),
-              const SizedBox(height: Dimensions.paddingSizeDefault),
-
-              CustomTextFieldWidget(
-                title: getTranslated('building', context),
-                hintText: getTranslated('building', context),
-                isShowBorder: true,
-                inputType: TextInputType.text,
-                inputAction: TextInputAction.done,
-                controller: buildingController,
                 isDense: false,
               ),
               const SizedBox(height: Dimensions.paddingSizeLarge),
@@ -229,7 +174,6 @@ class AddressDetailsWebWidget extends StatelessWidget {
                 contactPersonNumberController: contactPersonNumberController,
                 contactPersonNameController: contactPersonNameController,
                 addressTextController: addressTextController,
-                buildingController: buildingController,
                 address: address,
                 selectedCity: selectedCity ?? '',
                 selectedAreaId: selectedAreaId,

@@ -23,7 +23,6 @@ class AddressButtonWidget extends StatelessWidget {
   final TextEditingController contactPersonNameController;
   final TextEditingController contactPersonNumberController;
   final TextEditingController addressTextController;
-  final TextEditingController? buildingController;
   final AddressModel? address;
   final String selectedCity;
   final String countryCode;
@@ -36,7 +35,6 @@ class AddressButtonWidget extends StatelessWidget {
     required this.contactPersonNumberController,
     required this.contactPersonNameController,
     required this.addressTextController,
-    this.buildingController,
     required this.address,
     required this.selectedCity,
     required this.countryCode,
@@ -132,13 +130,12 @@ class AddressButtonWidget extends StatelessWidget {
   Future<void> _onPressAction(LocationProvider locationProvider, BuildContext context) async {
     final AddressProvider addressProvider = Provider.of<AddressProvider>(context, listen: false);
     final CheckoutProvider checkoutProvider = Provider.of<CheckoutProvider>(context, listen: false);
+    final SplashProvider splashProvider = context.read<SplashProvider>();
     final LocationProvider locationProvider = context.read<LocationProvider>();
     List<Branches> branches = Provider.of<SplashProvider>(context, listen: false).configModel!.branches ?? [];
     bool isAvailable = branches.length == 1 && (branches[0].latitude == null || branches[0].latitude!.isEmpty);
 
-    // Fixed +972 dial code; strip any leading zeros from the local part.
-    final String localNumber = contactPersonNumberController.text.trim().replaceFirst(RegExp(r'^0+'), '');
-    String phone  = '+972$localNumber';
+    String phone  = (addressProvider.countryCode ?? "") + contactPersonNumberController.text.trim();
     bool isValidPhone = PhoneNumberCheckerHelper.isPhoneValidWithCountryCode(phone);
 
     if (contactPersonNameController.text.trim().isEmpty) {
@@ -168,22 +165,13 @@ class AddressButtonWidget extends StatelessWidget {
       }
       else {
 
-        final String street = addressText;
-        final String building = buildingController?.text.trim() ?? '';
-        final String composedAddress = [
-          if (street.isNotEmpty) street,
-          if (building.isNotEmpty) building,
-        ].join('، ');
-
         AddressModel addressModel = AddressModel(
           addressType: 'Other',
           contactPersonName: contactPersonNameController.text.trim(),
           contactPersonNumber: phone,
           city: selectedCity,
           areaId: selectedAreaId,
-          address: composedAddress.isNotEmpty ? composedAddress : locationProvider.address,
-          streetNumber: street.isNotEmpty ? street : null,
-          houseNumber: building.isNotEmpty ? building : null,
+          address: addressText.isNotEmpty ? addressText : locationProvider.address,
           latitude: null,
           longitude: null,
         );

@@ -20,14 +20,12 @@ class CartDeliveryAddressSectionWidget extends StatefulWidget {
   final double orderAmount;
   final double couponDiscount;
   final bool isSelfPickUp;
-  final AddressFormController? formController;
 
   const CartDeliveryAddressSectionWidget({
     super.key,
     required this.orderAmount,
     required this.couponDiscount,
     this.isSelfPickUp = false,
-    this.formController,
   });
 
   @override
@@ -35,7 +33,9 @@ class CartDeliveryAddressSectionWidget extends StatefulWidget {
 }
 
 class _CartDeliveryAddressSectionWidgetState extends State<CartDeliveryAddressSectionWidget> {
+  bool _isAddFormExpanded = false;
   int _formVersion = 0;
+  final ExpansionTileController _addAddressTileController = ExpansionTileController();
 
   static const _slate = Color(0xFF3A4756);
 
@@ -119,12 +119,15 @@ class _CartDeliveryAddressSectionWidgetState extends State<CartDeliveryAddressSe
                     );
                   },
                 ),
-              // New-address form shown directly (no tap needed). Saved automatically on order placement.
-              if (hasAddresses) ...[
-                const SizedBox(height: Dimensions.paddingSizeSmall),
-                Row(
+              ExpansionTile(
+                controller: _addAddressTileController,
+                initiallyExpanded: _isAddFormExpanded,
+                onExpansionChanged: (expanded) => setState(() => _isAddFormExpanded = expanded),
+                tilePadding: EdgeInsets.zero,
+                childrenPadding: const EdgeInsets.only(bottom: Dimensions.paddingSizeDefault),
+                title: Row(
                   children: [
-                    const Icon(Icons.add_circle_outline, color: _slate, size: 18),
+                    const Icon(Icons.add_circle_outline, color: _slate, size: 20),
                     const SizedBox(width: Dimensions.paddingSizeSmall),
                     Text(
                       getTranslated('add_new_address', context),
@@ -132,46 +135,53 @@ class _CartDeliveryAddressSectionWidgetState extends State<CartDeliveryAddressSe
                     ),
                   ],
                 ),
-              ],
-              InlineAddressFormWidget(
-                key: ValueKey('inline-address-form-$_formVersion'),
-                controller: widget.formController,
-                showSaveButton: false,
-                onSaved: () async {
-                  await addressProvider.initAddressList();
-                  if (!context.mounted) return;
-                  final list = addressProvider.addressList;
-                  if (list != null && list.isNotEmpty && configModel != null) {
-                    final int newIndex = list.length - 1;
-                    final bool isDistanceWise =
-                        CheckOutHelper.getDeliveryChargeType(context) == DeliveryChargeType.distance.name;
-                    final AddressModel? newAddr = list[newIndex];
-                    bool isAvailable = true;
-                    if (isDistanceWise &&
-                        configModel.googleMapStatus == true &&
-                        newAddr != null &&
-                        (newAddr.latitude?.isNotEmpty ?? false) &&
-                        (newAddr.longitude?.isNotEmpty ?? false) &&
-                        (configModel.branches?.isNotEmpty ?? false) &&
-                        checkoutProvider.branchIndex < (configModel.branches!.length)) {
-                      isAvailable = CheckOutHelper.isBranchAvailable(
-                        branches: configModel.branches!,
-                        selectedBranch: configModel.branches![checkoutProvider.branchIndex],
-                        selectedAddress: newAddr,
-                      );
-                    } else if (isDistanceWise &&
-                        (newAddr?.latitude == null || newAddr?.longitude == null)) {
-                      isAvailable = false;
-                    }
-                    CheckOutHelper.selectDeliveryAddress(
-                      context,
-                      isAvailable: isAvailable,
-                      index: newIndex,
-                      configModel: configModel,
-                      fromAddressList: true,
-                    );
-                  }
-                },
+                children: [
+                  InlineAddressFormWidget(
+                    key: ValueKey('inline-address-form-$_formVersion'),
+                    onSaved: () async {
+                      await addressProvider.initAddressList();
+                      if (!context.mounted) return;
+                      final list = addressProvider.addressList;
+                      if (list != null && list.isNotEmpty && configModel != null) {
+                        final int newIndex = list.length - 1;
+                        final bool isDistanceWise =
+                            CheckOutHelper.getDeliveryChargeType(context) == DeliveryChargeType.distance.name;
+                        final AddressModel? newAddr = list[newIndex];
+                        bool isAvailable = true;
+                        if (isDistanceWise &&
+                            configModel.googleMapStatus == true &&
+                            newAddr != null &&
+                            (newAddr.latitude?.isNotEmpty ?? false) &&
+                            (newAddr.longitude?.isNotEmpty ?? false) &&
+                            (configModel.branches?.isNotEmpty ?? false) &&
+                            checkoutProvider.branchIndex < (configModel.branches!.length)) {
+                          isAvailable = CheckOutHelper.isBranchAvailable(
+                            branches: configModel.branches!,
+                            selectedBranch: configModel.branches![checkoutProvider.branchIndex],
+                            selectedAddress: newAddr,
+                          );
+                        } else if (isDistanceWise &&
+                            (newAddr?.latitude == null || newAddr?.longitude == null)) {
+                          isAvailable = false;
+                        }
+                        CheckOutHelper.selectDeliveryAddress(
+                          context,
+                          isAvailable: isAvailable,
+                          index: newIndex,
+                          configModel: configModel,
+                          fromAddressList: true,
+                        );
+                      }
+
+                      if (!mounted) return;
+                      setState(() {
+                        _isAddFormExpanded = false;
+                        _formVersion += 1; // reset form state next time it opens
+                      });
+                      _addAddressTileController.collapse();
+                    },
+                  ),
+                ],
               ),
             ],
           ),

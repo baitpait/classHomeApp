@@ -9,7 +9,6 @@ class AddressWebWidget extends StatefulWidget {
   final TextEditingController contactPersonNameController;
   final TextEditingController contactPersonNumberController;
   final TextEditingController addressTextController;
-  final TextEditingController? buildingController;
   final FocusNode addressNode;
   final FocusNode nameNode;
   final FocusNode numberNode;
@@ -26,7 +25,6 @@ class AddressWebWidget extends StatefulWidget {
     required this.contactPersonNameController,
     required this.contactPersonNumberController,
     required this.addressTextController,
-    this.buildingController,
     required this.addressNode,
     required this.nameNode,
     required this.numberNode,
@@ -95,7 +93,6 @@ class _AddressWebWidgetState extends State<AddressWebWidget> {
                 contactPersonNameController: widget.contactPersonNameController,
                 contactPersonNumberController: widget.contactPersonNumberController,
                 addressTextController: widget.addressTextController,
-                buildingController: widget.buildingController,
                 addressNode: widget.addressNode,
                 nameNode: widget.nameNode,
                 numberNode: widget.numberNode,

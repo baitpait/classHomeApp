@@ -1,4 +1,3 @@
-import 'package:country_code_picker/country_code_picker.dart';
 import 'package:hexacom_user/common/enums/footer_type_enum.dart';
 import 'package:hexacom_user/common/models/config_model.dart';
 import 'package:hexacom_user/features/auth/domain/enums/from_page_enum.dart';
@@ -6,7 +5,6 @@ import 'package:hexacom_user/features/auth/domain/enums/verification_type_enum.d
 import 'package:hexacom_user/features/auth/domain/models/user_log_data.dart';
 import 'package:hexacom_user/features/auth/screens/only_social_login_widget.dart';
 import 'package:hexacom_user/features/auth/screens/send_otp_screen.dart';
-import 'package:hexacom_user/features/auth/widgets/code_picker_widget.dart';
 import 'package:hexacom_user/features/auth/widgets/social_login_widget.dart';
 import 'package:hexacom_user/helper/auth_helper.dart';
 import 'package:hexacom_user/utill/feature_flags.dart';
@@ -81,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if(userData.phoneNumber != null){
         _phoneController!.text = PhoneNumberCheckerHelper.getPhoneNumber(userData.phoneNumber ?? '', userData.countryCode ?? '') ?? '';
         authProvider.toggleIsNumberLogin(value: true, isUpdate: false);
-        _countryDialCode ??= userData.countryCode;
+        _countryDialCode = '+972';
       }
       _passwordController?.text = userData.password ?? '';
     }else{
@@ -114,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
         }
 
         if(_countryCodeFromConfig) {
-          _countryDialCode = CountryCode.fromCountryCode(configModel.countryCode ?? '').dialCode;
+          _countryDialCode = '+972'; // مقدمة ثابتة لكل المتجر
         }
 
 
@@ -255,17 +253,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ),
                                     ),
                                     child: Row(children: [
-                                      CodePickerWidget(
-                                        onChanged: (countryCode) {
-                                          _countryCodeFromConfig = false;
-                                          _countryDialCode = countryCode.dialCode;
-                                        },
-                                        initialSelection: _countryDialCode ?? '+970',
-                                        favorite: const ['+970', '+972'],
-                                        showDropDownButton: true,
-                                        padding: EdgeInsets.zero,
-                                        showFlagMain: true,
-                                        textStyle: TextStyle(color: Theme.of(context).textTheme.displayLarge!.color),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
+                                        child: Text('+972', style: TextStyle(color: Theme.of(context).textTheme.displayLarge!.color)),
                                       ),
                                       Container(
                                         width: 1,

@@ -1,4 +1,3 @@
-import 'package:country_code_picker/country_code_picker.dart';
 import 'package:hexacom_user/common/enums/footer_type_enum.dart';
 import 'package:hexacom_user/common/models/signup_model.dart';
 import 'package:hexacom_user/features/auth/domain/enums/from_page_enum.dart';
@@ -19,7 +18,6 @@ import 'package:hexacom_user/helper/custom_snackbar_helper.dart';
 import 'package:hexacom_user/common/widgets/auth_background_widget.dart';
 import 'package:hexacom_user/common/widgets/custom_text_field_widget.dart';
 import 'package:hexacom_user/common/widgets/footer_web_widget.dart';
-import 'package:hexacom_user/features/auth/widgets/code_picker_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:hexacom_user/common/widgets/web_app_bar_widget.dart';
@@ -70,7 +68,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     authProvider.updateIsUpdateTernsStatus(value: false, isUpdate: false);
     registrationProvider.setErrorMessage = '';
 
-    _countryDialCode = CountryCode.fromCountryCode(Provider.of<SplashProvider>(context, listen: false).configModel!.countryCode!).dialCode;
+    _countryDialCode = '+972'; // مقدمة ثابتة لكل المتجر
   }
 
   @override
@@ -264,17 +262,9 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                         ),
                       ),
                       child: Row(children: [
-                        CodePickerWidget(
-                          onChanged: (countryCode) {
-                            _countryDialCode = countryCode.dialCode;
-                          },
-                          initialSelection: _countryDialCode ?? '+970',
-                          favorite: const ['+970', '+972'],
-                          showDropDownButton: true,
-                          padding: EdgeInsets.zero,
-                          showFlagMain: true,
-                          textStyle: TextStyle(color: Theme.of(context).textTheme.displayLarge!.color),
-
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
+                          child: Text('+972', style: TextStyle(color: Theme.of(context).textTheme.displayLarge!.color)),
                         ),
                         Container(width: 1, height: Dimensions.paddingSizeExtraLarge, color: Theme.of(context).dividerColor),
 

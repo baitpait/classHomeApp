@@ -13,7 +13,6 @@ import 'package:hexacom_user/features/cart/providers/cart_provider.dart';
 import 'package:hexacom_user/features/cart/widgets/cart_delivery_address_section_widget.dart';
 import 'package:hexacom_user/features/cart/widgets/cart_details_widget.dart';
 import 'package:hexacom_user/features/cart/widgets/cart_product_list_widget.dart';
-import 'package:hexacom_user/features/address/widgets/inline_address_form_widget.dart';
 import 'package:hexacom_user/features/checkout/providers/checkout_provider.dart';
 import 'package:hexacom_user/features/checkout/widgets/place_order_button_view.dart';
 import 'package:hexacom_user/features/checkout/widgets/payment_info_widget.dart';
@@ -42,15 +41,7 @@ class CartScreen extends StatefulWidget {
 class _CartScreenState extends State<CartScreen> {
   final TextEditingController orderNoteController = TextEditingController();
   final GlobalKey areaDropDownKey = GlobalKey();
-  final AddressFormController _addressFormController = AddressFormController();
   bool _checkoutDataInitialized = false;
-
-  /// Saves the inline address form before placing the order (unless a saved address is already selected).
-  Future<bool> _ensureAddressSaved() async {
-    final checkoutProvider = Provider.of<CheckoutProvider>(context, listen: false);
-    if (checkoutProvider.orderAddressIndex >= 0) return true;
-    return _addressFormController.save();
-  }
 
   @override
   void initState() {
@@ -269,7 +260,6 @@ class _CartScreenState extends State<CartScreen> {
                                 orderAmount: orderAmount,
                                 couponDiscount: couponDiscount,
                                 isSelfPickUp: selfPickup,
-                                formController: _addressFormController,
                               ),
                               const SizedBox(height: Dimensions.paddingSizeDefault),
                               _CartOrderNoteSection(controller: orderNoteController),
@@ -321,7 +311,6 @@ class _CartScreenState extends State<CartScreen> {
                                           orderAmount: orderAmount,
                                           couponDiscount: couponDiscount,
                                           isSelfPickUp: selfPickup,
-                                          formController: _addressFormController,
                                         ),
                                         const SizedBox(height: Dimensions.paddingSizeDefault),
                                         _CartOrderNoteSection(controller: orderNoteController),
@@ -349,7 +338,6 @@ class _CartScreenState extends State<CartScreen> {
                                         cartList: cart.cartList,
                                         orderNote: orderNoteController.text,
                                         dropdownKey: areaDropDownKey,
-                                        onBeforePlaceOrder: _ensureAddressSaved,
                                       ),
                                     ],
                                   ),
