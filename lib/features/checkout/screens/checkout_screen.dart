@@ -268,6 +268,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
                         if(!isDesktop)...[
                           DeliveryAddressWidget(selfPickup: selfPickup),
+                          const SizedBox(height: Dimensions.paddingSizeSmall),
                         ],
 
                         if(!isDesktop) Selector<OrderProvider, double?>(
@@ -284,6 +285,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             );
                           },
                         ),
+
+                        if(!isDesktop) const SizedBox(height: Dimensions.paddingSizeLarge),
 
                         if(isDesktop) Padding(
                           padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
