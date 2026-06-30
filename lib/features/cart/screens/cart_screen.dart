@@ -254,6 +254,9 @@ class _CartScreenState extends State<CartScreen> {
                               ),
                             ),
 
+                            // Products first: the customer sees their items right under the header.
+                            if(!isDesktop) const CartProductListWidget(),
+
                             if(!isDesktop && !selfPickup) ...[
                               const SizedBox(height: Dimensions.paddingSizeDefault),
                               CartDeliveryAddressSectionWidget(
@@ -269,9 +272,6 @@ class _CartScreenState extends State<CartScreen> {
                               _CartLoyaltySwitchSection(),
                               const SizedBox(height: Dimensions.paddingSizeDefault),
                             ],
-
-                            // Cart contents moved below the billing/address section.
-                            if(!isDesktop) const CartProductListWidget(),
 
                             if(!isDesktop) ...[
                               CartDetailsWidget(
