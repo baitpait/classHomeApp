@@ -130,12 +130,13 @@ class AddressButtonWidget extends StatelessWidget {
   Future<void> _onPressAction(LocationProvider locationProvider, BuildContext context) async {
     final AddressProvider addressProvider = Provider.of<AddressProvider>(context, listen: false);
     final CheckoutProvider checkoutProvider = Provider.of<CheckoutProvider>(context, listen: false);
-    final SplashProvider splashProvider = context.read<SplashProvider>();
     final LocationProvider locationProvider = context.read<LocationProvider>();
     List<Branches> branches = Provider.of<SplashProvider>(context, listen: false).configModel!.branches ?? [];
     bool isAvailable = branches.length == 1 && (branches[0].latitude == null || branches[0].latitude!.isEmpty);
 
-    String phone  = (addressProvider.countryCode ?? "") + contactPersonNumberController.text.trim();
+    // Fixed +972 dial code; strip any leading zeros from the local part.
+    final String localNumber = contactPersonNumberController.text.trim().replaceFirst(RegExp(r'^0+'), '');
+    String phone  = '+972$localNumber';
     bool isValidPhone = PhoneNumberCheckerHelper.isPhoneValidWithCountryCode(phone);
 
     if (contactPersonNameController.text.trim().isEmpty) {

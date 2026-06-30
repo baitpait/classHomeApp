@@ -42,6 +42,8 @@ class CustomTextFieldWidget extends StatefulWidget {
   final String? title;
   final bool isRequired;
   final String? countryDialCode;
+  /// When set, shows a fixed, non-editable dial-code prefix (e.g. "+972") instead of the country picker.
+  final String? fixedCountryCode;
   final Color? prefixAssetImageColor;
   final Function(CountryCode countryCode)? onCountryChanged;
   final bool isToolTipSuffix;
@@ -86,6 +88,7 @@ class CustomTextFieldWidget extends StatefulWidget {
     this.onValidate,
     this.imageColor, this.title, this.isRequired = false,
     this.countryDialCode,
+    this.fixedCountryCode,
     this.onCountryChanged,
     this.hintFontSize,
     this.toolTipKey, this.toolTipMessage, this.isToolTipSuffix = false,
@@ -217,6 +220,21 @@ class _CustomTextFieldWidgetState extends State<CustomTextFieldWidget> {
               ),
               onPressed: () {},
             )
+                : widget.fixedCountryCode != null ? Padding(
+                    padding: EdgeInsets.only(left: widget.isShowBorder == true ? 14 : 0, right: 8),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      Text(
+                        widget.fixedCountryCode!,
+                        style: rubikRegular.copyWith(
+                          fontSize: Dimensions.fontSizeDefault,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                          fontFamily: fontFamily,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(width: 1, height: 22, color: Theme.of(context).dividerColor),
+                    ]),
+                  )
                 : widget.countryDialCode != null ? Padding( padding:  EdgeInsets.only(left: widget.isShowBorder == true ?  10 : 0),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
                   CodePickerWidget(

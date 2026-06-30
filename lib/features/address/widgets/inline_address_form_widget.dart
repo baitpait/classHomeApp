@@ -1,4 +1,3 @@
-import 'package:country_code_picker/country_code_picker.dart';
 import 'package:hexacom_user/common/models/address_model.dart';
 import 'package:hexacom_user/common/models/config_model.dart';
 import 'package:hexacom_user/common/models/response_model.dart';
@@ -59,11 +58,10 @@ class _InlineAddressFormWidgetState extends State<InlineAddressFormWidget> {
 
   Future<void> _initForm() async {
     final AddressProvider addressProvider = context.read<AddressProvider>();
-    final SplashProvider splashProvider = context.read<SplashProvider>();
     final ProfileProvider profileProvider = context.read<ProfileProvider>();
-    final ConfigModel configModel = splashProvider.configModel!;
 
-    addressProvider.setCountryCode(CountryCode.fromCountryCode(configModel.countryCode!).dialCode ?? '');
+    // Fixed dial code for this store: +972
+    addressProvider.setCountryCode('+972', isUpdate: false);
     context.read<LocationProvider>().setPickedAddressLatLon(null, null, isUpdate: false);
 
     final userModel = profileProvider.userInfoModel;
@@ -71,12 +69,10 @@ class _InlineAddressFormWidgetState extends State<InlineAddressFormWidget> {
     if (_contactPersonNameController.text.isEmpty) {
       _contactPersonNameController.text = '';
     }
-    addressProvider.setCountryCode(
-      PhoneNumberCheckerHelper.getCountryCode(userModel?.phone ?? CountryCode.fromCountryCode(configModel.countryCode!).dialCode) ?? '',
-      isUpdate: true,
-    );
-    _contactPersonNumberController.text =
-        PhoneNumberCheckerHelper.getPhoneNumber(userModel?.phone ?? '', addressProvider.countryCode ?? '') ?? '';
+    // Prefill the local part of the user's phone (without country code / leading zeros).
+    final String localPhone = (PhoneNumberCheckerHelper.getPhoneNumber(userModel?.phone ?? '', '+972') ?? '')
+        .replaceFirst(RegExp(r'^0+'), '');
+    _contactPersonNumberController.text = localPhone;
     addressProvider.setAddressStatusMessage = '';
     addressProvider.setErrorMessage = '';
     if (mounted) setState(() {});
@@ -178,8 +174,9 @@ class _InlineAddressFormWidgetState extends State<InlineAddressFormWidget> {
         branches.isEmpty ||
         (branches.length == 1 && (branches[0].latitude == null || branches[0].latitude!.isEmpty));
 
-    final String phone =
-        (addressProvider.countryCode ?? '') + _contactPersonNumberController.text.trim();
+    // Local part without leading zeros; fixed +972 prefix.
+    final String localNumber = _contactPersonNumberController.text.trim().replaceFirst(RegExp(r'^0+'), '');
+    final String phone = '+972$localNumber';
     final bool isValidPhone = PhoneNumberCheckerHelper.isPhoneValidWithCountryCode(phone);
 
     if (_contactPersonNameController.text.trim().isEmpty) {

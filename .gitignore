@@ -43,3 +43,6 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 .env
+
+# Kotlin compiler session artifacts
+android/.kotlin/

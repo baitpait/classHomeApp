@@ -1,4 +1,3 @@
-import 'package:country_code_picker/country_code_picker.dart';
 import 'package:hexacom_user/common/models/address_model.dart';
 import 'package:hexacom_user/common/models/config_model.dart';
 import 'package:hexacom_user/features/address/providers/address_provider.dart';
@@ -122,7 +121,7 @@ class AddressDetailsWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: Dimensions.paddingSizeExtraSmall),
                 CustomTextFieldWidget(
-                  hintText: getTranslated('enter_contact_person_number', context),
+                  hintText: '5XXXXXXXX',
                   isShowBorder: true,
                   isDense: false,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
@@ -131,10 +130,8 @@ class AddressDetailsWidget extends StatelessWidget {
                   focusNode: numberNode,
                   nextFocus: addressNode,
                   controller: contactPersonNumberController,
-                  countryDialCode: addressProvider.countryCode,
-                  onCountryChanged: (CountryCode value) {
-                    addressProvider.setCountryCode(value.dialCode ?? '', isUpdate: true);
-                  },
+                  fixedCountryCode: '+972',
+                  maxLength: 10,
                   onChanged: (String text) => AuthHelper.identifyEmailOrNumber(text, context),
                 ),
               ],
