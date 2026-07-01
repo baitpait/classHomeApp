@@ -28,6 +28,7 @@
   "not_logged_in": "You are not Logged In. Please login to Favorite",
   "payment_method": "Payment Method",
   "cash_on_delivery": "Cash On Delivery",
+  "cash_on_delivery_hint": "Pay in cash when your order arrives",
   "digital_payment": "Digital Payment",
   "debit_or_credit_card_payment": "Debit or Credit card Payment",
   "confirm_order": "Confirm Order",

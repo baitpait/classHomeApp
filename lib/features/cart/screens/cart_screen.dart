@@ -27,6 +27,7 @@ import 'package:hexacom_user/helper/price_converter_helper.dart';
 import 'package:hexacom_user/helper/responsive_helper.dart';
 import 'package:hexacom_user/localization/language_constrants.dart';
 import 'package:hexacom_user/utill/dimensions.dart';
+import 'package:hexacom_user/utill/feature_flags.dart';
 import 'package:hexacom_user/utill/images.dart';
 import 'package:hexacom_user/utill/styles.dart';
 import 'package:provider/provider.dart';
@@ -274,7 +275,7 @@ class _CartScreenState extends State<CartScreen> {
                               const SizedBox(height: Dimensions.paddingSizeDefault),
                               _CartOrderNoteSection(controller: orderNoteController),
                               const SizedBox(height: Dimensions.paddingSizeSmall),
-                              PaymentInfoWidget(totalAmount: orderAmount + deliveryChargeValue),
+                              FeatureFlags.cashOnly ? const _CashOnDeliveryCard() : PaymentInfoWidget(totalAmount: orderAmount + deliveryChargeValue),
                               const SizedBox(height: Dimensions.paddingSizeSmall),
                               _CartLoyaltySwitchSection(),
                               const SizedBox(height: Dimensions.paddingSizeDefault),
@@ -326,7 +327,7 @@ class _CartScreenState extends State<CartScreen> {
                                         const SizedBox(height: Dimensions.paddingSizeDefault),
                                         _CartOrderNoteSection(controller: orderNoteController),
                                         const SizedBox(height: Dimensions.paddingSizeSmall),
-                                        PaymentInfoWidget(totalAmount: orderAmount + deliveryChargeValue),
+                                        FeatureFlags.cashOnly ? const _CashOnDeliveryCard() : PaymentInfoWidget(totalAmount: orderAmount + deliveryChargeValue),
                                         const SizedBox(height: Dimensions.paddingSizeSmall),
                                         _CartLoyaltySwitchSection(),
                                         const SizedBox(height: Dimensions.paddingSizeDefault),
@@ -447,6 +448,77 @@ class _CartOrderNoteSection extends StatelessWidget {
             inputAction: TextInputAction.newline,
             capitalization: TextCapitalization.sentences,
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Prominent "Cash on delivery" card for the cash-only store. Auto-selects COD so the order can be placed.
+class _CashOnDeliveryCard extends StatefulWidget {
+  const _CashOnDeliveryCard();
+
+  @override
+  State<_CashOnDeliveryCard> createState() => _CashOnDeliveryCardState();
+}
+
+class _CashOnDeliveryCardState extends State<_CashOnDeliveryCard> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final checkoutProvider = Provider.of<CheckoutProvider>(context, listen: false);
+      if (checkoutProvider.selectedPaymentMethod == null) {
+        checkoutProvider.savePaymentMethod(index: 0); // 0 = cash on delivery
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final primary = Theme.of(context).primaryColor;
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
+      padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+      decoration: BoxDecoration(
+        color: primary.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: primary, width: 1.4),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(Icons.payments_outlined, color: primary, size: 24),
+          ),
+          const SizedBox(width: Dimensions.paddingSizeDefault),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  getTranslated('cash_on_delivery', context),
+                  style: rubikSemiBold.copyWith(fontSize: Dimensions.fontSizeDefault),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  getTranslated('cash_on_delivery_hint', context),
+                  style: rubikRegular.copyWith(
+                    fontSize: Dimensions.fontSizeSmall,
+                    color: Theme.of(context).hintColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.check_circle_rounded, color: primary, size: 24),
         ],
       ),
     );

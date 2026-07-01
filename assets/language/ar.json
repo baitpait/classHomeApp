@@ -28,6 +28,7 @@
     "not_logged_in": "يجب تسجيل الدخول لعرض المفضلة",
     "payment_method": "طريقة الدفع",
     "cash_on_delivery": "الدفع عند الاستلام",
+    "cash_on_delivery_hint": "نقداً عند وصول الطلب",
     "digital_payment": "الدفع الإلكتروني",
     "debit_or_credit_card_payment": "بطاقة مدى أو ائتمان",
     "confirm_order": "تأكيد الطلب",

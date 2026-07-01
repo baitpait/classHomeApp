@@ -28,6 +28,7 @@
   "not_logged_in": "אתה לא מחובר. אנא התחבר למועדפים",
   "payment_method": "אמצעי תשלום",
   "cash_on_delivery": "תשלום במזומן במסירה",
+  "cash_on_delivery_hint": "תשלום במזומן עם הגעת ההזמנה",
   "digital_payment": "תשלום דיגיטלי",
   "debit_or_credit_card_payment": "תשלום בכרטיס חיוב או בכרטיס אשראי",
   "confirm_order": "אישור הזמנה",
