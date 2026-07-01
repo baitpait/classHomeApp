@@ -135,7 +135,7 @@ class AddressButtonWidget extends StatelessWidget {
     List<Branches> branches = Provider.of<SplashProvider>(context, listen: false).configModel!.branches ?? [];
     bool isAvailable = branches.length == 1 && (branches[0].latitude == null || branches[0].latitude!.isEmpty);
 
-    String phone  = (addressProvider.countryCode ?? "") + contactPersonNumberController.text.trim();
+    String phone  = (addressProvider.countryCode ?? "") + contactPersonNumberController.text.trim().replaceFirst(RegExp(r'^0+'), '');
     bool isValidPhone = PhoneNumberCheckerHelper.isPhoneValidWithCountryCode(phone);
 
     if (contactPersonNameController.text.trim().isEmpty) {

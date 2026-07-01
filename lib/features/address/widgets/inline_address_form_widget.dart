@@ -210,7 +210,7 @@ class _InlineAddressFormWidgetState extends State<InlineAddressFormWidget> {
         (branches.length == 1 && (branches[0].latitude == null || branches[0].latitude!.isEmpty));
 
     final String phone =
-        (addressProvider.countryCode ?? '') + _contactPersonNumberController.text.trim();
+        (addressProvider.countryCode ?? '') + _contactPersonNumberController.text.trim().replaceFirst(RegExp(r'^0+'), '');
     final bool isValidPhone = PhoneNumberCheckerHelper.isPhoneValidWithCountryCode(phone);
 
     if (_contactPersonNameController.text.trim().isEmpty) {
