@@ -95,10 +95,10 @@ class _PaymentInfoWidgetState extends State<PaymentInfoWidget> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFF3A4756).withValues(alpha: 0.08),
+                color: const Color(0xFF1F4C5C).withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.payment_outlined, color: Color(0xFF3A4756), size: 20),
+              child: const Icon(Icons.payment_outlined, color: Color(0xFF1F4C5C), size: 20),
             ),
             const SizedBox(width: Dimensions.paddingSizeSmall),
             Expanded(child: Text(getTranslated('payment_method', context), style: rubikSemiBold.copyWith(fontSize: Dimensions.fontSizeLarge))),
@@ -109,12 +109,12 @@ class _PaymentInfoWidgetState extends State<PaymentInfoWidget> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF3A4756).withValues(alpha: 0.08),
+                  color: const Color(0xFF1F4C5C).withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   getTranslated('change', context),
-                  style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: const Color(0xFF3A4756)),
+                  style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: const Color(0xFF1F4C5C)),
                 ),
               ),
             ),
@@ -128,15 +128,15 @@ class _PaymentInfoWidgetState extends State<PaymentInfoWidget> {
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeDefault, horizontal: Dimensions.paddingSizeSmall),
               decoration: BoxDecoration(
-                border: Border.all(color: const Color(0xFF3A4756).withValues(alpha: 0.15), width: 1),
+                border: Border.all(color: const Color(0xFF1F4C5C).withValues(alpha: 0.15), width: 1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                const Icon(Icons.add_circle_outline, color: Color(0xFF3A4756), size: 20),
+                const Icon(Icons.add_circle_outline, color: Color(0xFF1F4C5C), size: 20),
                 const SizedBox(width: Dimensions.paddingSizeSmall),
                 Text(
                   getTranslated('add_payment_method', context),
-                  style: rubikMedium.copyWith(color: const Color(0xFF3A4756)),
+                  style: rubikMedium.copyWith(color: const Color(0xFF1F4C5C)),
                 ),
               ]),
             ),

@@ -50,7 +50,7 @@ class _AddressScreenState extends State<AddressScreen> {
         floatingActionButton: _isLoggedIn ? Padding(
           padding:  EdgeInsets.only(top: ResponsiveHelper.isDesktop(context) ?  Dimensions.paddingSizeLarge : 0),
           child: !ResponsiveHelper.isDesktop(context) ? FloatingActionButton(
-            backgroundColor: const Color(0xFF3A4756),
+            backgroundColor: const Color(0xFF1F4C5C),
             onPressed: () =>  RouteHelper.getAddAddressRoute(context, 'address', 'add', AddressModel(), routeAction: RouteAction.push),
             child: const Icon(
                 Icons.add, color: Colors.white),

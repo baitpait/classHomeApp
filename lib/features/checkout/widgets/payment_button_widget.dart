@@ -39,10 +39,10 @@ class PaymentButtonWidget extends StatelessWidget {
               Container(
                 decoration: BoxDecoration(
                     shape: BoxShape.circle, color: Colors.transparent,
-                    border: Border.all(color: isSelected ? const Color(0xFF3A4756) : Theme.of(context).disabledColor, width: 2)
+                    border: Border.all(color: isSelected ? const Color(0xFF1F4C5C) : Theme.of(context).disabledColor, width: 2)
                 ),
                 padding: const EdgeInsets.all(2),
-                child:  Icon(Icons.circle, color: isSelected ? const Color(0xFF3A4756) : Colors.transparent , size: 10) ,
+                child:  Icon(Icons.circle, color: isSelected ? const Color(0xFF1F4C5C) : Colors.transparent , size: 10) ,
               ),
               const SizedBox(width: Dimensions.paddingSizeSmall),
             ]),

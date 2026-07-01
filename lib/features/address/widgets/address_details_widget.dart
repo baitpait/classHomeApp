@@ -50,7 +50,7 @@ class AddressDetailsWidget extends StatelessWidget {
     this.showSaveButton = true,
   });
 
-  static const _slate = Color(0xFF3A4756);
+  static const _slate = Color(0xFF1F4C5C);
 
   static String _cityName(CityModel c, String langCode) {
     return (langCode == 'ar' && (c.nameAr ?? '').isNotEmpty) ? (c.nameAr ?? c.nameEn ?? '') : (c.nameEn ?? c.nameAr ?? '');
@@ -181,69 +181,91 @@ class AddressDetailsWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (hasAreasAndCities) ...[
-                  _fieldLabel(context, getTranslated('region', context), required: true),
-                  _buildDropdownContainer(
-                    context,
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<int?>(
-                        value: selectedAreaId,
-                        hint: Text('${getTranslated('select', context)} ${getTranslated('region', context)}'),
-                        isExpanded: true,
-                        items: (config.areas ?? []).map((AreaModel a) {
-                          return DropdownMenuItem<int?>(value: a.id, child: Text(_areaName(a, locale)));
-                        }).toList(),
-                        onChanged: (int? id) {
-                          if (id == null || id == selectedAreaId) return;
-                          onAreaChanged?.call(id);
-                          onCityChanged(null); // reset city when region changes
-                        },
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _fieldLabel(context, getTranslated('region', context), required: true),
+                            _buildDropdownContainer(
+                              context,
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<int?>(
+                                  value: selectedAreaId,
+                                  hint: Text(getTranslated('region', context), overflow: TextOverflow.ellipsis),
+                                  isExpanded: true,
+                                  items: (config.areas ?? []).map((AreaModel a) {
+                                    return DropdownMenuItem<int?>(value: a.id, child: Text(_areaName(a, locale), overflow: TextOverflow.ellipsis));
+                                  }).toList(),
+                                  onChanged: (int? id) {
+                                    if (id == null || id == selectedAreaId) return;
+                                    onAreaChanged?.call(id);
+                                    onCityChanged(null); // reset city when region changes
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: Dimensions.paddingSizeDefault),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _fieldLabel(context, getTranslated('city', context), required: true),
+                            _buildDropdownContainer(
+                              context,
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<int?>(
+                                  value: selectedCityId,
+                                  hint: Text(selectedAreaId == null
+                                      ? getTranslated('select_region_first', context)
+                                      : getTranslated('city', context), overflow: TextOverflow.ellipsis),
+                                  isExpanded: true,
+                                  items: allCities.where((c) => c.areaId == selectedAreaId).map((CityModel c) {
+                                    return DropdownMenuItem<int?>(value: c.id, child: Text(_cityName(c, locale), overflow: TextOverflow.ellipsis));
+                                  }).toList(),
+                                  onChanged: selectedAreaId == null ? null : (int? id) {
+                                    if (id == null) return;
+                                    final c = allCities.firstWhere((c) => c.id == id);
+                                    onCityChanged(_cityName(c, locale));
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                   if (selectedAreaId != null) ...[
                     const SizedBox(height: Dimensions.paddingSizeExtraSmall),
                     _deliveryFeeChip(context, config.areas, selectedAreaId!),
                   ],
                   const SizedBox(height: Dimensions.paddingSizeDefault),
-                ],
-
-                _fieldLabel(context, getTranslated('city', context), required: true),
-                _buildDropdownContainer(
-                  context,
-                  child: DropdownButtonHideUnderline(
-                    child: hasAreasAndCities
-                        ? DropdownButton<int?>(
-                            value: selectedCityId,
-                            hint: Text(selectedAreaId == null
-                                ? getTranslated('select_region_first', context)
-                                : '${getTranslated('select', context)} ${getTranslated('city', context)}'),
-                            isExpanded: true,
-                            items: allCities.where((c) => c.areaId == selectedAreaId).map((CityModel c) {
-                              return DropdownMenuItem<int?>(
-                                value: c.id,
-                                child: Text(_cityName(c, locale)),
-                              );
-                            }).toList(),
-                            onChanged: selectedAreaId == null ? null : (int? id) {
-                              if (id == null) return;
-                              final c = allCities.firstWhere((c) => c.id == id);
-                              onCityChanged(_cityName(c, locale));
-                            },
-                          )
-                        : DropdownButton<String>(
-                            value: selectedCity != null && selectedCity!.isNotEmpty && citiesFallback.contains(selectedCity)
-                                ? selectedCity
-                                : null,
-                            hint: Text('${getTranslated('select', context)} ${getTranslated('city', context)}'),
-                            isExpanded: true,
-                            items: citiesFallback.map((String city) {
-                              return DropdownMenuItem<String>(value: city, child: Text(city));
-                            }).toList(),
-                            onChanged: onCityChanged,
-                          ),
+                ] else ...[
+                  _fieldLabel(context, getTranslated('city', context), required: true),
+                  _buildDropdownContainer(
+                    context,
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: selectedCity != null && selectedCity!.isNotEmpty && citiesFallback.contains(selectedCity)
+                            ? selectedCity
+                            : null,
+                        hint: Text('${getTranslated('select', context)} ${getTranslated('city', context)}'),
+                        isExpanded: true,
+                        items: citiesFallback.map((String city) {
+                          return DropdownMenuItem<String>(value: city, child: Text(city));
+                        }).toList(),
+                        onChanged: onCityChanged,
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(height: Dimensions.paddingSizeDefault),
+                  const SizedBox(height: Dimensions.paddingSizeDefault),
+                ],
 
                 _fieldLabel(context, getTranslated('address', context), required: true),
                 CustomTextFieldWidget(

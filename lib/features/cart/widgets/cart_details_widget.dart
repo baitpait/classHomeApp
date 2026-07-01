@@ -163,7 +163,7 @@ class CartDetailsWidget extends StatelessWidget {
                   vertical: Dimensions.paddingSizeSmall,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF3A4756).withValues(alpha: 0.08),
+                  color: const Color(0xFF1F4C5C).withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: CartItemWidget(
@@ -171,7 +171,7 @@ class CartDetailsWidget extends StatelessWidget {
                   subTitle: PriceConverterHelper.convertPrice(total),
                   style: rubikSemiBold.copyWith(
                     fontSize: Dimensions.fontSizeExtraLarge,
-                    color: const Color(0xFF3A4756),
+                    color: const Color(0xFF1F4C5C),
                   ),
                 ),
                ),

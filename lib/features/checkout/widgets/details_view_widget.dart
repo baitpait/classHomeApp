@@ -93,10 +93,10 @@ class DetailsViewWidget extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF3A4756).withValues(alpha: 0.08),
+                    color: const Color(0xFF1F4C5C).withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.note_alt_outlined, color: Color(0xFF3A4756), size: 20),
+                  child: const Icon(Icons.note_alt_outlined, color: Color(0xFF1F4C5C), size: 20),
                 ),
                 const SizedBox(width: Dimensions.paddingSizeSmall),
                 Text(getTranslated('add_delivery_note', context), style: rubikSemiBold.copyWith(fontSize: Dimensions.fontSizeLarge)),
@@ -138,10 +138,10 @@ class DetailsViewWidget extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF3A4756).withValues(alpha: 0.08),
+                  color: const Color(0xFF1F4C5C).withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.receipt_long_outlined, color: Color(0xFF3A4756), size: 20),
+                child: const Icon(Icons.receipt_long_outlined, color: Color(0xFF1F4C5C), size: 20),
               ),
               const SizedBox(width: Dimensions.paddingSizeSmall),
               Text(getTranslated('total_amount', context), style: rubikSemiBold.copyWith(fontSize: Dimensions.fontSizeLarge)),
@@ -247,7 +247,7 @@ class DetailsViewWidget extends StatelessWidget {
                 vertical: Dimensions.paddingSizeSmall,
               ),
               decoration: BoxDecoration(
-                color: const Color(0xFF3A4756).withValues(alpha: 0.08),
+                color: const Color(0xFF1F4C5C).withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: CartItemWidget(
@@ -255,7 +255,7 @@ class DetailsViewWidget extends StatelessWidget {
                 subTitle: PriceConverterHelper.convertPrice(finalTotal),
                 style: rubikSemiBold.copyWith(
                   fontSize: Dimensions.fontSizeExtraLarge,
-                  color: const Color(0xFF3A4756),
+                  color: const Color(0xFF1F4C5C),
                 ),
               ),
             ),

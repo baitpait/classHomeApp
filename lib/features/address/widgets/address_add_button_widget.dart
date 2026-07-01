@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 class AddressAddButtonWidget extends StatelessWidget {
   final Function onTap;
-  static const _slate = Color(0xFF3A4756);
+  static const _slate = Color(0xFF1F4C5C);
 
   const AddressAddButtonWidget({super.key, required this.onTap});
 

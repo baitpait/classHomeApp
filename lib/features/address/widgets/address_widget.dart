@@ -25,7 +25,7 @@ class AddressWidget extends StatelessWidget {
   final bool fromSelectAddress;
   final bool? isAvailableForDelivery;
 
-  static const _slate = Color(0xFF3A4756);
+  static const _slate = Color(0xFF1F4C5C);
 
   const AddressWidget({
     super.key,

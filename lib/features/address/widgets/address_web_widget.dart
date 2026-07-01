@@ -42,7 +42,7 @@ class AddressWebWidget extends StatefulWidget {
 }
 
 class _AddressWebWidgetState extends State<AddressWebWidget> {
-  static const _slate = Color(0xFF3A4756);
+  static const _slate = Color(0xFF1F4C5C);
 
   @override
   Widget build(BuildContext context) {

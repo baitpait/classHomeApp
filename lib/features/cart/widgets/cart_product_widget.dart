@@ -66,7 +66,7 @@ class CartProductWidget extends StatelessWidget {
           right: Dimensions.paddingSizeSmall,
         ),
         decoration: BoxDecoration(
-          color: const Color(0xFF3A4756).withValues(alpha: 0.15),
+          color: const Color(0xFF1F4C5C).withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(14),
         ),
         child: Stack(children: [
@@ -74,7 +74,7 @@ class CartProductWidget extends StatelessWidget {
             top: 0, bottom: 0, right: 0, left: 0,
             child: Icon(
               Icons.delete_outline_rounded,
-              color: const Color(0xFF3A4756),
+              color: const Color(0xFF1F4C5C),
               size: 42,
             ),
           ),
@@ -86,12 +86,12 @@ class CartProductWidget extends StatelessWidget {
               alignment: Alignment.centerRight,
               padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
               decoration: BoxDecoration(
-                color: const Color(0xFF3A4756).withValues(alpha: 0.18),
+                color: const Color(0xFF1F4C5C).withValues(alpha: 0.18),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: const Icon(
                 Icons.delete_outline_rounded,
-                color: Color(0xFF3A4756),
+                color: Color(0xFF1F4C5C),
                 size: 28,
               ),
             ),

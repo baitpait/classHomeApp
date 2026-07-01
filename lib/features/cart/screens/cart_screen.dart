@@ -205,7 +205,7 @@ class _CartScreenState extends State<CartScreen> {
                               ),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(16),
-                                color: const Color(0xFF3A4756),
+                                color: const Color(0xFF1F4C5C),
                               ),
                               child: Row(
                                 children: [
@@ -398,7 +398,7 @@ class _CartOrderNoteSection extends StatelessWidget {
 
   const _CartOrderNoteSection({required this.controller});
 
-  static const _slate = Color(0xFF3A4756);
+  static const _slate = Color(0xFF1F4C5C);
 
   @override
   Widget build(BuildContext context) {

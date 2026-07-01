@@ -193,7 +193,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           ),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
-                            color: const Color(0xFF3A4756),
+                            color: const Color(0xFF1F4C5C),
                           ),
                           child: Row(
                             children: [

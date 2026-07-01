@@ -11,7 +11,7 @@ import 'package:hexacom_user/utill/styles.dart';
 import 'package:provider/provider.dart';
 
 class WithoutMapWidget extends StatelessWidget {
-  static const _slate = Color(0xFF3A4756);
+  static const _slate = Color(0xFF1F4C5C);
 
   const WithoutMapWidget({super.key});
 

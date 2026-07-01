@@ -41,7 +41,7 @@ class AddressButtonWidget extends StatelessWidget {
     this.selectedAreaId,
   });
 
-  static const _slate = Color(0xFF3A4756);
+  static const _slate = Color(0xFF1F4C5C);
 
   @override
   Widget build(BuildContext context) {

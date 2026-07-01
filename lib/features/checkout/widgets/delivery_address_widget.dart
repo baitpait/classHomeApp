@@ -69,10 +69,10 @@ class DeliveryAddressWidget extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF3A4756).withValues(alpha: 0.08),
+                    color: const Color(0xFF1F4C5C).withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.location_on_outlined, color: Color(0xFF3A4756), size: 20),
+                  child: const Icon(Icons.location_on_outlined, color: Color(0xFF1F4C5C), size: 20),
                 ),
                 const SizedBox(width: Dimensions.paddingSizeSmall),
                 Text(getTranslated('delivery_to', context), style: rubikSemiBold.copyWith(fontSize: Dimensions.fontSizeLarge)),
@@ -103,11 +103,11 @@ class DeliveryAddressWidget extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF3A4756).withValues(alpha: 0.05),
+                    color: const Color(0xFF1F4C5C).withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    const Icon(Icons.place_rounded, color: Color(0xFF3A4756), size: 20),
+                    const Icon(Icons.place_rounded, color: Color(0xFF1F4C5C), size: 20),
                     const SizedBox(width: Dimensions.paddingSizeSmall),
                     Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       if (deliveryAddress.city != null && deliveryAddress.city!.isNotEmpty)
@@ -172,17 +172,17 @@ class DeliveryAddressWidget extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color(0xFF3A4756).withValues(alpha: 0.20), width: 1.5),
+                    border: Border.all(color: const Color(0xFF1F4C5C).withValues(alpha: 0.20), width: 1.5),
                   ),
                   child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                     Icon(
                       hasAddress ? Icons.swap_horiz_rounded : Icons.add_location_alt_outlined,
-                      color: const Color(0xFF3A4756), size: 20,
+                      color: const Color(0xFF1F4C5C), size: 20,
                     ),
                     const SizedBox(width: Dimensions.paddingSizeSmall),
                     Text(
                       getTranslated(hasAddress ? 'change' : 'add', context),
-                      style: rubikMedium.copyWith(color: const Color(0xFF3A4756)),
+                      style: rubikMedium.copyWith(color: const Color(0xFF1F4C5C)),
                     ),
                   ]),
                 ),
@@ -205,7 +205,7 @@ class _ContactRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(children: [
-      Icon(icon, color: const Color(0xFF3A4756).withValues(alpha: 0.5), size: 18),
+      Icon(icon, color: const Color(0xFF1F4C5C).withValues(alpha: 0.5), size: 18),
       const SizedBox(width: Dimensions.paddingSizeSmall),
       Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(label, style: rubikRegular.copyWith(

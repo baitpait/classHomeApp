@@ -35,10 +35,10 @@ class AddAddressDialogWidget extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF3A4756).withValues(alpha: 0.08),
+                    color: const Color(0xFF1F4C5C).withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.location_on_outlined, color: Color(0xFF3A4756), size: 20),
+                  child: const Icon(Icons.location_on_outlined, color: Color(0xFF1F4C5C), size: 20),
                 ),
                 const SizedBox(width: Dimensions.paddingSizeSmall),
                 Expanded(
@@ -121,13 +121,13 @@ class AddAddressDialogWidget extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 12, horizontal: Dimensions.paddingSizeDefault),
                   decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xFF3A4756).withValues(alpha: 0.15), width: 1),
+                    border: Border.all(color: const Color(0xFF1F4C5C).withValues(alpha: 0.15), width: 1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(mainAxisAlignment: MainAxisAlignment.center, mainAxisSize: MainAxisSize.min, children: [
-                    const Icon(Icons.add_circle_outline, color: Color(0xFF3A4756), size: 20),
+                    const Icon(Icons.add_circle_outline, color: Color(0xFF1F4C5C), size: 20),
                     const SizedBox(width: Dimensions.paddingSizeSmall),
-                    Text(getTranslated('add_new_address', context), style: rubikMedium.copyWith(color: const Color(0xFF3A4756))),
+                    Text(getTranslated('add_new_address', context), style: rubikMedium.copyWith(color: const Color(0xFF1F4C5C))),
                   ]),
                 ),
               ),
@@ -166,15 +166,15 @@ class CurrentLocationButton extends StatelessWidget {
         padding: EdgeInsets.zero,
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(Dimensions.radiusSizeDefault))),
         fixedSize: const Size(200, 40),
-        backgroundColor: isBorder ? const Color(0xFF3A4756) : Theme.of(context).cardColor,
+        backgroundColor: isBorder ? const Color(0xFF1F4C5C) : Theme.of(context).cardColor,
       ),
       icon: Icon(
         Icons.my_location,
-        color: isBorder ? Theme.of(context).cardColor : const Color(0xFF3A4756),
+        color: isBorder ? Theme.of(context).cardColor : const Color(0xFF1F4C5C),
       ),
       label: Text(getTranslated('use_my_current_location', context), style: rubikRegular.copyWith(
         fontSize: Dimensions.fontSizeExtraSmall,
-        color: isBorder ? Theme.of(context).cardColor : const Color(0xFF3A4756),
+        color: isBorder ? Theme.of(context).cardColor : const Color(0xFF1F4C5C),
       )),
     );
   }

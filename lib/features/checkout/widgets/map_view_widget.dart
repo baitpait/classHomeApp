@@ -85,7 +85,7 @@ class _MapViewWidgetState extends State<MapViewWidget> {
                             ),
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: index == checkoutProvider.branchIndex ? const Color(0xFF3A4756) : Theme.of(context).shadowColor,
+                              color: index == checkoutProvider.branchIndex ? const Color(0xFF1F4C5C) : Theme.of(context).shadowColor,
                               borderRadius: BorderRadius.circular(32),
                             ),
                             child: Text(_branches![index].name!, maxLines: 1, overflow: TextOverflow.ellipsis, style: rubikMedium.copyWith(

@@ -53,7 +53,7 @@ class _InlineAddressFormWidgetState extends State<InlineAddressFormWidget> {
   int? _selectedAreaId;
   bool _isSaved = false;
 
-  static const _slate = Color(0xFF3A4756);
+  static const _slate = Color(0xFF1F4C5C);
 
   @override
   void initState() {

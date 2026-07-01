@@ -48,7 +48,7 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
       appBar: ResponsiveHelper.isDesktop(context)
           ? const PreferredSize(preferredSize: Size.fromHeight(90), child: WebAppBarWidget())
           : AppBar(
-              backgroundColor: const Color(0xFF3A4756),
+              backgroundColor: const Color(0xFF1F4C5C),
               elevation: 0,
               leading: const SizedBox.shrink(),
               centerTitle: true,
@@ -130,7 +130,7 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
               ],
               CustomButtonWidget(
                 btnTxt: getTranslated('select_location', context),
-                backgroundColor: const Color(0xFF3A4756),
+                backgroundColor: const Color(0xFF1F4C5C),
                 onTap: () {
                   final address = _locationController.text.trim();
                   if (address.isEmpty) {

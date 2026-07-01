@@ -55,13 +55,13 @@ class SelectedPaymentWidget extends StatelessWidget {
               checkoutProvider.selectedPaymentMethod?.getWay == 'online'
                   ? (checkoutProvider.selectedPaymentMethod?.getWayTitle ?? '')
                   : getTranslated('cash_on_delivery', context),
-            style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: const Color(0xFF3A4756)),
+            style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: const Color(0xFF1F4C5C)),
             ),
           ),
 
           Text(
             PriceConverterHelper.convertPrice(total + (orderProvider.deliveryCharge ?? 0.0)), textDirection: TextDirection.ltr,
-            style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeLarge, color: const Color(0xFF3A4756)),
+            style: rubikMedium.copyWith(fontSize: Dimensions.fontSizeLarge, color: const Color(0xFF1F4C5C)),
           )
 
         ]),
