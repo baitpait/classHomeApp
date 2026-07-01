@@ -128,7 +128,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                   child: Directionality(
                     textDirection: TextDirection.ltr,
                   child: PinCodeTextField(
-                      length: 4,
+                      length: 6,
                       appContext: context,
                       obscureText: false,
                       keyboardType: TextInputType.number,
@@ -149,7 +149,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                       animationDuration: const Duration(milliseconds: 300),
                       backgroundColor: Colors.transparent,
                       enableActiveFill: true,
-                      onChanged: (query) => verificationProvider.updateVerificationCode(query, 4),
+                      onChanged: (query) => verificationProvider.updateVerificationCode(query, 6),
                       beforeTextPaste: (text) {
                         return true;
                       },
