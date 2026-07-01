@@ -106,7 +106,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               selector: (context, authProvider) => authProvider.isNumberLogin,
                               builder: (context, isNumberLogin, child) {
                                 return CustomTextFieldWidget(
-                                  fixedCountryCode: isNumberLogin ? '+972' : null,
                                   onChanged: (String text) => AuthHelper.identifyEmailOrNumber(text, context),
                                   hintText: getTranslated('enter_email_phone', context),
                                   title: getTranslated('email_phone', context),
@@ -120,7 +119,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               selector: (context, authProvider) => authProvider.isNumberLogin,
                               builder: (context, isNumberLogin, child) {
                                 return CustomTextFieldWidget(
-                                  fixedCountryCode: isNumberLogin ? '+972' : null,
                                   onChanged: (String text) => AuthHelper.identifyEmailOrNumber(text, context),
                                   hintText: getTranslated('enter_phone_number_with_country_code', context),
                                   title: getTranslated('phone_number', context),
@@ -153,7 +151,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                             bool isNumberValid = true;
 
                                             if (isNumber) {
-                                              userInput = _countryDialCode! + userInput;
+                                              userInput = _countryDialCode! + userInput.replaceFirst(RegExp(r'^0+'), '');
                                               isNumberValid = PhoneNumberCheckerHelper.isPhoneValidWithCountryCode(userInput);
                                             }
 

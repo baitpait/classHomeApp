@@ -164,7 +164,6 @@ class _SendOtpScreenState extends State<SendOtpScreen> {
                       Expanded(flex: 7, child: Column(children: [
 
                         CustomTextFieldWidget(
-                          fixedCountryCode: '+972',
                           hintText: getTranslated('enter_phone_number_with_country_code', context),
                           isShowBorder: true,
                           controller: _phoneNumberController,
@@ -221,7 +220,7 @@ class _SendOtpScreenState extends State<SendOtpScreen> {
                                 if (_phoneNumberController!.text.isEmpty) {
                                   showCustomSnackBar(getTranslated('enter_phone_number', context), context);
                                 }else {
-                                  String phoneWithCountryCode = countryCode! + _phoneNumberController!.text.trim();
+                                  String phoneWithCountryCode = countryCode! + _phoneNumberController!.text.trim().replaceFirst(RegExp(r'^0+'), '');
                                   if(PhoneNumberCheckerHelper.isPhoneValidWithCountryCode(phoneWithCountryCode)){
                                     if(AuthHelper.isPhoneVerificationEnable(configModel)){
                                       await verificationProvider.sendVerificationCode(context,

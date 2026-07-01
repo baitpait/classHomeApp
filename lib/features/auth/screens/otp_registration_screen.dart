@@ -159,7 +159,6 @@ class _OtpRegistrationScreenState extends State<OtpRegistrationScreen> {
                     isShowPrefixIcon: true,
                     prefixAssetImageColor: Theme.of(context).hintColor,
                   ): CustomTextFieldWidget(
-                    fixedCountryCode: '+972',
                     hintText: getTranslated('enter_phone_number_with_country_code', context),
                     isShowBorder: true,
                     controller: _phoneNumberController,

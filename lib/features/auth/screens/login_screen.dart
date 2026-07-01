@@ -253,15 +253,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ),
                                     ),
                                     child: Row(children: [
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
-                                        child: Text('+972', style: TextStyle(color: Theme.of(context).textTheme.displayLarge!.color)),
-                                      ),
-                                      Container(
-                                        width: 1,
-                                        height: Dimensions.paddingSizeExtraLarge,
-                                        color: Theme.of(context).dividerColor,
-                                      ),
                                       Expanded(
                                         child: CustomTextFieldWidget(
                                           borderColor: Colors.transparent,
@@ -397,7 +388,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                           return;
                                         }
 
-                                        userInput = dialCode + userInput;
+                                        userInput = dialCode + userInput.replaceFirst(RegExp(r'^0+'), '');
                                         String type = VerificationType.phone.name;
 
                                         await authProvider.login(context, userInput, password, type, fromPage: FromPage.login.name).then((status) async {

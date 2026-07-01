@@ -259,7 +259,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               builder: (context, isLoading, child) {
 
                                 return CustomTextFieldWidget(
-                                  countryDialCode: isNumberLogin ? countryCode : null,
+                                  countryDialCode: null,
                                   onCountryChanged: (CountryCode value) => countryCode = value.dialCode,
                                   onChanged: (String text) => AuthHelper.identifyEmailOrNumber(text, context),
                                   title: getTranslated('mobile_number', context),

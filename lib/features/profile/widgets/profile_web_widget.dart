@@ -158,7 +158,7 @@ class _ProfileWebWidgetState extends State<ProfileWebWidget> {
                                         selector: (context, verificationProvider) => verificationProvider.isLoading,
                                         builder: (context, isLoading, child) {
                                           return CustomTextFieldWidget(
-                                            countryDialCode: isNumberLogin ? profileProvider.countryCode : null,
+                                            countryDialCode: null,
                                             onCountryChanged: (CountryCode value) => profileProvider.setCountryCode(value.dialCode!),
                                             onChanged: (String text) => AuthHelper.identifyEmailOrNumber(text, context),
                                             title: getTranslated('whatsapp_mobile_number', context),

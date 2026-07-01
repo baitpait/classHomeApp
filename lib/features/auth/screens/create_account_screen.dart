@@ -262,12 +262,6 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                         ),
                       ),
                       child: Row(children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
-                          child: Text('+972', style: TextStyle(color: Theme.of(context).textTheme.displayLarge!.color)),
-                        ),
-                        Container(width: 1, height: Dimensions.paddingSizeExtraLarge, color: Theme.of(context).dividerColor),
-
                         Expanded(child: CustomTextFieldWidget(
                           borderColor: Colors.transparent,
                           hintText: getTranslated('enter_whatsapp_mobile_number', context),
@@ -390,7 +384,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
                               String firstName = _firstNameController.text.trim();
                               String lastName = _lastNameController.text.trim();
-                              String number = _countryDialCode!+_numberController.text.trim();
+                              String number = _countryDialCode!+_numberController.text.trim().replaceFirst(RegExp(r'^0+'), '');
                               String password = _passwordController.text.trim();
                               String confirmPassword = _confirmPasswordController.text.trim();
 
