@@ -164,7 +164,6 @@ class AddressDetailsWidget extends StatelessWidget {
                   focusNode: numberNode,
                   nextFocus: addressNode,
                   controller: contactPersonNumberController,
-                  fixedCountryCode: '+972',
                   onChanged: (String text) => AuthHelper.identifyEmailOrNumber(text, context),
                 ),
               ],

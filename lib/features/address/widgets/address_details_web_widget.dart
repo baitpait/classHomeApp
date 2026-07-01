@@ -91,7 +91,6 @@ class AddressDetailsWebWidget extends StatelessWidget {
               ),
               const SizedBox(height: Dimensions.paddingSizeDefault),
               CustomTextFieldWidget(
-                fixedCountryCode: '+972',
                 isRequired: true,
                 title: getTranslated('phone_number', context),
                 hintText: getTranslated('enter_contact_person_number', context),
