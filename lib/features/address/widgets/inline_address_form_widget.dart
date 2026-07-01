@@ -31,7 +31,9 @@ class AddressFormController {
 /// Inline form to add a new address (e.g. inside cart). Uses same fields and validation as [AddNewAddressScreen].
 /// On save success calls [onSaved] so parent can refresh list, select new address, and recalc delivery.
 class InlineAddressFormWidget extends StatefulWidget {
-  final VoidCallback? onSaved;
+  /// Async so the caller can finish selecting the new address / recalculating
+  /// delivery before [save] returns (fixes needing a second tap).
+  final Future<void> Function()? onSaved;
   final AddressFormController? controller;
   final bool showSaveButton;
 
@@ -245,7 +247,7 @@ class _InlineAddressFormWidgetState extends State<InlineAddressFormWidget> {
     if (!mounted) return false;
     if (value.isSuccess) {
       _isSaved = true;
-      widget.onSaved?.call();
+      await widget.onSaved?.call();
       return true;
     } else {
       showCustomSnackBar(value.message ?? '', context);

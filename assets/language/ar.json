@@ -110,6 +110,7 @@
     "apply": "تطبيق",
     "subtotal": "المجموع الفرعي",
     "delivery_fee": "رسوم التوصيل",
+    "roll_surcharge": "زيادة رسوم التوصيل",
     "base_region_fee": "رسوم المنطقة الأساسية",
     "extra_rolls_surcharge": "زيادة الرولات الإضافية",
     "total_amount": "المبلغ الإجمالي",

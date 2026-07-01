@@ -6,6 +6,7 @@ import 'package:hexacom_user/features/cart/widgets/cart_coupon_dropdown_widget.d
 import 'package:hexacom_user/features/cart/widgets/select_delivery_type_widget.dart';
 import 'package:hexacom_user/features/coupon/providers/coupon_provider.dart';
 import 'package:hexacom_user/features/splash/providers/splash_provider.dart';
+import 'package:hexacom_user/helper/checkout_helper.dart';
 import 'package:hexacom_user/helper/price_converter_helper.dart';
 import 'package:hexacom_user/helper/responsive_helper.dart';
 import 'package:hexacom_user/localization/language_constrants.dart';
@@ -109,24 +110,78 @@ class CartDetailsWidget extends StatelessWidget {
                ],
 
                if(deliveryCharge > 0) ...[
-                 Row(
-                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                   children: [
-                     Text(
-                       getTranslated('delivery_fee', context),
-                       style: rubikRegular.copyWith(
-                         fontSize: Dimensions.fontSizeDefault,
-                         color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.85),
+                 Builder(builder: (context) {
+                   final config = Provider.of<SplashProvider>(context, listen: false).configModel;
+                   final double base = CheckOutHelper.getAreaBaseDeliveryCharge(context);
+                   final int rolls = CheckOutHelper.getDeliveryRollCount(context);
+                   final int threshold = config?.deliveryRollFreeThreshold ?? 7;
+                   final double rate = config?.deliveryRollSurchargeRate ?? 0.10;
+                   final int extraRolls = (rolls - threshold) > 0 ? (rolls - threshold) : 0;
+                   // Split only when we have a real area base and an actual surcharge.
+                   final bool split = base > 0 && extraRolls > 0 && deliveryCharge > base;
+                   final double surcharge = split ? (deliveryCharge - base) : 0.0;
+                   final double perRoll = base * rate;
+
+                   return Column(
+                     crossAxisAlignment: CrossAxisAlignment.start,
+                     children: [
+                       Row(
+                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                         children: [
+                           Text(
+                             getTranslated('delivery_fee', context),
+                             style: rubikRegular.copyWith(
+                               fontSize: Dimensions.fontSizeDefault,
+                               color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.85),
+                             ),
+                           ),
+                           CustomDirectionalityWidget(
+                             child: Text(
+                               '(+) ${PriceConverterHelper.convertPrice(split ? base : deliveryCharge)}',
+                               style: rubikSemiBold.copyWith(fontSize: Dimensions.fontSizeLarge),
+                             ),
+                           ),
+                         ],
                        ),
-                     ),
-                     CustomDirectionalityWidget(
-                       child: Text(
-                         '(+) ${PriceConverterHelper.convertPrice(deliveryCharge)}',
-                         style: rubikSemiBold.copyWith(fontSize: Dimensions.fontSizeLarge),
-                       ),
-                     ),
-                   ],
-                 ),
+                       if (split) ...[
+                         const SizedBox(height: 8),
+                         Row(
+                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                           crossAxisAlignment: CrossAxisAlignment.start,
+                           children: [
+                             Expanded(
+                               child: Column(
+                                 crossAxisAlignment: CrossAxisAlignment.start,
+                                 children: [
+                                   Text(
+                                     getTranslated('roll_surcharge', context),
+                                     style: rubikRegular.copyWith(
+                                       fontSize: Dimensions.fontSizeDefault,
+                                       color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.85),
+                                     ),
+                                   ),
+                                   Text(
+                                     '$extraRolls ${getTranslated('roll', context)} × ${PriceConverterHelper.convertPrice(perRoll)}',
+                                     style: rubikRegular.copyWith(
+                                       fontSize: Dimensions.fontSizeSmall,
+                                       color: Theme.of(context).hintColor,
+                                     ),
+                                   ),
+                                 ],
+                               ),
+                             ),
+                             CustomDirectionalityWidget(
+                               child: Text(
+                                 '(+) ${PriceConverterHelper.convertPrice(surcharge)}',
+                                 style: rubikSemiBold.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).primaryColor),
+                               ),
+                             ),
+                           ],
+                         ),
+                       ],
+                     ],
+                   );
+                 }),
                  const SizedBox(height: 10),
                ],
 
