@@ -13,10 +13,12 @@ class CustomButtonWidget extends StatelessWidget {
   final TextStyle? style;
   final bool isLoading;
   final double? height;
+  final Color? loadingColor;
 
   const CustomButtonWidget({
     super.key, this.onTap, required this.btnTxt, this.backgroundColor,
     this.radius = 12, this.iconData, this.style, this.isLoading = false, this.height,
+    this.loadingColor,
   });
 
   @override
@@ -44,7 +46,7 @@ class CustomButtonWidget extends StatelessWidget {
           height: 15,
           width: 15,
           child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.onSecondary),
+            valueColor: AlwaysStoppedAnimation<Color>(loadingColor ?? Theme.of(context).colorScheme.onSecondary),
             strokeWidth: 2,
           ),
         ),
@@ -52,7 +54,7 @@ class CustomButtonWidget extends StatelessWidget {
 
         Text(
           getTranslated('loading', context),
-          style: rubikBold.copyWith(color: Theme.of(context).colorScheme.onSecondary),
+          style: rubikBold.copyWith(color: loadingColor ?? Theme.of(context).colorScheme.onSecondary),
         ),
       ]),
       ) : Row(mainAxisAlignment: MainAxisAlignment.center, children: [

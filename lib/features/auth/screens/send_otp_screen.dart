@@ -132,7 +132,10 @@ class _SendOtpScreenState extends State<SendOtpScreen> {
             selector: (context, vp) => vp.isLoading,
             builder: (context, isLoading, child) => CustomButtonWidget(
               isLoading: isLoading,
-              btnTxt: getTranslated('get_otp', context),
+              backgroundColor: Colors.white,
+              loadingColor: ColorResources.navBarNavy,
+              btnTxt: getTranslated('send_verification_code', context),
+              style: rubikBold.copyWith(fontSize: Dimensions.fontSizeLarge, color: ColorResources.navBarNavy),
               onTap: () => _onGetOtp(context, configModel),
             ),
           ),
@@ -181,7 +184,7 @@ class _SendOtpScreenState extends State<SendOtpScreen> {
               selector: (context, vp) => vp.isLoading,
               builder: (context, isLoading, child) => CustomButtonWidget(
                 isLoading: isLoading,
-                btnTxt: getTranslated('get_otp', context),
+                btnTxt: getTranslated('send_verification_code', context),
                 onTap: () => _onGetOtp(context, configModel),
               ),
             ),
