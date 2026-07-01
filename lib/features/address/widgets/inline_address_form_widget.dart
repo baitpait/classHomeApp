@@ -6,6 +6,7 @@ import 'package:hexacom_user/common/widgets/custom_button_widget.dart';
 import 'package:hexacom_user/features/address/providers/address_provider.dart';
 import 'package:hexacom_user/features/address/providers/location_provider.dart';
 import 'package:hexacom_user/features/address/widgets/address_details_widget.dart';
+import 'package:hexacom_user/features/order/providers/order_provider.dart';
 import 'package:hexacom_user/features/profile/providers/profile_provider.dart';
 import 'package:hexacom_user/features/splash/providers/splash_provider.dart';
 import 'package:hexacom_user/helper/custom_snackbar_helper.dart';
@@ -123,7 +124,14 @@ class _InlineAddressFormWidgetState extends State<InlineAddressFormWidget> {
             selectedCity: _selectedCity,
             onCityChanged: (String? city) => setState(() => _selectedCity = city),
             selectedAreaId: _selectedAreaId,
-            onAreaChanged: (int? id) => setState(() => _selectedAreaId = id),
+            onAreaChanged: (int? id) {
+              setState(() => _selectedAreaId = id);
+              // Reflect the chosen region in delivery charge immediately (before saving),
+              // so base + roll surcharge show live in the summary.
+              if (id != null) {
+                context.read<OrderProvider>().setAreaID(areaID: id, isUpdate: true);
+              }
+            },
             showSaveButton: false,
           ),
           if (addressProvider.addressStatusMessage != null && addressProvider.addressStatusMessage!.isNotEmpty)
