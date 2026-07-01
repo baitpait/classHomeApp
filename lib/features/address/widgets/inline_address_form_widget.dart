@@ -16,12 +16,26 @@ import 'package:hexacom_user/utill/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+/// Lets an external widget (e.g. the place-order button) trigger saving the inline address form.
+class AddressFormController {
+  Future<bool> Function()? _save;
+  bool Function()? _isSaved;
+
+  /// Saves the form; returns true on success (or if already saved). Shows validation snackbars on failure.
+  Future<bool> save() async => _save == null ? false : await _save!();
+
+  /// Whether the form has already been saved (avoids creating duplicate addresses).
+  bool get isSaved => _isSaved?.call() ?? false;
+}
+
 /// Inline form to add a new address (e.g. inside cart). Uses same fields and validation as [AddNewAddressScreen].
 /// On save success calls [onSaved] so parent can refresh list, select new address, and recalc delivery.
 class InlineAddressFormWidget extends StatefulWidget {
   final VoidCallback? onSaved;
+  final AddressFormController? controller;
+  final bool showSaveButton;
 
-  const InlineAddressFormWidget({super.key, this.onSaved});
+  const InlineAddressFormWidget({super.key, this.onSaved, this.controller, this.showSaveButton = true});
 
   @override
   State<InlineAddressFormWidget> createState() => _InlineAddressFormWidgetState();
@@ -37,12 +51,15 @@ class _InlineAddressFormWidgetState extends State<InlineAddressFormWidget> {
 
   String? _selectedCity;
   int? _selectedAreaId;
+  bool _isSaved = false;
 
   static const _slate = Color(0xFF3A4756);
 
   @override
   void initState() {
     super.initState();
+    widget.controller?._save = save;
+    widget.controller?._isSaved = () => _isSaved;
     WidgetsBinding.instance.addPostFrameCallback((_) => _initForm());
   }
 
@@ -149,27 +166,31 @@ class _InlineAddressFormWidgetState extends State<InlineAddressFormWidget> {
                 ],
               ),
             ),
-          Consumer<LocationProvider>(
-            builder: (context, locationProvider, _) {
-              return SizedBox(
-                width: double.infinity,
-                child: CustomButtonWidget(
-                  isLoading: addressProvider.isLoading,
-                  btnTxt: getTranslated('save_location', context),
-                  backgroundColor: _slate,
-                  onTap: addressProvider.isLoading || locationProvider.isLoading
-                      ? null
-                      : () => _onSave(context),
-                ),
-              );
-            },
-          ),
+          if (widget.showSaveButton)
+            Consumer<LocationProvider>(
+              builder: (context, locationProvider, _) {
+                return SizedBox(
+                  width: double.infinity,
+                  child: CustomButtonWidget(
+                    isLoading: addressProvider.isLoading,
+                    btnTxt: getTranslated('save_location', context),
+                    backgroundColor: _slate,
+                    onTap: addressProvider.isLoading || locationProvider.isLoading
+                        ? null
+                        : () => save(),
+                  ),
+                );
+              },
+            ),
         ],
       ),
     );
   }
 
-  Future<void> _onSave(BuildContext context) async {
+  /// Validates and saves the address. Returns true on success (or if already saved).
+  /// Shows a validation snackbar and returns false on invalid input.
+  Future<bool> save() async {
+    if (_isSaved) return true;
     final AddressProvider addressProvider = context.read<AddressProvider>();
     final LocationProvider locationProvider = context.read<LocationProvider>();
     final SplashProvider splashProvider = context.read<SplashProvider>();
@@ -184,20 +205,20 @@ class _InlineAddressFormWidgetState extends State<InlineAddressFormWidget> {
 
     if (_contactPersonNameController.text.trim().isEmpty) {
       showCustomSnackBar(getTranslated('enter_contact_person_name', context), context);
-      return;
+      return false;
     }
     if (_selectedCity == null || _selectedCity!.isEmpty) {
       showCustomSnackBar('${getTranslated('select', context)} ${getTranslated('city', context)}', context);
-      return;
+      return false;
     }
     final String addressText = _addressTextController.text.trim();
     if (addressText.isEmpty) {
       showCustomSnackBar(getTranslated('please_enter_address', context), context);
-      return;
+      return false;
     }
     if (!isValidPhone) {
       showCustomSnackBar(getTranslated('invalid_phone_number', context), context);
-      return;
+      return false;
     }
 
     if (!isAvailable && branches.isNotEmpty) {
@@ -206,7 +227,7 @@ class _InlineAddressFormWidgetState extends State<InlineAddressFormWidget> {
 
     if (!isAvailable) {
       showCustomSnackBar(getTranslated('service_is_not_available', context), context);
-      return;
+      return false;
     }
 
     final AddressModel addressModel = AddressModel(
@@ -221,12 +242,14 @@ class _InlineAddressFormWidgetState extends State<InlineAddressFormWidget> {
     );
 
     final ResponseModel value = await addressProvider.addAddress(addressModel, context);
-    if (!context.mounted) return;
+    if (!mounted) return false;
     if (value.isSuccess) {
-      showCustomSnackBar(getTranslated('address_added_successfuly', context), context, isError: false);
+      _isSaved = true;
       widget.onSaved?.call();
+      return true;
     } else {
       showCustomSnackBar(value.message ?? '', context);
+      return false;
     }
   }
 }
