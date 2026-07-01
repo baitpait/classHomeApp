@@ -112,6 +112,22 @@ class _CartScreenState extends State<CartScreen> {
           isLoggedIn: isLoggedIn,
           lastAddress: null,
         );
+        // Guest fallback: auto-select the first saved address so the pre-shown
+        // selection is real (avoids "select an address" on confirm).
+        final addressProvider = Provider.of<AddressProvider>(context, listen: false);
+        final config = Provider.of<SplashProvider>(context, listen: false).configModel;
+        if (checkoutProvider.orderAddressIndex < 0 &&
+            (addressProvider.addressList?.isNotEmpty ?? false) &&
+            config != null &&
+            checkoutProvider.orderType == 'delivery') {
+          CheckOutHelper.selectDeliveryAddress(
+            context,
+            isAvailable: true,
+            index: 0,
+            configModel: config,
+            fromAddressList: true,
+          );
+        }
       });
     }
   }
