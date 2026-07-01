@@ -6,7 +6,7 @@ class LoginRouteHelper{
 
   static navigateToRoute(String fromPage){
     if(fromPage == FromPage.profile.name){
-      RouteHelper.getProfileRoute(Get.context!, action: RouteAction.pushNamedAndRemoveUntil);
+      RouteHelper.getDashboardRoute(Get.context!, 'home', action: RouteAction.pushNamedAndRemoveUntil);
     }else if(fromPage == FromPage.orderList.name){
       RouteHelper.getOrderListScreen(Get.context!, action: RouteAction.pushNamedAndRemoveUntil);
     }else if(fromPage == FromPage.address.name){
