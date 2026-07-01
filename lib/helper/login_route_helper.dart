@@ -19,7 +19,7 @@ class LoginRouteHelper{
      //RouteHelper.getCheckoutRoute(context, amount: amount, deliveryCharge: deliveryCharge)
       RouteHelper.getMainRoute(Get.context, action: RouteAction.pushNamedAndRemoveUntil);
     }else if(fromPage == FromPage.menu.name){
-      RouteHelper.getDashboardRoute(Get.context!, 'menu');
+      RouteHelper.getDashboardRoute(Get.context!, 'home', action: RouteAction.pushNamedAndRemoveUntil);
     }else if(fromPage == FromPage.wishListScreen.name){
       RouteHelper.getDashboardRoute(Get.context!, 'favourite', action: RouteAction.pushNamedAndRemoveUntil);
     }else{
