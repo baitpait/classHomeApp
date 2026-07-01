@@ -23,6 +23,7 @@ import 'package:hexacom_user/features/order/providers/order_provider.dart';
 import 'package:hexacom_user/features/profile/providers/profile_provider.dart';
 import 'package:hexacom_user/features/splash/providers/splash_provider.dart';
 import 'package:hexacom_user/helper/checkout_helper.dart';
+import 'package:hexacom_user/helper/custom_snackbar_helper.dart';
 import 'package:hexacom_user/helper/price_converter_helper.dart';
 import 'package:hexacom_user/helper/responsive_helper.dart';
 import 'package:hexacom_user/localization/language_constrants.dart';
@@ -46,10 +47,19 @@ class _CartScreenState extends State<CartScreen> {
   final AddressFormController _addressFormController = AddressFormController();
   bool _checkoutDataInitialized = false;
 
-  /// Saves the inline address form before placing (unless a saved address is already selected).
+  /// Ensures a delivery address is ready before placing the order.
+  /// - If a saved address is selected → proceed.
+  /// - If saved addresses exist but none is selected → ask to select (no duplicate is created).
+  /// - Only when there are NO saved addresses do we save the inline form.
   Future<bool> _ensureAddressSaved() async {
     final checkoutProvider = Provider.of<CheckoutProvider>(context, listen: false);
     if (checkoutProvider.orderAddressIndex >= 0) return true;
+    final addressProvider = Provider.of<AddressProvider>(context, listen: false);
+    final bool hasSaved = addressProvider.addressList?.isNotEmpty ?? false;
+    if (hasSaved) {
+      showCustomSnackBar(getTranslated('select_an_address', context), context);
+      return false;
+    }
     return _addressFormController.save();
   }
 
